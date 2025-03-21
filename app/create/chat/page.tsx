@@ -16,6 +16,8 @@ interface GeneratedSong {
   title: string
   lyrics: string
   coverUrl: string
+  audioUrl: string
+  genre: string
 }
 
 export default function ChatPage() {
@@ -32,6 +34,7 @@ export default function ChatPage() {
   const progressBarRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
 
   // Check if we're on mobile
   useEffect(() => {
@@ -47,13 +50,15 @@ export default function ChatPage() {
     }
   }, [])
 
-  // Simulate loading the initial prompt from localStorage
+  // Load initial prompt from localStorage and generate music
   useEffect(() => {
     const savedPrompt = localStorage.getItem("musicPrompt")
-    if (savedPrompt) {
+    const savedGenre = localStorage.getItem("musicGenre")
+    
+    if (savedPrompt && savedGenre) {
       const initialMessages: Message[] = [{ role: "user", content: savedPrompt }]
       setMessages(initialMessages)
-      simulateResponse(savedPrompt)
+      generateMusic(savedPrompt, savedGenre)
     } else {
       router.push("/create")
     }
@@ -74,39 +79,26 @@ export default function ChatPage() {
     }
   }, [])
 
-  const simulateResponse = (userMessage: string) => {
-    setIsGenerating(true)
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
 
-    // Simulate AI thinking time
-    setTimeout(() => {
-      // Generate a response based on the theme in the user message
-      const theme = userMessage.toLowerCase().includes("solana")
-        ? "Solana"
-        : userMessage.toLowerCase().includes("blockchain")
-          ? "Blockchain"
-          : "Crypto"
+  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || !audioRef.current) return;
 
-      const lyrics = generateLyrics(theme)
-      const title = generateTitle(theme)
-
-      // Add AI response to chat
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: `Here's a ${theme.toLowerCase()} themed song I created for you. You can play it using the player on the right.`,
-        },
-      ])
-
-      // Set the generated song
-      setGeneratedSong({
-        title,
-        lyrics,
-        coverUrl: "/placeholder.svg?height=400&width=400",
-      })
-
-      setIsGenerating(false)
-    }, 2000)
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const clickPosition = e.clientX - rect.left;
+    const progressBarWidth = rect.width;
+    const newProgress = (clickPosition / progressBarWidth) * 100;
+    const clampedProgress = Math.max(0, Math.min(100, newProgress));
+    
+    const newTime = (clampedProgress / 100) * audioRef.current.duration;
+    audioRef.current.currentTime = newTime;
+    
+    setProgress(clampedProgress);
+    setCurrentTime(formatTime(Math.floor(newTime)));
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -115,150 +107,139 @@ export default function ChatPage() {
       const newMessage: Message = { role: "user", content: input }
       setMessages((prev) => [...prev, newMessage])
       setInput("")
-      simulateResponse(input)
+      generateMusic(input, generatedSong?.genre || "electronic")
     }
   }
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying)
-
+    if (!generatedSong?.audioUrl) return;
+    
     if (isPlaying) {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current)
-      }
+      audioRef.current?.pause();
+      setIsPlaying(false);
     } else {
-      startProgressTimer()
-    }
-  }
+      // 新しいAudioオブジェクトを作成
+      const audio = new Audio(generatedSong.audioUrl);
+      
+      audio.addEventListener('loadedmetadata', () => {
+        const duration = audio.duration;
+        const endTime = formatTime(Math.floor(duration));
+        const durationElement = document.querySelector('.duration-time');
+        if (durationElement) {
+          durationElement.textContent = endTime;
+        }
+      });
+      
+      audio.addEventListener('timeupdate', updateProgress);
+      audio.addEventListener('ended', () => {
+        setIsPlaying(false);
+        setProgress(0);
+        setCurrentTime("00:00");
+      });
 
-  const startProgressTimer = () => {
-    progressInterval.current = setInterval(() => {
-      if (!isDragging) {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(progressInterval.current as NodeJS.Timeout)
-            setIsPlaying(false)
-            return 100
-          }
-
-          // Update time display (assuming a 3-minute song)
-          const totalSeconds = 180
-          const currentSeconds = Math.floor((prev / 100) * totalSeconds)
-          setCurrentTime(formatTime(currentSeconds))
-
-          return prev + 0.5
+      audioRef.current = audio;
+      
+      audio.play()
+        .then(() => {
+          setIsPlaying(true);
         })
+        .catch(error => {
+          console.error("Audio playback error:", error);
+          setIsPlaying(false);
+        });
+    }
+  }
+
+  // コンポーネントのクリーンアップ時にイベントリスナーを削除
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('timeupdate', updateProgress);
+        audioRef.current.pause();
       }
-    }, 500)
-  }
+    };
+  }, []);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
-  }
-
-  // プログレスバーのクリック処理
-  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressBarRef.current) return
-
-    const rect = progressBarRef.current.getBoundingClientRect()
-    const clickPosition = e.clientX - rect.left
-    const progressBarWidth = rect.width
-    const newProgress = (clickPosition / progressBarWidth) * 100
-
-    // 0-100の範囲に収める
-    const clampedProgress = Math.max(0, Math.min(100, newProgress))
-    setProgress(clampedProgress)
-
-    // 時間表示を更新
-    const totalSeconds = 180 // 3分の曲と仮定
-    const currentSeconds = Math.floor((clampedProgress / 100) * totalSeconds)
-    setCurrentTime(formatTime(currentSeconds))
-
-    // 再生中でなければ再生を開始
-    if (!isPlaying) {
-      setIsPlaying(true)
-      startProgressTimer()
+  // generatedSongが変更されたときに新しいオーディオを設定
+  useEffect(() => {
+    if (generatedSong?.audioUrl && audioRef.current) {
+      audioRef.current.src = generatedSong.audioUrl;
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentTime("00:00");
     }
-  }
+  }, [generatedSong?.audioUrl]);
 
-  // ドラッグ開始
-  const handleProgressBarDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
-    setIsDragging(true)
-    document.addEventListener("mousemove", handleProgressBarDragMove)
-    document.addEventListener("mouseup", handleProgressBarDragEnd)
-  }
+  const updateProgress = () => {
+    if (!audioRef.current) return;
+    const duration = audioRef.current.duration;
+    const currentTime = audioRef.current.currentTime;
+    const progressPercent = (currentTime / duration) * 100;
+    setProgress(progressPercent);
+    setCurrentTime(formatTime(Math.floor(currentTime)));
+  };
 
-  // ドラッグ中
-  const handleProgressBarDragMove = (e: MouseEvent) => {
-    if (!progressBarRef.current) return
-
-    const rect = progressBarRef.current.getBoundingClientRect()
-    const dragPosition = e.clientX - rect.left
-    const progressBarWidth = rect.width
-    const newProgress = (dragPosition / progressBarWidth) * 100
-
-    // 0-100の範囲に収める
-    const clampedProgress = Math.max(0, Math.min(100, newProgress))
-    setProgress(clampedProgress)
-
-    // 時間表示を更新
-    const totalSeconds = 180 // 3分の曲と仮定
-    const currentSeconds = Math.floor((clampedProgress / 100) * totalSeconds)
-    setCurrentTime(formatTime(currentSeconds))
-  }
-
-  // ドラッグ終了
-  const handleProgressBarDragEnd = () => {
-    setIsDragging(false)
-    document.removeEventListener("mousemove", handleProgressBarDragMove)
-    document.removeEventListener("mouseup", handleProgressBarDragEnd)
-
-    // 再生中でなければ再生を開始
-    if (!isPlaying) {
-      setIsPlaying(true)
-      startProgressTimer()
+  // 音楽生成API呼び出し
+  const generateMusic = async (prompt: string, genre: string) => {
+    setIsGenerating(true);
+    
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt, genre }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // 既存のオーディオを停止
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.removeEventListener('timeupdate', updateProgress);
+          audioRef.current = null;
+        }
+        
+        // APIレスポンスから曲情報を設定
+        setGeneratedSong({
+          title: `${genre.charAt(0).toUpperCase() + genre.slice(1)} Music`,
+          audioUrl: data.audio_url,
+          coverUrl: "/placeholder.svg?height=400&width=400",
+          genre: genre,
+          lyrics: ""
+        });
+        
+        // 再生状態をリセット
+        setIsPlaying(false);
+        setProgress(0);
+        setCurrentTime("00:00");
+        
+        // AIアシスタントの応答を追加
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: `${genre}ジャンルの曲を作成しました。右側のプレイヤーで再生できます。`,
+          },
+        ]);
+      } else {
+        throw new Error(data.message || "音楽生成に失敗しました");
+      }
+    } catch (error) {
+      console.error("Error generating music:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "申し訳ありません、音楽の生成中にエラーが発生しました。もう一度お試しください。",
+        },
+      ]);
+    } finally {
+      setIsGenerating(false);
     }
-  }
-
-  // タッチイベント（モバイル用）
-  const handleProgressBarTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    setIsDragging(true)
-    document.addEventListener("touchmove", handleProgressBarTouchMove, { passive: false })
-    document.addEventListener("touchend", handleProgressBarTouchEnd)
-  }
-
-  const handleProgressBarTouchMove = (e: TouchEvent) => {
-    e.preventDefault() // スクロールを防止
-    if (!progressBarRef.current) return
-
-    const rect = progressBarRef.current.getBoundingClientRect()
-    const touchPosition = e.touches[0].clientX - rect.left
-    const progressBarWidth = rect.width
-    const newProgress = (touchPosition / progressBarWidth) * 100
-
-    // 0-100の範囲に収める
-    const clampedProgress = Math.max(0, Math.min(100, newProgress))
-    setProgress(clampedProgress)
-
-    // 時間表示を更新
-    const totalSeconds = 180 // 3分の曲と仮定
-    const currentSeconds = Math.floor((clampedProgress / 100) * totalSeconds)
-    setCurrentTime(formatTime(currentSeconds))
-  }
-
-  const handleProgressBarTouchEnd = () => {
-    setIsDragging(false)
-    document.removeEventListener("touchmove", handleProgressBarTouchMove)
-    document.removeEventListener("touchend", handleProgressBarTouchEnd)
-
-    // 再生中でなければ再生を開始
-    if (!isPlaying) {
-      setIsPlaying(true)
-      startProgressTimer()
-    }
-  }
+  };
 
   // Mobile layout
   if (isMobile) {
@@ -371,8 +352,6 @@ export default function ChatPage() {
                       ref={progressBarRef}
                       className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden cursor-pointer group"
                       onClick={handleProgressBarClick}
-                      onMouseDown={handleProgressBarDragStart}
-                      onTouchStart={handleProgressBarTouchStart}
                     >
                       <div
                         className={`h-full ${isDragging ? "bg-[#f4cf37]" : "bg-[#d4af37]"} relative`}
@@ -383,7 +362,7 @@ export default function ChatPage() {
                         ></div>
                       </div>
                     </div>
-                    <span className="text-sm text-white/90 font-medium">03:00</span>
+                    <span className="text-sm text-white/90 font-medium duration-time">00:00</span>
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -532,8 +511,6 @@ export default function ChatPage() {
                     ref={progressBarRef}
                     className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden cursor-pointer group"
                     onClick={handleProgressBarClick}
-                    onMouseDown={handleProgressBarDragStart}
-                    onTouchStart={handleProgressBarTouchStart}
                   >
                     <div
                       className={`h-full ${isDragging ? "bg-[#f4cf37]" : "bg-[#d4af37]"} relative`}
@@ -544,7 +521,7 @@ export default function ChatPage() {
                       ></div>
                     </div>
                   </div>
-                  <span className="text-sm text-white/90 font-medium">03:00</span>
+                  <span className="text-sm text-white/90 font-medium duration-time">00:00</span>
                 </div>
 
                 <div className="flex justify-between items-center">
