@@ -27,31 +27,26 @@ export default function CreatePage() {
     setIsMounted(true)
   }, [])
 
-  const handleGenerate = async () => {
-    try {
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt, genre }),
-      });
-      
-      if (response.ok) {
-        localStorage.setItem("musicPrompt", prompt);
-        router.push("/create/chat");
-      }
-    } catch (error) {
-      console.error("Error generating music:", error);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (prompt.trim()) {
-      localStorage.setItem("musicPrompt", prompt)
-      localStorage.setItem("musicGenre", genre)
-      router.push("/create/chat")
+      try {
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt, genre }),
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          router.push(`/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&audioUrl=${encodeURIComponent(data.audio_url)}&imageUrl=${encodeURIComponent(data.image_url)}`);
+        }
+      } catch (error) {
+        console.error("Error generating content:", error);
+      }
     }
   }
 

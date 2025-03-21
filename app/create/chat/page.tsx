@@ -20,7 +20,16 @@ interface GeneratedSong {
   genre: string
 }
 
-export default function ChatPage() {
+interface Props {
+  searchParams: {
+    prompt?: string;
+    genre?: string;
+    audioUrl?: string;
+    imageUrl?: string;
+  }
+}
+
+export default function ChatPage({ searchParams }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
@@ -50,20 +59,24 @@ export default function ChatPage() {
     }
   }, [])
 
-  // Load initial prompt from localStorage and generate music
+  // Load initial prompt from URL parameters
   useEffect(() => {
-    const savedPrompt = localStorage.getItem("musicPrompt")
-    const savedGenre = localStorage.getItem("musicGenre")
+    const { prompt, genre, audioUrl, imageUrl } = searchParams;
     
-    if (savedPrompt && savedGenre) {
-      const initialMessages: Message[] = [{ role: "user", content: savedPrompt }]
-      setMessages(initialMessages)
-      generateMusic(savedPrompt, savedGenre)
+    if (prompt && genre && audioUrl && imageUrl) {
+      // 初期データを設定
+      setMessages([{ role: "user", content: prompt }]);
+      setGeneratedSong({
+        title: `${genre.charAt(0).toUpperCase() + genre.slice(1)} Music`,
+        audioUrl,
+        coverUrl: imageUrl,
+        genre,
+        lyrics: ""
+      });
     } else {
-      router.push("/create")
+      router.push("/create");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [searchParams]);
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -179,12 +192,13 @@ export default function ChatPage() {
     setCurrentTime(formatTime(Math.floor(currentTime)));
   };
 
-  // 音楽生成API呼び出し
+  // 音楽と画像の生成API呼び出し
   const generateMusic = async (prompt: string, genre: string) => {
     setIsGenerating(true);
     
     try {
-      const response = await fetch("/api/generate", {
+      // 音楽生成APIの呼び出し
+      const musicResponse = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -192,9 +206,24 @@ export default function ChatPage() {
         body: JSON.stringify({ prompt, genre }),
       });
       
-      const data = await response.json();
-      
-      if (data.success) {
+      const musicData = await musicResponse.json();
+      console.log("Music generation response:", musicData);
+
+      if (musicData.success) {
+        // 画像生成APIの呼び出し
+        const imageResponse = await fetch("/api/generate/image", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            prompt: `Album cover art for ${genre} music with theme: ${prompt}` 
+          }),
+        });
+        
+        const imageData = await imageResponse.json();
+        console.log("Image generation response:", imageData);
+
         // 既存のオーディオを停止
         if (audioRef.current) {
           audioRef.current.pause();
@@ -203,13 +232,15 @@ export default function ChatPage() {
         }
         
         // APIレスポンスから曲情報を設定
-        setGeneratedSong({
+        const songData = {
           title: `${genre.charAt(0).toUpperCase() + genre.slice(1)} Music`,
-          audioUrl: data.audio_url,
-          coverUrl: "/placeholder.svg?height=400&width=400",
+          audioUrl: musicData.audio_url,
+          coverUrl: imageData.success ? imageData.image_url : "/placeholder.svg?height=400&width=400",
           genre: genre,
           lyrics: ""
-        });
+        };
+        console.log("Setting generated song data:", songData);
+        setGeneratedSong(songData);
         
         // 再生状態をリセット
         setIsPlaying(false);
@@ -225,15 +256,15 @@ export default function ChatPage() {
           },
         ]);
       } else {
-        throw new Error(data.message || "音楽生成に失敗しました");
+        throw new Error(musicData.message || "音楽生成に失敗しました");
       }
     } catch (error) {
-      console.error("Error generating music:", error);
+      console.error("Error generating content:", error);
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "申し訳ありません、音楽の生成中にエラーが発生しました。もう一度お試しください。",
+          content: "申し訳ありません、コンテンツの生成中にエラーが発生しました。もう一度お試しください。",
         },
       ]);
     } finally {
@@ -316,10 +347,11 @@ export default function ChatPage() {
               <div className="w-full max-w-md flex flex-col items-center">
                 <div className="relative w-64 h-64 mb-6">
                   <Image
-                    src={generatedSong.coverUrl || "/placeholder.svg"}
-                    alt={generatedSong.title}
+                    src={generatedSong?.coverUrl || "/placeholder.svg"}
+                    alt={generatedSong?.title || "Album Cover"}
                     fill
                     className="object-cover rounded-lg"
+                    unoptimized={!!generatedSong?.coverUrl && !generatedSong.coverUrl.includes('placeholder')}
                   />
                 </div>
 
@@ -475,10 +507,11 @@ export default function ChatPage() {
             <div className="w-full max-w-md flex flex-col items-center">
               <div className="relative w-64 h-64 mb-6">
                 <Image
-                  src={generatedSong.coverUrl || "/placeholder.svg"}
-                  alt={generatedSong.title}
+                  src={generatedSong?.coverUrl || "/placeholder.svg"}
+                  alt={generatedSong?.title || "Album Cover"}
                   fill
                   className="object-cover rounded-lg"
+                  unoptimized={!!generatedSong?.coverUrl && !generatedSong.coverUrl.includes('placeholder')}
                 />
               </div>
 
