@@ -27,26 +27,18 @@ export default function CreatePage() {
     setIsMounted(true)
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (prompt.trim()) {
-      try {
-        const response = await fetch("/api/generate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt, genre }),
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-          router.push(`/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&audioUrl=${encodeURIComponent(data.audio_url)}&imageUrl=${encodeURIComponent(data.image_url)}`);
-        }
-      } catch (error) {
-        console.error("Error generating content:", error);
-      }
+      // 遷移前にセッションストレージに情報を保存
+      sessionStorage.setItem('songGenerationData', JSON.stringify({
+        prompt,
+        genre,
+        timestamp: Date.now()
+      }));
+      
+      // 同期的に遷移（asyncを使わない）
+      window.location.href = `/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${encodeURIComponent(genre)}`;
     }
   }
 

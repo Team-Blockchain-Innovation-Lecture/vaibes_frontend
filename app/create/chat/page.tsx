@@ -61,22 +61,25 @@ export default function ChatPage({ searchParams }: Props) {
 
   // Load initial prompt from URL parameters
   useEffect(() => {
-    const { prompt, genre, audioUrl, imageUrl } = searchParams;
+    const { prompt, genre } = searchParams;
     
-    if (prompt && genre && audioUrl && imageUrl) {
-      // 初期データを設定
-      setMessages([{ role: "user", content: prompt }]);
-      setGeneratedSong({
-        title: `${genre.charAt(0).toUpperCase() + genre.slice(1)} Music`,
-        audioUrl,
-        coverUrl: imageUrl,
-        genre,
-        lyrics: ""
-      });
-    } else {
+    if (!prompt || !genre) {
       router.push("/create");
+      return;
     }
-  }, [searchParams]);
+    
+    console.log("Chat page mounted with params:", { prompt, genre });
+    
+    // 初期メッセージを設定
+    setMessages([
+      { role: "user", content: prompt },
+      { role: "assistant", content: `${genre}ジャンルの曲を生成しています。少々お待ちください...` }
+    ]);
+    
+    // APIリクエストを実行
+    generateMusic(prompt, genre);
+    
+  }, []);  // 空の依存配列で初回のみ実行
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -195,6 +198,7 @@ export default function ChatPage({ searchParams }: Props) {
   // 音楽と画像の生成API呼び出し
   const generateMusic = async (prompt: string, genre: string) => {
     setIsGenerating(true);
+    console.log("Generating music with:", { prompt, genre });
     
     try {
       // 音楽生成APIの呼び出し
