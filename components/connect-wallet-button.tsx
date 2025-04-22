@@ -1,13 +1,47 @@
 import { Button } from "@/components/ui/button"
 import { usePrivy } from "@privy-io/react-auth" 
-import {PublicKey, Transaction, Connection, SystemProgram} from '@solana/web3.js';
-import {useSolanaWallets} from '@privy-io/react-auth/solana';
+import { PublicKey, Transaction, Connection, SystemProgram } from '@solana/web3.js';
+import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import { SolanaIcon } from "./solana-icon";
-import { LogOut } from "lucide-react";
+import { LogOut, Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export function ConnectWalletButton() {
   const { ready, authenticated, login, user, logout } = usePrivy();
   const { wallets } = useSolanaWallets();
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = (text: string) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }).catch(() => {
+        console.error("Failed to copy to clipboard");
+      });
+    } else {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy text: ", err);
+      }
+      
+      document.body.removeChild(textArea);
+    }
+  };
 
   if (!ready) {
     return (
@@ -19,18 +53,34 @@ export function ConnectWalletButton() {
 
   if (authenticated) {
     const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
+    const walletAddress = solanaWallet?.address || '';
     
     return (
       <div className="flex items-center gap-2">
-        <Button 
-          className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-6 transition-all duration-300 shadow-lg flex items-center gap-2" 
-        >
-          <SolanaIcon size={20} className="mr-1" />
-          {solanaWallet?.address 
-            ? `${solanaWallet.address.slice(0, 6)}...${solanaWallet.address.slice(-4)}`
-            : 'Wallet Connected'
-          }
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-6 transition-all duration-300 shadow-lg flex items-center gap-2" 
+                onClick={() => walletAddress && copyToClipboard(walletAddress)}
+              >
+                <SolanaIcon size={20} className="mr-1" />
+                {walletAddress 
+                  ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+                  : 'Wallet Connected'
+                }
+                {walletAddress && (
+                  <span className="ml-1">
+                    {copied ? <Check size={16} className="text-green-400" /> : <Copy size={16} className="opacity-70" />}
+                  </span>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{copied ? 'Copied!' : 'Click to copy address'}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         
         <Button 
           variant="outline"
