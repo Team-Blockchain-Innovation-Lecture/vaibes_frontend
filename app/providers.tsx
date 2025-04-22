@@ -13,7 +13,7 @@ export default function Providers({children}: {children: React.ReactNode}) {
       clientId={privyClientId}
       config={{
         // Emailログインを含むすべてのログイン方法を許可
-        loginMethods: ['email', 'wallet'],
+        loginMethods: ['email'],
         
         // エンベデッドウォレットの設定
         embeddedWallets: {
