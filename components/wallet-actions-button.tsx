@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { usePrivy } from "@privy-io/react-auth";
 import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { Wallet, ArrowDownToLine, ArrowUpRight, Copy, Check, RefreshCw } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SolanaIcon } from "./solana-icon";
@@ -34,15 +34,12 @@ export function WalletActionsButton() {
   const [sendingError, setSendingError] = useState("");
   const [sendingTxHash, setSendingTxHash] = useState("");
 
-  if (!authenticated || !wallets || wallets.length === 0) {
-    return null;
-  }
-
-  const solanaWallet = wallets[0];
+  // 早期リターンをuseEffectとコールバック関数の後に移動
+  const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
   const walletAddress = solanaWallet?.address || '';
 
   // 残高を取得する関数
-  const fetchBalance = async () => {
+  const fetchBalance = useCallback(async () => {
     if (!walletAddress) return;
     
     try {
@@ -58,16 +55,16 @@ export function WalletActionsButton() {
     } finally {
       setLoadingBalance(false);
     }
-  };
+  }, [walletAddress]);
 
   // ダイアログが開かれたときに残高を取得
   useEffect(() => {
     if (dialogOpen && walletAddress) {
       fetchBalance();
     }
-  }, [dialogOpen, walletAddress]);
+  }, [dialogOpen, walletAddress, fetchBalance]);
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = useCallback((text: string) => {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => {
         setCopied(true);
@@ -96,10 +93,10 @@ export function WalletActionsButton() {
       
       document.body.removeChild(textArea);
     }
-  };
+  }, []);
 
   // 送金処理
-  const handleSendTransaction = async () => {
+  const handleSendTransaction = useCallback(async () => {
     if (!solanaWallet || !recipientAddress || !amount) {
       setSendingError("Please fill in all fields");
       return;
@@ -170,8 +167,14 @@ export function WalletActionsButton() {
       setSendingError(error instanceof Error ? error.message : "Failed to send transaction");
       setSendingStatus("error");
     }
-  };
+  }, [solanaWallet, recipientAddress, amount, balance, walletAddress, fetchBalance]);
 
+  // 早期リターン
+  if (!authenticated || !solanaWallet) {
+    return null;
+  }
+
+  // クライアントサイドでのみ実行されるコンポーネントを返す
   return (
     <>
       <Button
