@@ -4,7 +4,7 @@ import "@/app/globals.css"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import { AppLayout } from "@/components/app-layout"
-
+import Providers from "./providers"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -20,11 +20,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <AppLayout>{children}</AppLayout>
-        </ThemeProvider>
-      </body>
+      <Providers>
+        <body className={inter.className}>
+            <ThemeProvider attribute="class" defaultTheme="dark">
+            <AppLayout>{children}</AppLayout>
+            </ThemeProvider>
+        </body>
+      </Providers>
     </html>
   )
 }

@@ -1,0 +1,46 @@
+'use client';
+
+import {PrivyProvider} from '@privy-io/react-auth';
+
+const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || '';
+const privyClientId = process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || '';
+
+export default function Providers({children}: {children: React.ReactNode}) {
+
+  return (
+    <PrivyProvider
+      appId={privyAppId}
+      clientId={privyClientId}
+      config={{
+        // Emailログインを含むすべてのログイン方法を許可
+        loginMethods: ['email', 'wallet'],
+        
+        // エンベデッドウォレットの設定
+        embeddedWallets: {
+          // すべてのユーザーに対してウォレットを作成
+          createOnLogin: 'all-users',
+          
+          // Ethereumウォレットを明示的に無効化 - 型に合わせて設定
+          ethereum: {
+            createOnLogin: "off"
+          },
+          
+          // Solanaウォレットをサポート - すべてのユーザーに作成
+          solana: {
+            createOnLogin: 'all-users'
+          }
+        },
+        
+        // 外観設定
+        appearance: {
+          theme: 'dark',
+          accentColor: '#d4af37',
+          showWalletLoginFirst: false, // Emailログインを先に表示
+        },
+        
+      }}
+    >
+      {children}
+    </PrivyProvider>
+  );
+}
