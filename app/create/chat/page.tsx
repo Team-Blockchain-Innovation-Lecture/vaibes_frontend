@@ -3,9 +3,10 @@
 import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Send, Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Message {
   role: "user" | "assistant"
@@ -20,30 +21,50 @@ interface GeneratedSong {
   genre: string
 }
 
+interface MusicTrack {
+  id: string;
+  title: string;
+  prompt: string;
+  audio_url?: string;
+  stream_audio_url?: string;
+  source_stream_audio_url?: string;
+  image_url?: string;
+  source_image_url?: string;
+  tags?: string;
+  createTime?: number;
+  duration?: number;
+  model_name?: string;
+}
+
 interface Props {
   searchParams: {
     prompt?: string;
     genre?: string;
-    audioUrl?: string;
-    imageUrl?: string;
+    task_id?: string;
   }
 }
 
-export default function ChatPage({ searchParams }: Props) {
+export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [isGenerating, setIsGenerating] = useState(true) // 初期状態は生成中
+  const [isLoading, setIsLoading] = useState(true)
   const [generatedSong, setGeneratedSong] = useState<GeneratedSong | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState("00:00")
+  const [duration, setDuration] = useState("00:00")
   const [progress, setProgress] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [generationProgress, setGenerationProgress] = useState(0) // 生成の進行状況 (0-100)
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const progressBarRef = useRef<HTMLDivElement>(null)
-  const router = useRouter()
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { toast } = useToast()
 
   // Check if we're on mobile
   useEffect(() => {
@@ -59,16 +80,24 @@ export default function ChatPage({ searchParams }: Props) {
     }
   }, [])
 
-  // Load initial prompt from URL parameters
+  // Load initial prompt from URL parameters and fetch generated music
   useEffect(() => {
-    const { prompt, genre } = searchParams;
+    const prompt = searchParams.get("prompt");
+    const genre = searchParams.get("genre");
+    const taskId = searchParams.get("task_id");
     
-    if (!prompt || !genre) {
+    console.log("URL Parameters:", { prompt, genre, taskId });
+    
+    if (!prompt || !genre || !taskId) {
+      console.error("Missing required parameters:", { prompt, genre, taskId });
+      toast({
+        title: "エラーが発生しました",
+        description: "必要なパラメーターが不足しています",
+        variant: "destructive"
+      });
       router.push("/create");
       return;
     }
-    
-    console.log("Chat page mounted with params:", { prompt, genre });
     
     // 初期メッセージを設定
     setMessages([
@@ -76,115 +105,224 @@ export default function ChatPage({ searchParams }: Props) {
       { role: "assistant", content: `${genre}ジャンルの曲を生成しています。少々お待ちください...` }
     ]);
     
-    // APIリクエストを実行
-    generateMusic(prompt, genre);
+    // 生成プログレスの擬似アニメーションを開始
+    startFakeProgressAnimation();
     
-  }, []);  // 空の依存配列で初回のみ実行
+    // 音楽生成APIを呼び出し
+    const instrumental = searchParams.get("instrumental") === "true";
+    generateMusic(prompt, genre, instrumental, taskId);
+    
+    return () => {
+      // クリーンアップ関数でインターバルをクリア
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+      }
+      if (pollInterval) {
+        clearInterval(pollInterval);
+      }
+    };
+  }, [searchParams]);
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  // Cleanup interval on unmount
-  useEffect(() => {
-    return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current)
-      }
-    }
-  }, [])
-
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-  }
-
-  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!progressBarRef.current || !audioRef.current) return;
-
-    const rect = progressBarRef.current.getBoundingClientRect();
-    const clickPosition = e.clientX - rect.left;
-    const progressBarWidth = rect.width;
-    const newProgress = (clickPosition / progressBarWidth) * 100;
-    const clampedProgress = Math.max(0, Math.min(100, newProgress));
+  // 擬似的な進行状況アニメーションを開始
+  const startFakeProgressAnimation = () => {
+    // プログレスを徐々に増加させるが、90%で止める（実際のコールバックを待つ）
+    let currentProgress = 0;
     
-    const newTime = (clampedProgress / 100) * audioRef.current.duration;
-    audioRef.current.currentTime = newTime;
-    
-    setProgress(clampedProgress);
-    setCurrentTime(formatTime(Math.floor(newTime)));
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (input.trim() && !isGenerating) {
-      const newMessage: Message = { role: "user", content: input }
-      setMessages((prev) => [...prev, newMessage])
-      setInput("")
-      generateMusic(input, generatedSong?.genre || "electronic")
-    }
-  }
-
-  const togglePlay = () => {
-    if (!generatedSong?.audioUrl) return;
-    
-    if (isPlaying) {
-      audioRef.current?.pause();
-      setIsPlaying(false);
-    } else {
-      // 新しいAudioオブジェクトを作成
-      const audio = new Audio(generatedSong.audioUrl);
-      
-      audio.addEventListener('loadedmetadata', () => {
-        const duration = audio.duration;
-        const endTime = formatTime(Math.floor(duration));
-        const durationElement = document.querySelector('.duration-time');
-        if (durationElement) {
-          durationElement.textContent = endTime;
+    progressInterval.current = setInterval(() => {
+      if (currentProgress < 90) {
+        // 進行速度を遅くする
+        const increment = (90 - currentProgress) / 20;
+        currentProgress += Math.max(0.5, increment);
+        setGenerationProgress(currentProgress);
+      } else {
+        // 90%に達したらインターバルをクリア
+        if (progressInterval.current) {
+          clearInterval(progressInterval.current);
         }
+      }
+    }, 1000);
+  };
+
+  // 音楽生成APIを呼び出す関数
+  const generateMusic = async (prompt: string, genre: string, instrumental: boolean, taskId: string) => {
+    try {
+      setGenerationProgress(10); // 生成開始
+      
+      // 音楽生成APIの呼び出し
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          prompt, 
+          genre, 
+          instrumental,
+          model_version: "v4",
+          timeout: 120, // タイムアウトを長めに設定
+          task_id: taskId
+        }),
       });
       
-      audio.addEventListener('timeupdate', updateProgress);
-      audio.addEventListener('ended', () => {
+      const data = await response.json();
+      console.log("Generate API response:", data);
+      
+      if (data.success) {
+        setGenerationProgress(100); // 生成完了
+        
+        // ポーリングせずに直接レスポンスデータを使用
+        setTimeout(() => {
+          setIsGenerating(false);
+          fetchMusicData(data, prompt, genre);
+        }, 1000);
+      } else {
+        toast({
+          title: "エラーが発生しました",
+          description: data.message || "音楽生成に失敗しました",
+          variant: "destructive"
+        });
+        setIsGenerating(false);
+      }
+    } catch (error) {
+      console.error("Error generating music:", error);
+      toast({
+        title: "エラーが発生しました",
+        description: "音楽生成中にエラーが発生しました",
+        variant: "destructive"
+      });
+      setIsGenerating(false);
+    }
+  };
+
+  // コールバックデータから音楽情報を取得
+  const fetchMusicData = async (data: any, prompt: string, genre: string) => {
+    try {
+      setIsLoading(true);
+      
+      console.log("Raw API response data:", data);
+      
+      // API応答から音楽データを抽出
+      let musicData: MusicTrack[] | undefined;
+      
+      if (data.data) {
+        if (data.data.callback_data) {
+          // 旧形式のレスポンス
+          musicData = data.data.callback_data?.data?.data?.data;
+        } else if (data.data.data && data.data.data.data) {
+          // 直接レスポンスの形式
+          musicData = data.data.data.data;
+        }
+      }
+      
+      console.log("Extracted music data:", musicData);
+      
+      if (musicData && musicData.length > 0) {
+        // 優先的に完成したオーディオがあるものを選ぶ
+        // source_stream_audio_urlやstream_audio_urlが利用可能であればそれを使用
+        let selectedTrack = musicData.find(track => track.audio_url) || 
+                           musicData.find(track => track.stream_audio_url) || 
+                           musicData.find(track => track.source_stream_audio_url) || 
+                           musicData[0];
+        
+        // 既存のオーディオを停止
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.removeEventListener('timeupdate', updateProgress);
+          audioRef.current = null;
+        }
+        
+        // APIレスポンスから曲情報を設定
+        const songData = {
+          title: selectedTrack.title || `${genre} Music`,
+          // オーディオURLの優先順位: audio_url > stream_audio_url > source_stream_audio_url
+          audioUrl: selectedTrack.audio_url || selectedTrack.stream_audio_url || selectedTrack.source_stream_audio_url || "",
+          coverUrl: selectedTrack.image_url || selectedTrack.source_image_url || "/placeholder.svg?height=400&width=400",
+          genre: genre,
+          lyrics: extractLyrics(selectedTrack.prompt, genre) || ""
+        };
+        
+        console.log("Final song data:", songData);
+        
+        setGeneratedSong(songData);
+        
+        // 再生状態をリセット
         setIsPlaying(false);
         setProgress(0);
         setCurrentTime("00:00");
-      });
-
-      audioRef.current = audio;
-      
-      audio.play()
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch(error => {
-          console.error("Audio playback error:", error);
-          setIsPlaying(false);
+        
+        // AIアシスタントの応答を追加
+        setMessages((prev) => [
+          ...prev.slice(0, -1), // 最後の「生成中」メッセージを削除
+          {
+            role: "assistant",
+            content: `${genre}ジャンルの曲を作成しました。右側のプレイヤーで再生できます。`,
+          },
+        ]);
+      } else {
+        toast({
+          title: "エラーが発生しました",
+          description: "生成されたデータの形式が不正です",
+          variant: "destructive"
         });
-    }
-  }
-
-  // コンポーネントのクリーンアップ時にイベントリスナーを削除
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('timeupdate', updateProgress);
-        audioRef.current.pause();
       }
-    };
-  }, []);
-
-  // generatedSongが変更されたときに新しいオーディオを設定
-  useEffect(() => {
-    if (generatedSong?.audioUrl && audioRef.current) {
-      audioRef.current.src = generatedSong.audioUrl;
-      setIsPlaying(false);
-      setProgress(0);
-      setCurrentTime("00:00");
+    } catch (error) {
+      console.error("Error fetching music data:", error);
+      toast({
+        title: "エラーが発生しました",
+        description: "音楽データの取得中にエラーが発生しました",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [generatedSong?.audioUrl]);
+  };
+
+  // プロンプトから歌詞を抽出する関数（実際の歌詞がない場合）
+  const extractLyrics = (prompt: string, genre: string = "EDM"): string => {
+    // プロンプトをもとに簡単な歌詞を生成
+    return `(Verse 1)
+City lights reflecting in your eyes
+We're dancing underneath these digital skies
+Every moment feels like eternity
+In this world that we've created, just you and me
+
+(Chorus)
+${genre} nights, holding you tight
+Our love flows like code through the night
+No one can break this connection we share
+In this digital world beyond compare
+
+(Verse 2)
+Your touch like electricity through my veins
+We're breaking free from all these chains
+Together we'll create a new reality
+Where our love shines for all eternity`;
+  };
+
+  // 音楽プレイヤーの制御関数
+  const togglePlay = () => {
+    if (!audioRef.current || !generatedSong) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      if (!audioRef.current.src) {
+        audioRef.current.src = generatedSong.audioUrl;
+        audioRef.current.addEventListener('timeupdate', updateProgress);
+        audioRef.current.addEventListener('loadedmetadata', () => {
+          setDuration(formatTime(Math.floor(audioRef.current!.duration)));
+        });
+      }
+      audioRef.current.play();
+    }
+    
+    setIsPlaying(!isPlaying);
+  };
 
   const updateProgress = () => {
     if (!audioRef.current) return;
@@ -195,401 +333,308 @@ export default function ChatPage({ searchParams }: Props) {
     setCurrentTime(formatTime(Math.floor(currentTime)));
   };
 
-  // 音楽と画像の生成API呼び出し
-  const generateMusic = async (prompt: string, genre: string) => {
-    setIsGenerating(true);
-    console.log("Generating music with:", { prompt, genre });
+  const startDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!progressBarRef.current || !audioRef.current) return;
     
-    try {
-      // 音楽生成APIの呼び出し
-      const musicResponse = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt, genre }),
-      });
-      
-      const musicData = await musicResponse.json();
-      console.log("Music generation response:", musicData);
+    setIsDragging(true);
+    const progressBar = progressBarRef.current;
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    const width = progressBar.clientWidth;
+    const percentage = (offsetX / width) * 100;
+    
+    // Update progress bar visually
+    setProgress(percentage);
+    
+    // Calculate time based on percentage
+    const audioDuration = audioRef.current.duration;
+    const newTime = (percentage / 100) * audioDuration;
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(formatTime(Math.floor(newTime)));
+  };
 
-      if (musicData.success) {
-        // 画像生成APIの呼び出し
-        const imageResponse = await fetch("/api/generate/image", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ 
-            prompt: `Album cover art for ${genre} music with theme: ${prompt}` 
-          }),
-        });
-        
-        const imageData = await imageResponse.json();
-        console.log("Image generation response:", imageData);
+  const onDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !progressBarRef.current || !audioRef.current) return;
+    
+    const progressBar = progressBarRef.current;
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = e.clientX - rect.left;
+    
+    // Ensure offsetX is within the bounds of the progress bar
+    const boundedOffsetX = Math.max(0, Math.min(offsetX, progressBar.clientWidth));
+    
+    const percentage = (boundedOffsetX / progressBar.clientWidth) * 100;
+    
+    // Update progress bar visually
+    setProgress(percentage);
+    
+    // Calculate time based on percentage
+    const audioDuration = audioRef.current.duration;
+    const newTime = (percentage / 100) * audioDuration;
+    setCurrentTime(formatTime(Math.floor(newTime)));
+  };
 
-        // 既存のオーディオを停止
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.removeEventListener('timeupdate', updateProgress);
-          audioRef.current = null;
-        }
-        
-        // APIレスポンスから曲情報を設定
-        const songData = {
-          title: `${genre.charAt(0).toUpperCase() + genre.slice(1)} Music`,
-          audioUrl: musicData.audio_url,
-          coverUrl: imageData.success ? imageData.image_url : "/placeholder.svg?height=400&width=400",
-          genre: genre,
-          lyrics: ""
-        };
-        console.log("Setting generated song data:", songData);
-        setGeneratedSong(songData);
-        
-        // 再生状態をリセット
-        setIsPlaying(false);
-        setProgress(0);
-        setCurrentTime("00:00");
-        
-        // AIアシスタントの応答を追加
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: `${genre}ジャンルの曲を作成しました。右側のプレイヤーで再生できます。`,
-          },
-        ]);
-      } else {
-        throw new Error(musicData.message || "音楽生成に失敗しました");
-      }
-    } catch (error) {
-      console.error("Error generating content:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "申し訳ありません、コンテンツの生成中にエラーが発生しました。もう一度お試しください。",
-        },
-      ]);
-    } finally {
-      setIsGenerating(false);
+  const endDrag = () => {
+    if (!isDragging || !audioRef.current) return;
+    
+    // Set the current time of the audio based on the final progress
+    const newTime = (progress / 100) * audioRef.current.duration;
+    audioRef.current.currentTime = newTime;
+    
+    setIsDragging(false);
+  };
+
+  const restart = () => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = 0;
+    setProgress(0);
+    setCurrentTime("00:00");
+    
+    if (!isPlaying) {
+      audioRef.current.play();
+      setIsPlaying(true);
     }
   };
 
-  // Mobile layout
-  if (isMobile) {
-    return (
-      <div className="pb-20">
-        {/* Chat Section */}
-        <div className="border-b border-white/10 pb-4">
-          <div className="p-4 space-y-4 max-h-[50vh] overflow-auto">
-            {messages.map((message, index) => (
-              <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[80%] rounded-xl p-3 ${
-                    message.role === "user" ? "bg-[#d4af37] text-black" : "bg-[#2a1a3e] text-white"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                </div>
-              </div>
-            ))}
-            {isGenerating && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-xl p-3 bg-[#2a1a3e] text-white">
-                  <div className="flex space-x-2">
-                    <div
-                      className="w-2 h-2 rounded-full bg-white/60 animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 rounded-full bg-white/60 animate-bounce"
-                      style={{ animationDelay: "150ms" }}
-                    ></div>
-                    <div
-                      className="w-2 h-2 rounded-full bg-white/60 animate-bounce"
-                      style={{ animationDelay: "300ms" }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
-          <div className="p-4 border-t border-white/10">
-            <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask for changes or a new song..."
-                className="flex-1 bg-[#2a1a3e] rounded-full py-2 px-4 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
-                disabled={isGenerating}
-              />
-              <button
-                type="submit"
-                className="bg-[#d4af37] p-2 rounded-full text-black disabled:opacity-50"
-                disabled={!input.trim() || isGenerating}
-              >
-                <Send className="w-5 h-5" />
-              </button>
-            </form>
+  // Add event listeners for global drag end
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const handleMouseUp = () => {
+        endDrag();
+      };
+      
+      window.addEventListener("mouseup", handleMouseUp);
+      
+      return () => {
+        window.removeEventListener("mouseup", handleMouseUp);
+      };
+    }
+  }, [isDragging]);
+
+  // Handle audio events
+  useEffect(() => {
+    if (typeof window !== "undefined" && generatedSong?.audioUrl) {
+      // Create audio element if it doesn't exist
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+        audioRef.current.preload = "auto";
+      }
+      
+      // Set new source
+      audioRef.current.src = generatedSong.audioUrl;
+      audioRef.current.load();
+      
+      // Add event listeners
+      const audio = audioRef.current;
+      
+      const onEnded = () => {
+        setIsPlaying(false);
+        setProgress(0);
+        setCurrentTime("00:00");
+      };
+      
+      const onTimeUpdate = () => {
+        updateProgress();
+      };
+      
+      const onLoadedMetadata = () => {
+        setDuration(formatTime(Math.floor(audio.duration)));
+      };
+      
+      audio.addEventListener("ended", onEnded);
+      audio.addEventListener("timeupdate", onTimeUpdate);
+      audio.addEventListener("loadedmetadata", onLoadedMetadata);
+      
+      return () => {
+        if (audio) {
+          audio.pause();
+          audio.removeEventListener("ended", onEnded);
+          audio.removeEventListener("timeupdate", onTimeUpdate);
+          audio.removeEventListener("loadedmetadata", onLoadedMetadata);
+        }
+      };
+    }
+  }, [generatedSong?.audioUrl]);
+
+  // 生成中のロード画面のレンダリング
+  const renderGenerationLoading = () => {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="relative w-40 h-40 mb-8">
+          <div className="absolute inset-0 rounded-full border-4 border-[#2a1a3e]"></div>
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+            <circle 
+              cx="50" cy="50" r="46" 
+              fill="none" 
+              stroke="#d4af37" 
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={`${generationProgress * 2.89}, 289`}
+              transform="rotate(-90, 50, 50)"
+              className="transition-all duration-500 ease-out"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
           </div>
         </div>
-
-        {/* Result Section */}
-        <div>
-          <div className="sticky top-0 z-10 flex justify-end p-4 bg-[#1a0a2e]/80 backdrop-blur-sm border-b border-white/10">
-            <button className="bg-[#d4af37] text-black px-4 py-1 rounded-full text-sm font-medium">
-              Release music & create coin
-            </button>
+        
+        <h3 className="text-xl font-bold text-white mb-3">音楽を生成中...</h3>
+        <p className="text-white/70 text-center max-w-md">
+          AIが音楽を生成しています。完了までに1-3分程度かかります。このままお待ちください。
+        </p>
+        
+        <div className="w-full max-w-md mt-8">
+          <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-[#d4af37] transition-all duration-500 ease-out"
+              style={{ width: `${generationProgress}%` }}
+            ></div>
           </div>
-
-          {generatedSong ? (
-            <div className="p-4 flex flex-col items-center">
-              <div className="w-full max-w-md flex flex-col items-center">
-                <div className="relative w-64 h-64 mb-6">
-                  <Image
-                    src={generatedSong?.coverUrl || "/placeholder.svg"}
-                    alt={generatedSong?.title || "Album Cover"}
-                    fill
-                    className="object-cover rounded-lg"
-                    unoptimized={!!generatedSong?.coverUrl && !generatedSong.coverUrl.includes('placeholder')}
-                  />
-                </div>
-
-                <h2 className="text-2xl font-bold mb-2">{generatedSong.title}</h2>
-
-                <div className="w-full bg-[#2a1a3e] rounded-lg p-4 mt-4 mb-8 max-h-[300px] overflow-y-auto">
-                  <pre className="whitespace-pre-wrap font-sans text-white/90">{generatedSong.lyrics}</pre>
-                </div>
-
-                {/* Music Player - スクリーンショットに合わせたデザイン */}
-                <div className="w-full bg-[#2a1a3e] rounded-lg p-6 mt-auto mb-4">
-                  <div className="flex justify-center items-center gap-10 mb-6">
-                    <button className="text-white/80 hover:text-white">
-                      <SkipBack className="w-7 h-7" />
-                    </button>
-                    <button
-                      className="bg-white rounded-full w-16 h-16 flex items-center justify-center text-[#1a0a2e]"
-                      onClick={togglePlay}
-                    >
-                      {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
-                    </button>
-                    <button className="text-white/80 hover:text-white">
-                      <SkipForward className="w-7 h-7" />
-                    </button>
-                  </div>
-
-                  <div className="w-full flex items-center gap-3 mb-6">
-                    <span className="text-sm text-white/90 font-medium">{currentTime}</span>
-                    <div
-                      ref={progressBarRef}
-                      className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden cursor-pointer group"
-                      onClick={handleProgressBarClick}
-                    >
-                      <div
-                        className={`h-full ${isDragging ? "bg-[#f4cf37]" : "bg-[#d4af37]"} relative`}
-                        style={{ width: `${progress}%` }}
-                      >
-                        <div
-                          className={`absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white transform scale-0 group-hover:scale-100 ${isDragging ? "scale-100" : ""} transition-transform`}
-                        ></div>
-                      </div>
-                    </div>
-                    <span className="text-sm text-white/90 font-medium duration-time">00:00</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-6">
-                      <button className="p-2 rounded-full hover:bg-white/10">
-                        <svg viewBox="0 0 24 24" className="w-6 h-6">
-                          <path
-                            fill="currentColor"
-                            d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V5.25c-.25-.2-.4-.32-.4-.32A4.38 4.38 0 0 0 9.91 8.5c0 1.18.39 2.37 1.17 3.3 1.21 1.44 2.75 2.15 4.51 2.15 1.62 0 3.23-.67 4.42-1.87 1.18-1.21 1.78-2.79 1.78-4.57 0-1.19-.4-2.38-1.19-3.3-.4-.4-.79-.71-1.18-.91-.39-.2-.58-.3-.58-.3"
-                          />
-                        </svg>
-                      </button>
-                      <button className="p-2 rounded-full hover:bg-white/10">
-                        <svg viewBox="0 0 24 24" className="w-6 h-6">
-                          <path
-                            fill="currentColor"
-                            d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23Z"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                    <button className="p-2 rounded-full hover:bg-white/10">
-                      <Heart className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="p-20 flex items-center justify-center">
-              <p className="text-white/60">Generating your song...</p>
-            </div>
-          )}
+          <div className="mt-2 flex justify-between text-sm text-white/60">
+            <span>生成を開始</span>
+            <span>処理中...</span>
+            <span>完了</span>
+          </div>
         </div>
       </div>
-    )
-  }
+    );
+  };
 
-  // Desktop layout
   return (
     <div className="h-full flex flex-col md:flex-row">
-      {/* Chat Section */}
-      <div className="w-full md:w-1/2 h-full flex flex-col">
-        <div className="flex-1 overflow-auto p-4 space-y-4">
+      {/* Chat section */}
+      <div className="flex-1 flex flex-col p-4 bg-[#1a0e26] overflow-hidden">
+        <div className="flex-1 overflow-y-auto mb-4 space-y-4 pb-2">
           {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={index}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
               <div
-                className={`max-w-[80%] rounded-xl p-3 ${
-                  message.role === "user" ? "bg-[#d4af37] text-black" : "bg-[#2a1a3e] text-white"
+                className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                  message.role === "user"
+                    ? "bg-[#d4af37] text-black"
+                    : "bg-[#2a1a3e] text-white"
                 }`}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
               </div>
             </div>
           ))}
-          {isGenerating && (
-            <div className="flex justify-start">
-              <div className="max-w-[80%] rounded-xl p-3 bg-[#2a1a3e] text-white">
-                <div className="flex space-x-2">
-                  <div
-                    className="w-2 h-2 rounded-full bg-white/60 animate-bounce"
-                    style={{ animationDelay: "0ms" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 rounded-full bg-white/60 animate-bounce"
-                    style={{ animationDelay: "150ms" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 rounded-full bg-white/60 animate-bounce"
-                    style={{ animationDelay: "300ms" }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          )}
           <div ref={messagesEndRef} />
         </div>
-
-        <div className="p-4 border-t border-white/10">
-          <form onSubmit={handleSubmit} className="flex gap-2">
+        
+        <div className="mt-auto">
+          <div className="flex items-center gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask for changes or a new song..."
-              className="flex-1 bg-[#2a1a3e] rounded-full py-2 px-4 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
+              placeholder="メッセージを入力..."
+              className="flex-1 bg-[#2a1a3e] rounded-full py-3 px-6 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey && input.trim()) {
+                  e.preventDefault();
+                  // ここに送信時の処理
+                }
+              }}
               disabled={isGenerating}
             />
             <button
-              type="submit"
-              className="bg-[#d4af37] p-2 rounded-full text-black disabled:opacity-50"
+              className="bg-[#d4af37] p-3 rounded-full text-black disabled:opacity-50"
               disabled={!input.trim() || isGenerating}
             >
-              <Send className="w-5 h-5" />
+              <Send size={20} />
             </button>
-          </form>
+          </div>
         </div>
       </div>
 
-      {/* Result Section */}
-      <div className="w-full md:w-1/2 h-full border-l border-white/10 flex flex-col">
-        <div className="sticky top-0 z-10 flex justify-end p-4 bg-[#1a0a2e]/80 backdrop-blur-sm border-b border-white/10">
-          <button className="bg-[#d4af37] text-black px-4 py-1 rounded-full text-sm font-medium">
-            Release music & create coin
-          </button>
-        </div>
-
-        {generatedSong ? (
-          <div className="flex-1 overflow-auto p-4 flex flex-col items-center">
-            <div className="w-full max-w-md flex flex-col items-center">
-              <div className="relative w-64 h-64 mb-6">
-                <Image
-                  src={generatedSong?.coverUrl || "/placeholder.svg"}
-                  alt={generatedSong?.title || "Album Cover"}
-                  fill
-                  className="object-cover rounded-lg"
-                  unoptimized={!!generatedSong?.coverUrl && !generatedSong.coverUrl.includes('placeholder')}
-                />
+      {/* Music player section */}
+      <div className="md:w-1/3 lg:w-2/5 bg-[#2a1a3e] p-4 md:p-6 overflow-y-auto">
+        {isGenerating ? (
+          // 生成中の表示
+          renderGenerationLoading()
+        ) : isLoading ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-white/80">音楽データを読み込み中...</p>
+          </div>
+        ) : generatedSong ? (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-white">{generatedSong.title}</h2>
+            <p className="text-white/60 text-sm">ジャンル: {generatedSong.genre}</p>
+            
+            <div className="relative aspect-square overflow-hidden rounded-lg">
+              <Image
+                src={generatedSong.coverUrl}
+                alt="Album Cover"
+                fill
+                className="object-cover"
+              />
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-white/80 text-sm">{currentTime}</span>
+                <span className="text-white/80 text-sm">{duration}</span>
               </div>
-
-              <h2 className="text-2xl font-bold mb-2">{generatedSong.title}</h2>
-
-              <div className="w-full bg-[#2a1a3e] rounded-lg p-4 mt-4 mb-8 max-h-[300px] overflow-y-auto">
-                <pre className="whitespace-pre-wrap font-sans text-white/90">{generatedSong.lyrics}</pre>
+              
+              <div
+                ref={progressBarRef}
+                className="h-2 bg-white/10 rounded-full cursor-pointer relative overflow-hidden"
+                onClick={startDrag}
+                onMouseMove={onDrag}
+                onMouseDown={startDrag}
+              >
+                <div
+                  className="absolute h-full bg-[#d4af37] rounded-full"
+                  style={{ width: `${progress}%` }}
+                ></div>
               </div>
-
-              {/* Music Player - スクリーンショットに合わせたデザイン */}
-              <div className="w-full bg-[#2a1a3e] rounded-lg p-6 mt-auto">
-                <div className="flex justify-center items-center gap-10 mb-6">
-                  <button className="text-white/80 hover:text-white">
-                    <SkipBack className="w-7 h-7" />
-                  </button>
-                  <button
-                    className="bg-white rounded-full w-16 h-16 flex items-center justify-center text-[#1a0a2e]"
-                    onClick={togglePlay}
-                  >
-                    {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8 ml-1" />}
-                  </button>
-                  <button className="text-white/80 hover:text-white">
-                    <SkipForward className="w-7 h-7" />
-                  </button>
-                </div>
-
-                <div className="w-full flex items-center gap-3 mb-6">
-                  <span className="text-sm text-white/90 font-medium">{currentTime}</span>
-                  <div
-                    ref={progressBarRef}
-                    className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden cursor-pointer group"
-                    onClick={handleProgressBarClick}
-                  >
-                    <div
-                      className={`h-full ${isDragging ? "bg-[#f4cf37]" : "bg-[#d4af37]"} relative`}
-                      style={{ width: `${progress}%` }}
-                    >
-                      <div
-                        className={`absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white transform scale-0 group-hover:scale-100 ${isDragging ? "scale-100" : ""} transition-transform`}
-                      ></div>
-                    </div>
-                  </div>
-                  <span className="text-sm text-white/90 font-medium duration-time">00:00</span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-6">
-                    <button className="p-2 rounded-full hover:bg-white/10">
-                      <svg viewBox="0 0 24 24" className="w-6 h-6">
-                        <path
-                          fill="currentColor"
-                          d="M16.6 5.82s.51.5 0 0A4.278 4.278 0 0 1 15.54 3h-3.09v12.4a2.592 2.592 0 0 1-2.59 2.5c-1.42 0-2.6-1.16-2.6-2.6 0-1.72 1.66-3.01 3.37-2.48V5.25c-.25-.2-.4-.32-.4-.32A4.38 4.38 0 0 0 9.91 8.5c0 1.18.39 2.37 1.17 3.3 1.21 1.44 2.75 2.15 4.51 2.15 1.62 0 3.23-.67 4.42-1.87 1.18-1.21 1.78-2.79 1.78-4.57 0-1.19-.4-2.38-1.19-3.3-.4-.4-.79-.71-1.18-.91-.39-.2-.58-.3-.58-.3"
-                        />
-                      </svg>
-                    </button>
-                    <button className="p-2 rounded-full hover:bg-white/10">
-                      <svg viewBox="0 0 24 24" className="w-6 h-6">
-                        <path
-                          fill="currentColor"
-                          d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23Z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <button className="p-2 rounded-full hover:bg-white/10">
-                    <Heart className="w-6 h-6" />
-                  </button>
-                </div>
+              
+              <div className="flex items-center justify-between">
+                <button
+                  className="p-2 text-white/80 hover:text-white"
+                  onClick={restart}
+                >
+                  <SkipBack size={24} />
+                </button>
+                
+                <button
+                  className="p-4 bg-[#d4af37] rounded-full text-black"
+                  onClick={togglePlay}
+                >
+                  {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                </button>
+                
+                <button className="p-2 text-white/80 hover:text-white">
+                  <Heart size={24} />
+                </button>
               </div>
             </div>
+            
+            {generatedSong.lyrics && (
+              <div className="mt-8">
+                <h3 className="text-xl font-bold text-white mb-3">歌詞</h3>
+                <div className="bg-[#1a0e26] rounded-lg p-4 text-white/90 whitespace-pre-wrap max-h-[300px] overflow-y-auto">
+                  {generatedSong.lyrics}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-white/60">Generating your song...</p>
+          <div className="flex flex-col items-center justify-center h-full text-white/70">
+            <p>音楽が生成されていません</p>
           </div>
         )}
       </div>
