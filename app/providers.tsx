@@ -12,8 +12,11 @@ export default function Providers({children}: {children: React.ReactNode}) {
       appId={privyAppId}
       clientId={privyClientId}
       config={{
-        // Emailログインを含むすべてのログイン方法を許可
-        loginMethods: ['email'],
+        // Emailログインとウォレットログインを許可
+        loginMethods: ['email', 'wallet'],
+        
+        // 外部ウォレットの設定
+        walletConnectCloudProjectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
         
         // エンベデッドウォレットの設定
         embeddedWallets: {
@@ -35,7 +38,7 @@ export default function Providers({children}: {children: React.ReactNode}) {
         appearance: {
           theme: 'dark',
           accentColor: '#d4af37',
-          showWalletLoginFirst: false, // Emailログインを先に表示
+          showWalletLoginFirst: true, // ウォレットログインを先に表示
         },
         
       }}
