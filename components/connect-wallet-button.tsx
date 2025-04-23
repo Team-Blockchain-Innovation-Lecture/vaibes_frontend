@@ -6,6 +6,7 @@ import { SolanaIcon } from "./solana-icon";
 import { LogOut, Copy, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WalletActionsButton } from "./wallet-actions-button";
 
 export function ConnectWalletButton() {
   const { ready, authenticated, login, user, logout } = usePrivy();
@@ -230,6 +231,12 @@ export function ConnectWalletButton() {
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        
+        {/* 残高表示と送金機能を提供するWalletActionsButton */}
+        <WalletActionsButton
+          externalWalletAddress={walletType === 'Phantom' || walletType === 'Solflare' ? solanaAddress : undefined}
+          externalWalletType={walletType === 'Phantom' || walletType === 'Solflare' ? walletType : undefined}
+        />
         
         <Button 
           variant="outline"

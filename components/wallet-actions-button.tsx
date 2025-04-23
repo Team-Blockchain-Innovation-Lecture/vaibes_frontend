@@ -17,9 +17,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 // Solana RPC URL
-const SOLANA_RPC_URL = "https://api.devnet.solana.com"; // デフォルトではDevnetを使用
+const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
 
-export function WalletActionsButton() {
+export function WalletActionsButton({
+  externalWalletAddress,
+  externalWalletType
+}: {
+  externalWalletAddress?: string;
+  externalWalletType?: string;
+}) {
   const { authenticated } = usePrivy();
   const { wallets } = useSolanaWallets();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -34,9 +40,11 @@ export function WalletActionsButton() {
   const [sendingError, setSendingError] = useState("");
   const [sendingTxHash, setSendingTxHash] = useState("");
 
-  // 早期リターンをuseEffectとコールバック関数の後に移動
+  // ウォレットアドレスの決定（外部ウォレットを優先）
   const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
-  const walletAddress = solanaWallet?.address || '';
+  const privyWalletAddress = solanaWallet?.address || '';
+  const walletAddress = externalWalletAddress || privyWalletAddress;
+  const isExternalWallet = !!externalWalletAddress;
 
   // 残高を取得する関数
   const fetchBalance = useCallback(async () => {
@@ -97,7 +105,7 @@ export function WalletActionsButton() {
 
   // 送金処理
   const handleSendTransaction = useCallback(async () => {
-    if (!solanaWallet || !recipientAddress || !amount) {
+    if ((!solanaWallet && !isExternalWallet) || !recipientAddress || !amount) {
       setSendingError("Please fill in all fields");
       return;
     }
@@ -148,13 +156,38 @@ export function WalletActionsButton() {
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = new PublicKey(walletAddress);
 
-      // トランザクションに署名
-      const signedTransaction = await solanaWallet.signTransaction(transaction);
+      let signature: string;
 
-      // トランザクションを送信
-      const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+      if (isExternalWallet) {
+        // 外部ウォレット（Phantom等）を使用する場合
+        try {
+          // @ts-ignore - Phantom APIにアクセス
+          const phantom = window.phantom?.solana;
+          
+          if (!phantom) {
+            throw new Error("Phantom wallet not found");
+          }
+          
+          // Phantomウォレットでトランザクションに署名して送信
+          const { signature: txSignature } = await phantom.signAndSendTransaction(transaction);
+          signature = txSignature;
+        } catch (error) {
+          console.error("Error with external wallet transaction:", error);
+          throw new Error("Failed to sign transaction with external wallet");
+        }
+      } else {
+        // Privy埋め込みウォレットを使用する場合
+        if (!solanaWallet) {
+          throw new Error("No wallet available");
+        }
+        
+        const signedTransaction = await solanaWallet.signTransaction(transaction);
+        signature = await connection.sendRawTransaction(signedTransaction.serialize());
+      }
+
+      // トランザクションの確認
       await connection.confirmTransaction(signature);
-
+      
       setSendingTxHash(signature);
       setSendingStatus("success");
       setRecipientAddress("");
@@ -167,10 +200,10 @@ export function WalletActionsButton() {
       setSendingError(error instanceof Error ? error.message : "Failed to send transaction");
       setSendingStatus("error");
     }
-  }, [solanaWallet, recipientAddress, amount, balance, walletAddress, fetchBalance]);
+  }, [solanaWallet, isExternalWallet, recipientAddress, amount, balance, walletAddress, fetchBalance]);
 
-  // 早期リターン
-  if (!authenticated || !solanaWallet) {
+  // 早期リターン - ウォレットがない場合は表示しない
+  if ((!authenticated && !isExternalWallet) || (!solanaWallet && !isExternalWallet)) {
     return null;
   }
 
@@ -183,7 +216,7 @@ export function WalletActionsButton() {
         onClick={() => setDialogOpen(true)}
       >
         <Wallet size={16} className="mr-1" />
-        Wallet
+        {balance !== null ? `${balance.toFixed(4)} SOL` : "Wallet"}
       </Button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -191,7 +224,7 @@ export function WalletActionsButton() {
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold flex items-center gap-2">
               <SolanaIcon size={24} /> 
-              Solana Wallet
+              {isExternalWallet && externalWalletType ? `${externalWalletType} Wallet` : "Solana Wallet"}
             </DialogTitle>
             <DialogDescription className="text-gray-300 flex flex-col">
               <div className="flex justify-between items-center">
