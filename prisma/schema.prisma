@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Model for pump.fun tokens
+model Token {
+  id                    String    @id @default(cuid())
+  mint                  String    @unique // The token mint address
+  name                  String    // Token name
+  symbol                String    // Token symbol
+  description           String?   @db.Text // Token description
+  creator               String    // token creator
+  
+  logo                  String?   // URL to token logo
+  decimals              Int?   // Number of decimal places
+  totalSupply           BigInt?   // Total supply as a raw value
+  tokenProgram          String?   // Token program
+  marketCap             Float?   // marketCap
+  
+  // Individual social links (replacing the JSON links field)
+  telegramLink          String?   // Telegram link
+  websiteLink           String?   // Website link
+  twitterLink           String?   // Twitter or X link
+
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relation to videos
+  videos                Video[]
+}
+
+// Model for AI-generated videos
+model Video {
+  id                    String    @id @default(cuid())
+  title                 String    // Video title
+  description           String?   @db.Text // Video description
+  url                   String    // URL to the video
+  thumbnailUrl          String?   // URL to video thumbnail
+  duration              Int?      // Video duration in seconds
+  createdWith           String?   // AI tool used to generate the video
+  prompt                String?   @db.Text // The prompt used to generate the video
+  
+  // Status of the video (e.g., "processing", "ready", "failed")
+  status                String    @default("processing")
+  
+  // Additional metadata
+  metadata              Json?     // Additional metadata about the video
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relation to Token
+  tokenId               String    // Foreign key referencing Token
+  token                 Token     @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  // Indexes for performance
+  @@index([tokenId])
+}

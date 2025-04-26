@@ -1,7 +1,8 @@
-"use client"
-import { MusicCreator } from "@/components/music-creator"
-import { MusicCarousel } from "@/components/music-carousel"
-import { MusicGrid } from "@/components/music-grid"
+"use client";
+import { MusicCreator } from "@/components/music-creator";
+import { MusicCarousel } from "@/components/music-carousel";
+import { MusicGrid } from "@/components/music-grid";
+import { ReleaseButton } from "@/components/release-button";
 
 export default function HomePage() {
   return (
@@ -9,10 +10,13 @@ export default function HomePage() {
       <MusicCreator />
 
       <section>
+        <ReleaseButton />
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl md:text-3xl font-bold">Trending</h2>
         </div>
-        <MusicCarousel onPlayTrack={(track) => (window as any).playTrack(track)} />
+        <MusicCarousel
+          onPlayTrack={(track) => (window as any).playTrack(track)}
+        />
       </section>
 
       <section>
@@ -31,6 +35,5 @@ export default function HomePage() {
         <MusicGrid onPlayTrack={(track) => (window as any).playTrack(track)} />
       </section>
     </div>
-  )
+  );
 }
-
