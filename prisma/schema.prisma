@@ -56,6 +56,10 @@ model Video {
   // Status of the video (e.g., "processing", "ready", "failed")
   status                String    @default("processing")
   
+  // Play and like counters
+  playCount             Int       @default(0) // Number of video plays
+  likeCount             Int       @default(0) // Number of likes for the video
+  
   // Additional metadata
   metadata              Json?     // Additional metadata about the video
   
@@ -66,7 +70,28 @@ model Video {
   // Relation to Token
   tokenId               String    // Foreign key referencing Token
   token                 Token     @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  
+  // Relation to likes
+  likes                 VideoLike[]
 
   // Indexes for performance
   @@index([tokenId])
+}
+
+// Model for tracking user likes on videos
+model VideoLike {
+  id                    String    @id @default(cuid())
+  userId                String    // Privy user ID
+  
+  // Relation to Video
+  videoId               String    // Foreign key referencing Video
+  video                 Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  
+  // Ensure a user can only like a video once
+  @@unique([userId, videoId])
+  @@index([userId])
+  @@index([videoId])
 }

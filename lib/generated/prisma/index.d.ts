@@ -23,6 +23,11 @@ export type Token = $Result.DefaultSelection<Prisma.$TokenPayload>
  * 
  */
 export type Video = $Result.DefaultSelection<Prisma.$VideoPayload>
+/**
+ * Model VideoLike
+ * 
+ */
+export type VideoLike = $Result.DefaultSelection<Prisma.$VideoLikePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -168,6 +173,16 @@ export class PrismaClient<
     * ```
     */
   get video(): Prisma.VideoDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.videoLike`: Exposes CRUD operations for the **VideoLike** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VideoLikes
+    * const videoLikes = await prisma.videoLike.findMany()
+    * ```
+    */
+  get videoLike(): Prisma.VideoLikeDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -609,7 +624,8 @@ export namespace Prisma {
 
   export const ModelName: {
     Token: 'Token',
-    Video: 'Video'
+    Video: 'Video',
+    VideoLike: 'VideoLike'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -628,7 +644,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "token" | "video"
+      modelProps: "token" | "video" | "videoLike"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -764,6 +780,72 @@ export namespace Prisma {
           }
         }
       }
+      VideoLike: {
+        payload: Prisma.$VideoLikePayload<ExtArgs>
+        fields: Prisma.VideoLikeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.VideoLikeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.VideoLikeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>
+          }
+          findFirst: {
+            args: Prisma.VideoLikeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.VideoLikeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>
+          }
+          findMany: {
+            args: Prisma.VideoLikeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>[]
+          }
+          create: {
+            args: Prisma.VideoLikeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>
+          }
+          createMany: {
+            args: Prisma.VideoLikeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.VideoLikeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>
+          }
+          update: {
+            args: Prisma.VideoLikeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>
+          }
+          deleteMany: {
+            args: Prisma.VideoLikeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.VideoLikeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.VideoLikeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$VideoLikePayload>
+          }
+          aggregate: {
+            args: Prisma.VideoLikeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateVideoLike>
+          }
+          groupBy: {
+            args: Prisma.VideoLikeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<VideoLikeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.VideoLikeCountArgs<ExtArgs>
+            result: $Utils.Optional<VideoLikeCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -850,6 +932,7 @@ export namespace Prisma {
   export type GlobalOmitConfig = {
     token?: TokenOmit
     video?: VideoOmit
+    videoLike?: VideoLikeOmit
   }
 
   /* Types for Logging */
@@ -967,6 +1050,37 @@ export namespace Prisma {
    */
   export type TokenCountOutputTypeCountVideosArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: VideoWhereInput
+  }
+
+
+  /**
+   * Count Type VideoCountOutputType
+   */
+
+  export type VideoCountOutputType = {
+    likes: number
+  }
+
+  export type VideoCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    likes?: boolean | VideoCountOutputTypeCountLikesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * VideoCountOutputType without action
+   */
+  export type VideoCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoCountOutputType
+     */
+    select?: VideoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * VideoCountOutputType without action
+   */
+  export type VideoCountOutputTypeCountLikesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VideoLikeWhereInput
   }
 
 
@@ -2106,10 +2220,14 @@ export namespace Prisma {
 
   export type VideoAvgAggregateOutputType = {
     duration: number | null
+    playCount: number | null
+    likeCount: number | null
   }
 
   export type VideoSumAggregateOutputType = {
     duration: number | null
+    playCount: number | null
+    likeCount: number | null
   }
 
   export type VideoMinAggregateOutputType = {
@@ -2122,6 +2240,8 @@ export namespace Prisma {
     createdWith: string | null
     prompt: string | null
     status: string | null
+    playCount: number | null
+    likeCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
     tokenId: string | null
@@ -2137,6 +2257,8 @@ export namespace Prisma {
     createdWith: string | null
     prompt: string | null
     status: string | null
+    playCount: number | null
+    likeCount: number | null
     createdAt: Date | null
     updatedAt: Date | null
     tokenId: string | null
@@ -2152,6 +2274,8 @@ export namespace Prisma {
     createdWith: number
     prompt: number
     status: number
+    playCount: number
+    likeCount: number
     metadata: number
     createdAt: number
     updatedAt: number
@@ -2162,10 +2286,14 @@ export namespace Prisma {
 
   export type VideoAvgAggregateInputType = {
     duration?: true
+    playCount?: true
+    likeCount?: true
   }
 
   export type VideoSumAggregateInputType = {
     duration?: true
+    playCount?: true
+    likeCount?: true
   }
 
   export type VideoMinAggregateInputType = {
@@ -2178,6 +2306,8 @@ export namespace Prisma {
     createdWith?: true
     prompt?: true
     status?: true
+    playCount?: true
+    likeCount?: true
     createdAt?: true
     updatedAt?: true
     tokenId?: true
@@ -2193,6 +2323,8 @@ export namespace Prisma {
     createdWith?: true
     prompt?: true
     status?: true
+    playCount?: true
+    likeCount?: true
     createdAt?: true
     updatedAt?: true
     tokenId?: true
@@ -2208,6 +2340,8 @@ export namespace Prisma {
     createdWith?: true
     prompt?: true
     status?: true
+    playCount?: true
+    likeCount?: true
     metadata?: true
     createdAt?: true
     updatedAt?: true
@@ -2311,6 +2445,8 @@ export namespace Prisma {
     createdWith: string | null
     prompt: string | null
     status: string
+    playCount: number
+    likeCount: number
     metadata: JsonValue | null
     createdAt: Date
     updatedAt: Date
@@ -2346,11 +2482,15 @@ export namespace Prisma {
     createdWith?: boolean
     prompt?: boolean
     status?: boolean
+    playCount?: boolean
+    likeCount?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tokenId?: boolean
     token?: boolean | TokenDefaultArgs<ExtArgs>
+    likes?: boolean | Video$likesArgs<ExtArgs>
+    _count?: boolean | VideoCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["video"]>
 
 
@@ -2365,21 +2505,26 @@ export namespace Prisma {
     createdWith?: boolean
     prompt?: boolean
     status?: boolean
+    playCount?: boolean
+    likeCount?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     tokenId?: boolean
   }
 
-  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "url" | "thumbnailUrl" | "duration" | "createdWith" | "prompt" | "status" | "metadata" | "createdAt" | "updatedAt" | "tokenId", ExtArgs["result"]["video"]>
+  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "url" | "thumbnailUrl" | "duration" | "createdWith" | "prompt" | "status" | "playCount" | "likeCount" | "metadata" | "createdAt" | "updatedAt" | "tokenId", ExtArgs["result"]["video"]>
   export type VideoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     token?: boolean | TokenDefaultArgs<ExtArgs>
+    likes?: boolean | Video$likesArgs<ExtArgs>
+    _count?: boolean | VideoCountOutputTypeDefaultArgs<ExtArgs>
   }
 
   export type $VideoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Video"
     objects: {
       token: Prisma.$TokenPayload<ExtArgs>
+      likes: Prisma.$VideoLikePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2391,6 +2536,8 @@ export namespace Prisma {
       createdWith: string | null
       prompt: string | null
       status: string
+      playCount: number
+      likeCount: number
       metadata: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
@@ -2736,6 +2883,7 @@ export namespace Prisma {
   export interface Prisma__VideoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     token<T extends TokenDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TokenDefaultArgs<ExtArgs>>): Prisma__TokenClient<$Result.GetResult<Prisma.$TokenPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    likes<T extends Video$likesArgs<ExtArgs> = {}>(args?: Subset<T, Video$likesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2774,6 +2922,8 @@ export namespace Prisma {
     readonly createdWith: FieldRef<"Video", 'String'>
     readonly prompt: FieldRef<"Video", 'String'>
     readonly status: FieldRef<"Video", 'String'>
+    readonly playCount: FieldRef<"Video", 'Int'>
+    readonly likeCount: FieldRef<"Video", 'Int'>
     readonly metadata: FieldRef<"Video", 'Json'>
     readonly createdAt: FieldRef<"Video", 'DateTime'>
     readonly updatedAt: FieldRef<"Video", 'DateTime'>
@@ -3121,6 +3271,30 @@ export namespace Prisma {
   }
 
   /**
+   * Video.likes
+   */
+  export type Video$likesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    where?: VideoLikeWhereInput
+    orderBy?: VideoLikeOrderByWithRelationInput | VideoLikeOrderByWithRelationInput[]
+    cursor?: VideoLikeWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: VideoLikeScalarFieldEnum | VideoLikeScalarFieldEnum[]
+  }
+
+  /**
    * Video without action
    */
   export type VideoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3136,6 +3310,924 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: VideoInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model VideoLike
+   */
+
+  export type AggregateVideoLike = {
+    _count: VideoLikeCountAggregateOutputType | null
+    _min: VideoLikeMinAggregateOutputType | null
+    _max: VideoLikeMaxAggregateOutputType | null
+  }
+
+  export type VideoLikeMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    videoId: string | null
+    createdAt: Date | null
+  }
+
+  export type VideoLikeMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    videoId: string | null
+    createdAt: Date | null
+  }
+
+  export type VideoLikeCountAggregateOutputType = {
+    id: number
+    userId: number
+    videoId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type VideoLikeMinAggregateInputType = {
+    id?: true
+    userId?: true
+    videoId?: true
+    createdAt?: true
+  }
+
+  export type VideoLikeMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    videoId?: true
+    createdAt?: true
+  }
+
+  export type VideoLikeCountAggregateInputType = {
+    id?: true
+    userId?: true
+    videoId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type VideoLikeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VideoLike to aggregate.
+     */
+    where?: VideoLikeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoLikes to fetch.
+     */
+    orderBy?: VideoLikeOrderByWithRelationInput | VideoLikeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: VideoLikeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoLikes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoLikes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned VideoLikes
+    **/
+    _count?: true | VideoLikeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: VideoLikeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: VideoLikeMaxAggregateInputType
+  }
+
+  export type GetVideoLikeAggregateType<T extends VideoLikeAggregateArgs> = {
+        [P in keyof T & keyof AggregateVideoLike]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateVideoLike[P]>
+      : GetScalarType<T[P], AggregateVideoLike[P]>
+  }
+
+
+
+
+  export type VideoLikeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: VideoLikeWhereInput
+    orderBy?: VideoLikeOrderByWithAggregationInput | VideoLikeOrderByWithAggregationInput[]
+    by: VideoLikeScalarFieldEnum[] | VideoLikeScalarFieldEnum
+    having?: VideoLikeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: VideoLikeCountAggregateInputType | true
+    _min?: VideoLikeMinAggregateInputType
+    _max?: VideoLikeMaxAggregateInputType
+  }
+
+  export type VideoLikeGroupByOutputType = {
+    id: string
+    userId: string
+    videoId: string
+    createdAt: Date
+    _count: VideoLikeCountAggregateOutputType | null
+    _min: VideoLikeMinAggregateOutputType | null
+    _max: VideoLikeMaxAggregateOutputType | null
+  }
+
+  type GetVideoLikeGroupByPayload<T extends VideoLikeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<VideoLikeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof VideoLikeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], VideoLikeGroupByOutputType[P]>
+            : GetScalarType<T[P], VideoLikeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type VideoLikeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    videoId?: boolean
+    createdAt?: boolean
+    video?: boolean | VideoDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["videoLike"]>
+
+
+
+  export type VideoLikeSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    videoId?: boolean
+    createdAt?: boolean
+  }
+
+  export type VideoLikeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "videoId" | "createdAt", ExtArgs["result"]["videoLike"]>
+  export type VideoLikeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    video?: boolean | VideoDefaultArgs<ExtArgs>
+  }
+
+  export type $VideoLikePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "VideoLike"
+    objects: {
+      video: Prisma.$VideoPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      videoId: string
+      createdAt: Date
+    }, ExtArgs["result"]["videoLike"]>
+    composites: {}
+  }
+
+  type VideoLikeGetPayload<S extends boolean | null | undefined | VideoLikeDefaultArgs> = $Result.GetResult<Prisma.$VideoLikePayload, S>
+
+  type VideoLikeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<VideoLikeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: VideoLikeCountAggregateInputType | true
+    }
+
+  export interface VideoLikeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['VideoLike'], meta: { name: 'VideoLike' } }
+    /**
+     * Find zero or one VideoLike that matches the filter.
+     * @param {VideoLikeFindUniqueArgs} args - Arguments to find a VideoLike
+     * @example
+     * // Get one VideoLike
+     * const videoLike = await prisma.videoLike.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends VideoLikeFindUniqueArgs>(args: SelectSubset<T, VideoLikeFindUniqueArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one VideoLike that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {VideoLikeFindUniqueOrThrowArgs} args - Arguments to find a VideoLike
+     * @example
+     * // Get one VideoLike
+     * const videoLike = await prisma.videoLike.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends VideoLikeFindUniqueOrThrowArgs>(args: SelectSubset<T, VideoLikeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VideoLike that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeFindFirstArgs} args - Arguments to find a VideoLike
+     * @example
+     * // Get one VideoLike
+     * const videoLike = await prisma.videoLike.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends VideoLikeFindFirstArgs>(args?: SelectSubset<T, VideoLikeFindFirstArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first VideoLike that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeFindFirstOrThrowArgs} args - Arguments to find a VideoLike
+     * @example
+     * // Get one VideoLike
+     * const videoLike = await prisma.videoLike.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends VideoLikeFindFirstOrThrowArgs>(args?: SelectSubset<T, VideoLikeFindFirstOrThrowArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more VideoLikes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all VideoLikes
+     * const videoLikes = await prisma.videoLike.findMany()
+     * 
+     * // Get first 10 VideoLikes
+     * const videoLikes = await prisma.videoLike.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const videoLikeWithIdOnly = await prisma.videoLike.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends VideoLikeFindManyArgs>(args?: SelectSubset<T, VideoLikeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a VideoLike.
+     * @param {VideoLikeCreateArgs} args - Arguments to create a VideoLike.
+     * @example
+     * // Create one VideoLike
+     * const VideoLike = await prisma.videoLike.create({
+     *   data: {
+     *     // ... data to create a VideoLike
+     *   }
+     * })
+     * 
+     */
+    create<T extends VideoLikeCreateArgs>(args: SelectSubset<T, VideoLikeCreateArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many VideoLikes.
+     * @param {VideoLikeCreateManyArgs} args - Arguments to create many VideoLikes.
+     * @example
+     * // Create many VideoLikes
+     * const videoLike = await prisma.videoLike.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends VideoLikeCreateManyArgs>(args?: SelectSubset<T, VideoLikeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a VideoLike.
+     * @param {VideoLikeDeleteArgs} args - Arguments to delete one VideoLike.
+     * @example
+     * // Delete one VideoLike
+     * const VideoLike = await prisma.videoLike.delete({
+     *   where: {
+     *     // ... filter to delete one VideoLike
+     *   }
+     * })
+     * 
+     */
+    delete<T extends VideoLikeDeleteArgs>(args: SelectSubset<T, VideoLikeDeleteArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one VideoLike.
+     * @param {VideoLikeUpdateArgs} args - Arguments to update one VideoLike.
+     * @example
+     * // Update one VideoLike
+     * const videoLike = await prisma.videoLike.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends VideoLikeUpdateArgs>(args: SelectSubset<T, VideoLikeUpdateArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more VideoLikes.
+     * @param {VideoLikeDeleteManyArgs} args - Arguments to filter VideoLikes to delete.
+     * @example
+     * // Delete a few VideoLikes
+     * const { count } = await prisma.videoLike.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends VideoLikeDeleteManyArgs>(args?: SelectSubset<T, VideoLikeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more VideoLikes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many VideoLikes
+     * const videoLike = await prisma.videoLike.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends VideoLikeUpdateManyArgs>(args: SelectSubset<T, VideoLikeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one VideoLike.
+     * @param {VideoLikeUpsertArgs} args - Arguments to update or create a VideoLike.
+     * @example
+     * // Update or create a VideoLike
+     * const videoLike = await prisma.videoLike.upsert({
+     *   create: {
+     *     // ... data to create a VideoLike
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the VideoLike we want to update
+     *   }
+     * })
+     */
+    upsert<T extends VideoLikeUpsertArgs>(args: SelectSubset<T, VideoLikeUpsertArgs<ExtArgs>>): Prisma__VideoLikeClient<$Result.GetResult<Prisma.$VideoLikePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of VideoLikes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeCountArgs} args - Arguments to filter VideoLikes to count.
+     * @example
+     * // Count the number of VideoLikes
+     * const count = await prisma.videoLike.count({
+     *   where: {
+     *     // ... the filter for the VideoLikes we want to count
+     *   }
+     * })
+    **/
+    count<T extends VideoLikeCountArgs>(
+      args?: Subset<T, VideoLikeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], VideoLikeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a VideoLike.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends VideoLikeAggregateArgs>(args: Subset<T, VideoLikeAggregateArgs>): Prisma.PrismaPromise<GetVideoLikeAggregateType<T>>
+
+    /**
+     * Group by VideoLike.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {VideoLikeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends VideoLikeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: VideoLikeGroupByArgs['orderBy'] }
+        : { orderBy?: VideoLikeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, VideoLikeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVideoLikeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the VideoLike model
+   */
+  readonly fields: VideoLikeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for VideoLike.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__VideoLikeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    video<T extends VideoDefaultArgs<ExtArgs> = {}>(args?: Subset<T, VideoDefaultArgs<ExtArgs>>): Prisma__VideoClient<$Result.GetResult<Prisma.$VideoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the VideoLike model
+   */
+  interface VideoLikeFieldRefs {
+    readonly id: FieldRef<"VideoLike", 'String'>
+    readonly userId: FieldRef<"VideoLike", 'String'>
+    readonly videoId: FieldRef<"VideoLike", 'String'>
+    readonly createdAt: FieldRef<"VideoLike", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * VideoLike findUnique
+   */
+  export type VideoLikeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * Filter, which VideoLike to fetch.
+     */
+    where: VideoLikeWhereUniqueInput
+  }
+
+  /**
+   * VideoLike findUniqueOrThrow
+   */
+  export type VideoLikeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * Filter, which VideoLike to fetch.
+     */
+    where: VideoLikeWhereUniqueInput
+  }
+
+  /**
+   * VideoLike findFirst
+   */
+  export type VideoLikeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * Filter, which VideoLike to fetch.
+     */
+    where?: VideoLikeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoLikes to fetch.
+     */
+    orderBy?: VideoLikeOrderByWithRelationInput | VideoLikeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VideoLikes.
+     */
+    cursor?: VideoLikeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoLikes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoLikes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VideoLikes.
+     */
+    distinct?: VideoLikeScalarFieldEnum | VideoLikeScalarFieldEnum[]
+  }
+
+  /**
+   * VideoLike findFirstOrThrow
+   */
+  export type VideoLikeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * Filter, which VideoLike to fetch.
+     */
+    where?: VideoLikeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoLikes to fetch.
+     */
+    orderBy?: VideoLikeOrderByWithRelationInput | VideoLikeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for VideoLikes.
+     */
+    cursor?: VideoLikeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoLikes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoLikes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of VideoLikes.
+     */
+    distinct?: VideoLikeScalarFieldEnum | VideoLikeScalarFieldEnum[]
+  }
+
+  /**
+   * VideoLike findMany
+   */
+  export type VideoLikeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * Filter, which VideoLikes to fetch.
+     */
+    where?: VideoLikeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of VideoLikes to fetch.
+     */
+    orderBy?: VideoLikeOrderByWithRelationInput | VideoLikeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing VideoLikes.
+     */
+    cursor?: VideoLikeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` VideoLikes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` VideoLikes.
+     */
+    skip?: number
+    distinct?: VideoLikeScalarFieldEnum | VideoLikeScalarFieldEnum[]
+  }
+
+  /**
+   * VideoLike create
+   */
+  export type VideoLikeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * The data needed to create a VideoLike.
+     */
+    data: XOR<VideoLikeCreateInput, VideoLikeUncheckedCreateInput>
+  }
+
+  /**
+   * VideoLike createMany
+   */
+  export type VideoLikeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many VideoLikes.
+     */
+    data: VideoLikeCreateManyInput | VideoLikeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * VideoLike update
+   */
+  export type VideoLikeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * The data needed to update a VideoLike.
+     */
+    data: XOR<VideoLikeUpdateInput, VideoLikeUncheckedUpdateInput>
+    /**
+     * Choose, which VideoLike to update.
+     */
+    where: VideoLikeWhereUniqueInput
+  }
+
+  /**
+   * VideoLike updateMany
+   */
+  export type VideoLikeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update VideoLikes.
+     */
+    data: XOR<VideoLikeUpdateManyMutationInput, VideoLikeUncheckedUpdateManyInput>
+    /**
+     * Filter which VideoLikes to update
+     */
+    where?: VideoLikeWhereInput
+    /**
+     * Limit how many VideoLikes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * VideoLike upsert
+   */
+  export type VideoLikeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * The filter to search for the VideoLike to update in case it exists.
+     */
+    where: VideoLikeWhereUniqueInput
+    /**
+     * In case the VideoLike found by the `where` argument doesn't exist, create a new VideoLike with this data.
+     */
+    create: XOR<VideoLikeCreateInput, VideoLikeUncheckedCreateInput>
+    /**
+     * In case the VideoLike was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<VideoLikeUpdateInput, VideoLikeUncheckedUpdateInput>
+  }
+
+  /**
+   * VideoLike delete
+   */
+  export type VideoLikeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
+    /**
+     * Filter which VideoLike to delete.
+     */
+    where: VideoLikeWhereUniqueInput
+  }
+
+  /**
+   * VideoLike deleteMany
+   */
+  export type VideoLikeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which VideoLikes to delete
+     */
+    where?: VideoLikeWhereInput
+    /**
+     * Limit how many VideoLikes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * VideoLike without action
+   */
+  export type VideoLikeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the VideoLike
+     */
+    select?: VideoLikeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the VideoLike
+     */
+    omit?: VideoLikeOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: VideoLikeInclude<ExtArgs> | null
   }
 
 
@@ -3185,6 +4277,8 @@ export namespace Prisma {
     createdWith: 'createdWith',
     prompt: 'prompt',
     status: 'status',
+    playCount: 'playCount',
+    likeCount: 'likeCount',
     metadata: 'metadata',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -3192,6 +4286,16 @@ export namespace Prisma {
   };
 
   export type VideoScalarFieldEnum = (typeof VideoScalarFieldEnum)[keyof typeof VideoScalarFieldEnum]
+
+
+  export const VideoLikeScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    videoId: 'videoId',
+    createdAt: 'createdAt'
+  };
+
+  export type VideoLikeScalarFieldEnum = (typeof VideoLikeScalarFieldEnum)[keyof typeof VideoLikeScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -3265,6 +4369,15 @@ export namespace Prisma {
   };
 
   export type VideoOrderByRelevanceFieldEnum = (typeof VideoOrderByRelevanceFieldEnum)[keyof typeof VideoOrderByRelevanceFieldEnum]
+
+
+  export const VideoLikeOrderByRelevanceFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    videoId: 'videoId'
+  };
+
+  export type VideoLikeOrderByRelevanceFieldEnum = (typeof VideoLikeOrderByRelevanceFieldEnum)[keyof typeof VideoLikeOrderByRelevanceFieldEnum]
 
 
   /**
@@ -3450,11 +4563,14 @@ export namespace Prisma {
     createdWith?: StringNullableFilter<"Video"> | string | null
     prompt?: StringNullableFilter<"Video"> | string | null
     status?: StringFilter<"Video"> | string
+    playCount?: IntFilter<"Video"> | number
+    likeCount?: IntFilter<"Video"> | number
     metadata?: JsonNullableFilter<"Video">
     createdAt?: DateTimeFilter<"Video"> | Date | string
     updatedAt?: DateTimeFilter<"Video"> | Date | string
     tokenId?: StringFilter<"Video"> | string
     token?: XOR<TokenScalarRelationFilter, TokenWhereInput>
+    likes?: VideoLikeListRelationFilter
   }
 
   export type VideoOrderByWithRelationInput = {
@@ -3467,11 +4583,14 @@ export namespace Prisma {
     createdWith?: SortOrderInput | SortOrder
     prompt?: SortOrderInput | SortOrder
     status?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tokenId?: SortOrder
     token?: TokenOrderByWithRelationInput
+    likes?: VideoLikeOrderByRelationAggregateInput
     _relevance?: VideoOrderByRelevanceInput
   }
 
@@ -3488,11 +4607,14 @@ export namespace Prisma {
     createdWith?: StringNullableFilter<"Video"> | string | null
     prompt?: StringNullableFilter<"Video"> | string | null
     status?: StringFilter<"Video"> | string
+    playCount?: IntFilter<"Video"> | number
+    likeCount?: IntFilter<"Video"> | number
     metadata?: JsonNullableFilter<"Video">
     createdAt?: DateTimeFilter<"Video"> | Date | string
     updatedAt?: DateTimeFilter<"Video"> | Date | string
     tokenId?: StringFilter<"Video"> | string
     token?: XOR<TokenScalarRelationFilter, TokenWhereInput>
+    likes?: VideoLikeListRelationFilter
   }, "id">
 
   export type VideoOrderByWithAggregationInput = {
@@ -3505,6 +4627,8 @@ export namespace Prisma {
     createdWith?: SortOrderInput | SortOrder
     prompt?: SortOrderInput | SortOrder
     status?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
     metadata?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -3529,10 +4653,64 @@ export namespace Prisma {
     createdWith?: StringNullableWithAggregatesFilter<"Video"> | string | null
     prompt?: StringNullableWithAggregatesFilter<"Video"> | string | null
     status?: StringWithAggregatesFilter<"Video"> | string
+    playCount?: IntWithAggregatesFilter<"Video"> | number
+    likeCount?: IntWithAggregatesFilter<"Video"> | number
     metadata?: JsonNullableWithAggregatesFilter<"Video">
     createdAt?: DateTimeWithAggregatesFilter<"Video"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Video"> | Date | string
     tokenId?: StringWithAggregatesFilter<"Video"> | string
+  }
+
+  export type VideoLikeWhereInput = {
+    AND?: VideoLikeWhereInput | VideoLikeWhereInput[]
+    OR?: VideoLikeWhereInput[]
+    NOT?: VideoLikeWhereInput | VideoLikeWhereInput[]
+    id?: StringFilter<"VideoLike"> | string
+    userId?: StringFilter<"VideoLike"> | string
+    videoId?: StringFilter<"VideoLike"> | string
+    createdAt?: DateTimeFilter<"VideoLike"> | Date | string
+    video?: XOR<VideoScalarRelationFilter, VideoWhereInput>
+  }
+
+  export type VideoLikeOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    videoId?: SortOrder
+    createdAt?: SortOrder
+    video?: VideoOrderByWithRelationInput
+    _relevance?: VideoLikeOrderByRelevanceInput
+  }
+
+  export type VideoLikeWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_videoId?: VideoLikeUserIdVideoIdCompoundUniqueInput
+    AND?: VideoLikeWhereInput | VideoLikeWhereInput[]
+    OR?: VideoLikeWhereInput[]
+    NOT?: VideoLikeWhereInput | VideoLikeWhereInput[]
+    userId?: StringFilter<"VideoLike"> | string
+    videoId?: StringFilter<"VideoLike"> | string
+    createdAt?: DateTimeFilter<"VideoLike"> | Date | string
+    video?: XOR<VideoScalarRelationFilter, VideoWhereInput>
+  }, "id" | "userId_videoId">
+
+  export type VideoLikeOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    videoId?: SortOrder
+    createdAt?: SortOrder
+    _count?: VideoLikeCountOrderByAggregateInput
+    _max?: VideoLikeMaxOrderByAggregateInput
+    _min?: VideoLikeMinOrderByAggregateInput
+  }
+
+  export type VideoLikeScalarWhereWithAggregatesInput = {
+    AND?: VideoLikeScalarWhereWithAggregatesInput | VideoLikeScalarWhereWithAggregatesInput[]
+    OR?: VideoLikeScalarWhereWithAggregatesInput[]
+    NOT?: VideoLikeScalarWhereWithAggregatesInput | VideoLikeScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"VideoLike"> | string
+    userId?: StringWithAggregatesFilter<"VideoLike"> | string
+    videoId?: StringWithAggregatesFilter<"VideoLike"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"VideoLike"> | Date | string
   }
 
   export type TokenCreateInput = {
@@ -3682,10 +4860,13 @@ export namespace Prisma {
     createdWith?: string | null
     prompt?: string | null
     status?: string
+    playCount?: number
+    likeCount?: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     token: TokenCreateNestedOneWithoutVideosInput
+    likes?: VideoLikeCreateNestedManyWithoutVideoInput
   }
 
   export type VideoUncheckedCreateInput = {
@@ -3698,10 +4879,13 @@ export namespace Prisma {
     createdWith?: string | null
     prompt?: string | null
     status?: string
+    playCount?: number
+    likeCount?: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     tokenId: string
+    likes?: VideoLikeUncheckedCreateNestedManyWithoutVideoInput
   }
 
   export type VideoUpdateInput = {
@@ -3714,10 +4898,13 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     token?: TokenUpdateOneRequiredWithoutVideosNestedInput
+    likes?: VideoLikeUpdateManyWithoutVideoNestedInput
   }
 
   export type VideoUncheckedUpdateInput = {
@@ -3730,10 +4917,13 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tokenId?: StringFieldUpdateOperationsInput | string
+    likes?: VideoLikeUncheckedUpdateManyWithoutVideoNestedInput
   }
 
   export type VideoCreateManyInput = {
@@ -3746,6 +4936,8 @@ export namespace Prisma {
     createdWith?: string | null
     prompt?: string | null
     status?: string
+    playCount?: number
+    likeCount?: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -3762,6 +4954,8 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -3777,10 +4971,60 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     tokenId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type VideoLikeCreateInput = {
+    id?: string
+    userId: string
+    createdAt?: Date | string
+    video: VideoCreateNestedOneWithoutLikesInput
+  }
+
+  export type VideoLikeUncheckedCreateInput = {
+    id?: string
+    userId: string
+    videoId: string
+    createdAt?: Date | string
+  }
+
+  export type VideoLikeUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    video?: VideoUpdateOneRequiredWithoutLikesNestedInput
+  }
+
+  export type VideoLikeUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    videoId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoLikeCreateManyInput = {
+    id?: string
+    userId: string
+    videoId: string
+    createdAt?: Date | string
+  }
+
+  export type VideoLikeUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoLikeUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    videoId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -4044,6 +5288,17 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -4073,6 +5328,16 @@ export namespace Prisma {
     isNot?: TokenWhereInput
   }
 
+  export type VideoLikeListRelationFilter = {
+    every?: VideoLikeWhereInput
+    some?: VideoLikeWhereInput
+    none?: VideoLikeWhereInput
+  }
+
+  export type VideoLikeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type VideoOrderByRelevanceInput = {
     fields: VideoOrderByRelevanceFieldEnum | VideoOrderByRelevanceFieldEnum[]
     sort: SortOrder
@@ -4089,6 +5354,8 @@ export namespace Prisma {
     createdWith?: SortOrder
     prompt?: SortOrder
     status?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
     metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -4097,6 +5364,8 @@ export namespace Prisma {
 
   export type VideoAvgOrderByAggregateInput = {
     duration?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
   }
 
   export type VideoMaxOrderByAggregateInput = {
@@ -4109,6 +5378,8 @@ export namespace Prisma {
     createdWith?: SortOrder
     prompt?: SortOrder
     status?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tokenId?: SortOrder
@@ -4124,6 +5395,8 @@ export namespace Prisma {
     createdWith?: SortOrder
     prompt?: SortOrder
     status?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     tokenId?: SortOrder
@@ -4131,6 +5404,24 @@ export namespace Prisma {
 
   export type VideoSumOrderByAggregateInput = {
     duration?: SortOrder
+    playCount?: SortOrder
+    likeCount?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
   export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -4157,6 +5448,43 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedJsonNullableFilter<$PrismaModel>
     _max?: NestedJsonNullableFilter<$PrismaModel>
+  }
+
+  export type VideoScalarRelationFilter = {
+    is?: VideoWhereInput
+    isNot?: VideoWhereInput
+  }
+
+  export type VideoLikeOrderByRelevanceInput = {
+    fields: VideoLikeOrderByRelevanceFieldEnum | VideoLikeOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type VideoLikeUserIdVideoIdCompoundUniqueInput = {
+    userId: string
+    videoId: string
+  }
+
+  export type VideoLikeCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    videoId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VideoLikeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    videoId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type VideoLikeMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    videoId?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type VideoCreateNestedManyWithoutTokenInput = {
@@ -4243,12 +5571,76 @@ export namespace Prisma {
     connect?: TokenWhereUniqueInput
   }
 
+  export type VideoLikeCreateNestedManyWithoutVideoInput = {
+    create?: XOR<VideoLikeCreateWithoutVideoInput, VideoLikeUncheckedCreateWithoutVideoInput> | VideoLikeCreateWithoutVideoInput[] | VideoLikeUncheckedCreateWithoutVideoInput[]
+    connectOrCreate?: VideoLikeCreateOrConnectWithoutVideoInput | VideoLikeCreateOrConnectWithoutVideoInput[]
+    createMany?: VideoLikeCreateManyVideoInputEnvelope
+    connect?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+  }
+
+  export type VideoLikeUncheckedCreateNestedManyWithoutVideoInput = {
+    create?: XOR<VideoLikeCreateWithoutVideoInput, VideoLikeUncheckedCreateWithoutVideoInput> | VideoLikeCreateWithoutVideoInput[] | VideoLikeUncheckedCreateWithoutVideoInput[]
+    connectOrCreate?: VideoLikeCreateOrConnectWithoutVideoInput | VideoLikeCreateOrConnectWithoutVideoInput[]
+    createMany?: VideoLikeCreateManyVideoInputEnvelope
+    connect?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type TokenUpdateOneRequiredWithoutVideosNestedInput = {
     create?: XOR<TokenCreateWithoutVideosInput, TokenUncheckedCreateWithoutVideosInput>
     connectOrCreate?: TokenCreateOrConnectWithoutVideosInput
     upsert?: TokenUpsertWithoutVideosInput
     connect?: TokenWhereUniqueInput
     update?: XOR<XOR<TokenUpdateToOneWithWhereWithoutVideosInput, TokenUpdateWithoutVideosInput>, TokenUncheckedUpdateWithoutVideosInput>
+  }
+
+  export type VideoLikeUpdateManyWithoutVideoNestedInput = {
+    create?: XOR<VideoLikeCreateWithoutVideoInput, VideoLikeUncheckedCreateWithoutVideoInput> | VideoLikeCreateWithoutVideoInput[] | VideoLikeUncheckedCreateWithoutVideoInput[]
+    connectOrCreate?: VideoLikeCreateOrConnectWithoutVideoInput | VideoLikeCreateOrConnectWithoutVideoInput[]
+    upsert?: VideoLikeUpsertWithWhereUniqueWithoutVideoInput | VideoLikeUpsertWithWhereUniqueWithoutVideoInput[]
+    createMany?: VideoLikeCreateManyVideoInputEnvelope
+    set?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    disconnect?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    delete?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    connect?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    update?: VideoLikeUpdateWithWhereUniqueWithoutVideoInput | VideoLikeUpdateWithWhereUniqueWithoutVideoInput[]
+    updateMany?: VideoLikeUpdateManyWithWhereWithoutVideoInput | VideoLikeUpdateManyWithWhereWithoutVideoInput[]
+    deleteMany?: VideoLikeScalarWhereInput | VideoLikeScalarWhereInput[]
+  }
+
+  export type VideoLikeUncheckedUpdateManyWithoutVideoNestedInput = {
+    create?: XOR<VideoLikeCreateWithoutVideoInput, VideoLikeUncheckedCreateWithoutVideoInput> | VideoLikeCreateWithoutVideoInput[] | VideoLikeUncheckedCreateWithoutVideoInput[]
+    connectOrCreate?: VideoLikeCreateOrConnectWithoutVideoInput | VideoLikeCreateOrConnectWithoutVideoInput[]
+    upsert?: VideoLikeUpsertWithWhereUniqueWithoutVideoInput | VideoLikeUpsertWithWhereUniqueWithoutVideoInput[]
+    createMany?: VideoLikeCreateManyVideoInputEnvelope
+    set?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    disconnect?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    delete?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    connect?: VideoLikeWhereUniqueInput | VideoLikeWhereUniqueInput[]
+    update?: VideoLikeUpdateWithWhereUniqueWithoutVideoInput | VideoLikeUpdateWithWhereUniqueWithoutVideoInput[]
+    updateMany?: VideoLikeUpdateManyWithWhereWithoutVideoInput | VideoLikeUpdateManyWithWhereWithoutVideoInput[]
+    deleteMany?: VideoLikeScalarWhereInput | VideoLikeScalarWhereInput[]
+  }
+
+  export type VideoCreateNestedOneWithoutLikesInput = {
+    create?: XOR<VideoCreateWithoutLikesInput, VideoUncheckedCreateWithoutLikesInput>
+    connectOrCreate?: VideoCreateOrConnectWithoutLikesInput
+    connect?: VideoWhereUniqueInput
+  }
+
+  export type VideoUpdateOneRequiredWithoutLikesNestedInput = {
+    create?: XOR<VideoCreateWithoutLikesInput, VideoUncheckedCreateWithoutLikesInput>
+    connectOrCreate?: VideoCreateOrConnectWithoutLikesInput
+    upsert?: VideoUpsertWithoutLikesInput
+    connect?: VideoWhereUniqueInput
+    update?: XOR<XOR<VideoUpdateToOneWithWhereWithoutLikesInput, VideoUpdateWithoutLikesInput>, VideoUncheckedUpdateWithoutLikesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -4433,6 +5825,33 @@ export namespace Prisma {
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
+
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
         Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -4467,9 +5886,12 @@ export namespace Prisma {
     createdWith?: string | null
     prompt?: string | null
     status?: string
+    playCount?: number
+    likeCount?: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    likes?: VideoLikeCreateNestedManyWithoutVideoInput
   }
 
   export type VideoUncheckedCreateWithoutTokenInput = {
@@ -4482,9 +5904,12 @@ export namespace Prisma {
     createdWith?: string | null
     prompt?: string | null
     status?: string
+    playCount?: number
+    likeCount?: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    likes?: VideoLikeUncheckedCreateNestedManyWithoutVideoInput
   }
 
   export type VideoCreateOrConnectWithoutTokenInput = {
@@ -4526,6 +5951,8 @@ export namespace Prisma {
     createdWith?: StringNullableFilter<"Video"> | string | null
     prompt?: StringNullableFilter<"Video"> | string | null
     status?: StringFilter<"Video"> | string
+    playCount?: IntFilter<"Video"> | number
+    likeCount?: IntFilter<"Video"> | number
     metadata?: JsonNullableFilter<"Video">
     createdAt?: DateTimeFilter<"Video"> | Date | string
     updatedAt?: DateTimeFilter<"Video"> | Date | string
@@ -4573,6 +6000,28 @@ export namespace Prisma {
   export type TokenCreateOrConnectWithoutVideosInput = {
     where: TokenWhereUniqueInput
     create: XOR<TokenCreateWithoutVideosInput, TokenUncheckedCreateWithoutVideosInput>
+  }
+
+  export type VideoLikeCreateWithoutVideoInput = {
+    id?: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type VideoLikeUncheckedCreateWithoutVideoInput = {
+    id?: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type VideoLikeCreateOrConnectWithoutVideoInput = {
+    where: VideoLikeWhereUniqueInput
+    create: XOR<VideoLikeCreateWithoutVideoInput, VideoLikeUncheckedCreateWithoutVideoInput>
+  }
+
+  export type VideoLikeCreateManyVideoInputEnvelope = {
+    data: VideoLikeCreateManyVideoInput | VideoLikeCreateManyVideoInput[]
+    skipDuplicates?: boolean
   }
 
   export type TokenUpsertWithoutVideosInput = {
@@ -4624,6 +6073,120 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type VideoLikeUpsertWithWhereUniqueWithoutVideoInput = {
+    where: VideoLikeWhereUniqueInput
+    update: XOR<VideoLikeUpdateWithoutVideoInput, VideoLikeUncheckedUpdateWithoutVideoInput>
+    create: XOR<VideoLikeCreateWithoutVideoInput, VideoLikeUncheckedCreateWithoutVideoInput>
+  }
+
+  export type VideoLikeUpdateWithWhereUniqueWithoutVideoInput = {
+    where: VideoLikeWhereUniqueInput
+    data: XOR<VideoLikeUpdateWithoutVideoInput, VideoLikeUncheckedUpdateWithoutVideoInput>
+  }
+
+  export type VideoLikeUpdateManyWithWhereWithoutVideoInput = {
+    where: VideoLikeScalarWhereInput
+    data: XOR<VideoLikeUpdateManyMutationInput, VideoLikeUncheckedUpdateManyWithoutVideoInput>
+  }
+
+  export type VideoLikeScalarWhereInput = {
+    AND?: VideoLikeScalarWhereInput | VideoLikeScalarWhereInput[]
+    OR?: VideoLikeScalarWhereInput[]
+    NOT?: VideoLikeScalarWhereInput | VideoLikeScalarWhereInput[]
+    id?: StringFilter<"VideoLike"> | string
+    userId?: StringFilter<"VideoLike"> | string
+    videoId?: StringFilter<"VideoLike"> | string
+    createdAt?: DateTimeFilter<"VideoLike"> | Date | string
+  }
+
+  export type VideoCreateWithoutLikesInput = {
+    id?: string
+    title: string
+    description?: string | null
+    url: string
+    thumbnailUrl?: string | null
+    duration?: number | null
+    createdWith?: string | null
+    prompt?: string | null
+    status?: string
+    playCount?: number
+    likeCount?: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    token: TokenCreateNestedOneWithoutVideosInput
+  }
+
+  export type VideoUncheckedCreateWithoutLikesInput = {
+    id?: string
+    title: string
+    description?: string | null
+    url: string
+    thumbnailUrl?: string | null
+    duration?: number | null
+    createdWith?: string | null
+    prompt?: string | null
+    status?: string
+    playCount?: number
+    likeCount?: number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    tokenId: string
+  }
+
+  export type VideoCreateOrConnectWithoutLikesInput = {
+    where: VideoWhereUniqueInput
+    create: XOR<VideoCreateWithoutLikesInput, VideoUncheckedCreateWithoutLikesInput>
+  }
+
+  export type VideoUpsertWithoutLikesInput = {
+    update: XOR<VideoUpdateWithoutLikesInput, VideoUncheckedUpdateWithoutLikesInput>
+    create: XOR<VideoCreateWithoutLikesInput, VideoUncheckedCreateWithoutLikesInput>
+    where?: VideoWhereInput
+  }
+
+  export type VideoUpdateToOneWithWhereWithoutLikesInput = {
+    where?: VideoWhereInput
+    data: XOR<VideoUpdateWithoutLikesInput, VideoUncheckedUpdateWithoutLikesInput>
+  }
+
+  export type VideoUpdateWithoutLikesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
+    thumbnailUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    createdWith?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    token?: TokenUpdateOneRequiredWithoutVideosNestedInput
+  }
+
+  export type VideoUncheckedUpdateWithoutLikesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
+    thumbnailUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    createdWith?: NullableStringFieldUpdateOperationsInput | string | null
+    prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    tokenId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type VideoCreateManyTokenInput = {
     id?: string
     title: string
@@ -4634,6 +6197,8 @@ export namespace Prisma {
     createdWith?: string | null
     prompt?: string | null
     status?: string
+    playCount?: number
+    likeCount?: number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -4649,9 +6214,12 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    likes?: VideoLikeUpdateManyWithoutVideoNestedInput
   }
 
   export type VideoUncheckedUpdateWithoutTokenInput = {
@@ -4664,9 +6232,12 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    likes?: VideoLikeUncheckedUpdateManyWithoutVideoNestedInput
   }
 
   export type VideoUncheckedUpdateManyWithoutTokenInput = {
@@ -4679,9 +6250,35 @@ export namespace Prisma {
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
     status?: StringFieldUpdateOperationsInput | string
+    playCount?: IntFieldUpdateOperationsInput | number
+    likeCount?: IntFieldUpdateOperationsInput | number
     metadata?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoLikeCreateManyVideoInput = {
+    id?: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type VideoLikeUpdateWithoutVideoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoLikeUncheckedUpdateWithoutVideoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type VideoLikeUncheckedUpdateManyWithoutVideoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 
