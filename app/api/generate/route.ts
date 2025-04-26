@@ -32,7 +32,10 @@ export async function POST(req: NextRequest) {
     
     try {
       // 外部APIを呼び出して音楽を生成
-      const response = await fetch("https://ae73-240b-10-27c1-7e00-2425-9b44-c411-f7a7.ngrok-free.app/api/generate-with-callback", {
+      if (!process.env.MUSIC_API_URL) {
+        throw new Error("MUSIC_API_URLが環境変数に設定されていません");
+      }
+      const response = await fetch(process.env.MUSIC_API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
