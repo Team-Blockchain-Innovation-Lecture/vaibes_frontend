@@ -67,7 +67,7 @@
   },
   "devDependencies": {
     "@prisma/client": "^6.6.0",
-    "@types/node": "^23",
+    "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8",
