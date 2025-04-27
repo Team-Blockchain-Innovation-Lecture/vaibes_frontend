@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       duration,
       createdWith,
       prompt,
-      creator,
+      videoCreator,
     } = body;
 
     // Validate required fields
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
         prompt,
         status: "processing", // Set initial status as ready
         tokenId: token.id, // Associate with the token
-        creator: creator,
+        creator: videoCreator,
       },
     });
 

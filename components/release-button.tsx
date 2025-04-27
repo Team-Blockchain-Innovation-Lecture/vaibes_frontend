@@ -88,7 +88,7 @@ export function ReleaseButton() {
         duration: 120, // 2 minutes in seconds
         createdWith: "AI Video Generator",
         prompt: "Create an animated video showcasing this token",
-        creator: wallets[0]?.address || null,
+        videoCreator: wallets[0]?.address || null,
       };
 
       // API call to register the token and video
