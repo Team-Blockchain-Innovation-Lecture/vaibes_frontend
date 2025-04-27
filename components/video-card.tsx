@@ -1,9 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Play, Heart } from "lucide-react";
+import { Play, Heart, MessageCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePrivy } from "@privy-io/react-auth";
 import { useSolanaWallets } from "@privy-io/react-auth/solana";
@@ -22,7 +29,9 @@ type VideoCardProps = {
       symbol: string;
       logo: string | null;
     };
+    creator?: string; // 動画作成者
     isLiked?: boolean;
+    commentCount?: number; // コメント数（現在のAPIには存在しないがUIとして表示）
   };
   onPlayTrack: (track: any) => void;
 };
@@ -34,6 +43,15 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
   const { toast } = useToast();
   const { authenticated, login } = usePrivy();
   const { wallets } = useSolanaWallets();
+
+  // クリエイターアドレスを省略表示する関数
+  const formatCreatorAddress = (address: string | undefined) => {
+    if (!address) return "Unknown";
+    if (address.length <= 12) return address;
+    return `${address.substring(0, 3)}...${address.substring(
+      address.length - 3
+    )}`;
+  };
 
   const handlePlay = async () => {
     onPlayTrack(video);
@@ -109,69 +127,96 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden flex flex-col">
-      <div
-        className="relative aspect-video cursor-pointer bg-secondary/20"
-        onClick={handlePlay}
-      >
-        {video.thumbnailUrl ? (
-          <img
-            src={video.thumbnailUrl}
-            alt={video.title}
-            className="object-cover w-full h-full"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/placeholder.svg";
-            }}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <Play size={48} className="text-muted-foreground/50" />
+    <Card className="overflow-hidden h-full flex flex-col">
+      <div className="flex flex-row h-full">
+        {/* 左側のサムネイルエリア - カード幅の約40%を占める */}
+        <div
+          className="w-2/5 bg-secondary/10 flex items-center justify-center cursor-pointer relative"
+          onClick={handlePlay}
+        >
+          {video.thumbnailUrl ? (
+            <img
+              src={video.thumbnailUrl}
+              alt={video.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/placeholder.svg";
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Play size={48} className="text-muted-foreground/50" />
+            </div>
+          )}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
+            <Play size={48} className="text-white" />
           </div>
-        )}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
-          <Play size={48} className="text-white" />
+        </div>
+
+        {/* 右側のコンテンツエリア - カード幅の約60%を占める */}
+        <div className="w-3/5 flex flex-col relative">
+          {/* いいねボタン - 絶対位置で右上に固定 */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`h-8 w-8 absolute top-2 right-2 rounded-full ${
+              isLiked ? "text-red-500" : ""
+            }`}
+            onClick={handleLike}
+            disabled={isLiking}
+          >
+            <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
+            <span className="sr-only">Like</span>
+          </Button>
+          
+          <CardHeader className="pb-1 pt-3 px-4">
+            <div className="pr-10"> {/* いいねボタンのスペースを確保 */}
+              <CardTitle className="text-lg line-clamp-1">
+                {video.title}
+              </CardTitle>
+              <CardDescription className="text-xs">
+                {formatCreatorAddress(video.creator || video.token.symbol)}
+              </CardDescription>
+            </div>
+          </CardHeader>
+
+          <CardContent className="flex-1 p-4 pt-0">
+            <div className="text-sm text-muted-foreground mb-auto min-h-[4.5rem]">
+              <p className="line-clamp-3 whitespace-pre-line">
+                {video.description || "No description available"}
+              </p>
+            </div>
+          </CardContent>
         </div>
       </div>
-      <CardContent className="p-4 flex-1">
-        <div className="flex items-center gap-2 mb-2">
-          <div className="w-6 h-6 rounded-full overflow-hidden bg-secondary flex-shrink-0">
-            {video.token.logo ? (
-              <img
-                src={video.token.logo}
-                alt={video.token.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/placeholder-logo.svg";
-                }}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-xs">
-                {video.token.symbol.substring(0, 2)}
-              </div>
-            )}
-          </div>
-          <h3 className="font-medium text-sm line-clamp-1">{video.title}</h3>
+
+      {/* カード下部の統計情報 - 4つの情報を表示 */}
+      <CardFooter className="p-2 grid grid-cols-4 gap-2 text-sm border-t">
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 mr-1 p-0"
+            onClick={handlePlay}
+          >
+            <Play className="h-4 w-4" />
+          </Button>
+          <span>Play</span>
         </div>
-        <p className="text-sm text-muted-foreground line-clamp-2">
-          {video.description}
-        </p>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-between">
-        <div className="text-xs text-muted-foreground flex gap-3">
-          <span>{video.token.symbol}</span>
-          <span>{video.playCount.toLocaleString()} plays</span>
+        <div>
+          <p className="text-muted-foreground text-xs">Views</p>
+          <p className="font-medium">{video.playCount.toLocaleString()}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`h-8 w-8 rounded-full ${isLiked ? "text-red-500" : ""}`}
-          onClick={handleLike}
-          disabled={isLiking}
-        >
-          <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
-          <span className="sr-only">Like</span>
-          {likeCount > 0 && <span className="ml-1 text-xs">{likeCount}</span>}
-        </Button>
+        <div>
+          <p className="text-muted-foreground text-xs">Likes</p>
+          <p className="font-medium">{likeCount.toLocaleString()}</p>
+        </div>
+        <div>
+          <p className="text-muted-foreground text-xs">Comments</p>
+          <p className="font-medium">
+            {(video.commentCount || 0).toLocaleString()}
+          </p>
+        </div>
       </CardFooter>
     </Card>
   );

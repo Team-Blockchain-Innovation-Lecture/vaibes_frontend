@@ -9,17 +9,25 @@ export async function POST(
 ) {
   try {
     const videoId = params.id;
-    // ヘッダーから直接ウォレットアドレスを取得
     const walletAddress = request.headers.get("wallet-address");
 
     if (!walletAddress) {
       return NextResponse.json(
-        { message: "Authentication required" },
-        { status: 401 }
+        { message: "Wallet address is required" },
+        { status: 400 }
       );
     }
 
-    // Check if the user has liked this video
+    // 動画の存在を確認
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+    });
+
+    if (!video) {
+      return NextResponse.json({ message: "Video not found" }, { status: 404 });
+    }
+
+    // いいねが存在するか確認
     const existingLike = await prisma.videoLike.findUnique({
       where: {
         userId_videoId: {
@@ -31,40 +39,35 @@ export async function POST(
 
     if (!existingLike) {
       return NextResponse.json(
-        { message: "User has not liked this video" },
+        { message: "You have not liked this video" },
         { status: 400 }
       );
     }
 
-    // Delete the like record
-    await prisma.videoLike.delete({
-      where: {
-        id: existingLike.id,
-      },
-    });
-
-    // Decrement the like count on the video (ensure it doesn't go below 0)
-    const video = await prisma.video.findUnique({
-      where: { id: videoId },
-      select: { likeCount: true },
-    });
-
-    if (!video) {
-      return NextResponse.json({ message: "Video not found" }, { status: 404 });
-    }
-
-    const newLikeCount = Math.max(0, video.likeCount - 1);
-
-    const updatedVideo = await prisma.video.update({
-      where: { id: videoId },
-      data: {
-        likeCount: newLikeCount,
-      },
-    });
+    // トランザクションでいいねを削除し、動画のいいね数も更新
+    await prisma.$transaction([
+      // いいねを削除
+      prisma.videoLike.delete({
+        where: {
+          userId_videoId: {
+            userId: walletAddress,
+            videoId: videoId,
+          },
+        },
+      }),
+      // 動画のいいね数をデクリメント
+      prisma.video.update({
+        where: { id: videoId },
+        data: {
+          likeCount: {
+            decrement: 1,
+          },
+        },
+      }),
+    ]);
 
     return NextResponse.json({
       message: "Video unliked successfully",
-      likeCount: updatedVideo.likeCount,
     });
   } catch (error) {
     console.error("Error unliking video:", error);

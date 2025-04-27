@@ -23,7 +23,9 @@ type Video = {
     symbol: string;
     logo: string | null;
   };
+  creator?: string;
   isLiked?: boolean;
+  commentCount?: number;
 };
 
 export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
@@ -35,20 +37,18 @@ export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
   useEffect(() => {
     async function fetchVideos() {
       try {
-        // walletAddressを直接取得
-        const walletAddress =
-          wallets && wallets.length > 0 ? wallets[0]?.address : null;
+        const response = await fetch("/api/videos");
 
-        // 認証されており、かつwalletAddressが存在する場合は送信する
-        const url =
-          authenticated && walletAddress
-            ? `/api/videos?limit=${limit}&walletAddress=${walletAddress}`
-            : `/api/videos?limit=${limit}`;
-
-        const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch videos");
         const data = await response.json();
-        setVideos(data.videos);
+
+        // 仮のコメント数を追加（実際のAPIにはコメント数がないため）
+        const videosWithComments = data.videos.map((video: any) => ({
+          ...video,
+          commentCount: Math.floor(Math.random() * 20), // 仮のコメント数（0〜19）
+        }));
+
+        setVideos(videosWithComments);
       } catch (error) {
         console.error("Error fetching videos:", error);
       } finally {
@@ -61,8 +61,8 @@ export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {Array.from({ length: 8 }).map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
             className="h-64 bg-secondary/30 animate-pulse rounded-lg"
@@ -81,7 +81,7 @@ export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {videos.map((video) => (
         <VideoCard key={video.id} video={video} onPlayTrack={onPlayTrack} />
       ))}

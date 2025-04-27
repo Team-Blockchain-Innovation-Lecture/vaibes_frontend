@@ -10,7 +10,16 @@ export async function POST(
   try {
     const videoId = params.id;
 
-    // Increment play count for the video
+    // 動画の存在を確認
+    const video = await prisma.video.findUnique({
+      where: { id: videoId },
+    });
+
+    if (!video) {
+      return NextResponse.json({ message: "Video not found" }, { status: 404 });
+    }
+
+    // 再生回数をインクリメント
     const updatedVideo = await prisma.video.update({
       where: { id: videoId },
       data: {
@@ -21,7 +30,7 @@ export async function POST(
     });
 
     return NextResponse.json({
-      message: "Play count updated successfully",
+      message: "Play count incremented successfully",
       playCount: updatedVideo.playCount,
     });
   } catch (error) {

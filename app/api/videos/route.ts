@@ -7,21 +7,51 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
-    const walletAddress = searchParams.get("walletAddress") || null;
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
+    const sort = searchParams.get("sort") || "playCount"; // デフォルトは再生数でソート
+    const order = searchParams.get("order") || "desc"; // デフォルトは降順
+    const tokenId = searchParams.get("tokenId") || undefined; // 特定のトークンに関連する動画のみを取得
+    const walletAddress = searchParams.get("walletAddress") || null; // ユーザーのウォレットアドレス（いいね状態の確認用）
 
-    // Fetch videos with token information
+    // 検索条件
+    const search = searchParams.get("search") || undefined; // 検索キーワード
+
+    // フィルター条件の構築
+    let whereCondition: any = {};
+    
+    // フィルタリングが必要な場合は、status条件を追加
+    // ステータスパラメータが指定された場合のみステータスでフィルタリング
+    const status = searchParams.get("status");
+    if (status) {
+      whereCondition.status = status;
+    }
+    // それ以外はすべてのビデオを返す（準備中も含む）
+    
+    // 検索条件を追加
+    if (search) {
+      whereCondition.OR = [
+        { title: { contains: search } },
+        { description: { contains: search } },
+      ];
+    }
+
+    // 特定のトークンの動画のみを取得する場合
+    if (tokenId) {
+      whereCondition.tokenId = tokenId;
+    }
+
+    // 動画を取得
     const videos = await prisma.video.findMany({
+      where: whereCondition,
       take: limit,
-      where: {
-        status: "ready",
+      skip: offset,
+      orderBy: {
+        [sort]: order,
       },
-      orderBy: [
-        { playCount: "desc" }, // Sort by play count
-        { createdAt: "desc" }, // Then by creation date
-      ],
       include: {
         token: {
           select: {
+            id: true,
             name: true,
             symbol: true,
             logo: true,
@@ -29,8 +59,9 @@ export async function GET(request: NextRequest) {
         },
       },
     });
+    console.log("videos", videos);
 
-    // If walletAddress is provided, check which videos the user has liked
+    // ユーザーのいいね情報を取得
     let videosWithLikeStatus = videos;
 
     if (walletAddress) {
@@ -46,18 +77,30 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      // Create a set of video IDs that the user has liked for faster lookup
+      // いいねしたビデオIDのセットを作成
       const likedVideoIds = new Set(userLikes.map((like) => like.videoId));
 
-      // Add isLiked flag to each video
+      // 各ビデオにisLikedフラグを追加
       videosWithLikeStatus = videos.map((video) => ({
         ...video,
         isLiked: likedVideoIds.has(video.id),
       }));
     }
 
+    // ビデオの総数を取得
+    const totalCount = await prisma.video.count({
+      where: whereCondition,
+    });
+    console.log("totalCount", totalCount);
+
     return NextResponse.json({
       videos: videosWithLikeStatus,
+      pagination: {
+        total: totalCount,
+        limit,
+        offset,
+        hasMore: offset + videos.length < totalCount,
+      },
     });
   } catch (error) {
     console.error("Error fetching videos:", error);
