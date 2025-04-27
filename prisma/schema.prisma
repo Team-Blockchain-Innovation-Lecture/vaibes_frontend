@@ -52,6 +52,7 @@ model Video {
   duration              Int?      // Video duration in seconds
   createdWith           String?   // AI tool used to generate the video
   prompt                String?   @db.Text // The prompt used to generate the video
+  creator               String    @default("0x000")// video creator address
   
   // Status of the video (e.g., "processing", "ready", "failed")
   status                String    @default("processing")

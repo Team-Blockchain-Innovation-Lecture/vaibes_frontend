@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
       duration,
       createdWith,
       prompt,
+      creator,
     } = body;
 
     // Validate required fields
@@ -140,8 +141,8 @@ export async function POST(request: NextRequest) {
     const websiteLink = tokenMetadata.website || null;
     const twitterLink = tokenMetadata.twitter || null;
 
-    // Creator
-    const creator =
+    // Token creator
+    const tokenCreator =
       tokenData.result.creators && tokenData.result.creators.length > 0
         ? tokenData.result.creators[0].address
         : "Unknown Creator";
@@ -188,7 +189,7 @@ export async function POST(request: NextRequest) {
           name: tokenName,
           symbol: tokenSymbol,
           description: tokenDescription,
-          creator,
+          creator: tokenCreator,
           logo: logoUrl,
           telegramLink,
           websiteLink,
@@ -213,6 +214,7 @@ export async function POST(request: NextRequest) {
         prompt,
         status: "processing", // Set initial status as ready
         tokenId: token.id, // Associate with the token
+        creator: creator,
       },
     });
 

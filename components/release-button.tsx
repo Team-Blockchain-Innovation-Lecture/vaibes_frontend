@@ -15,8 +15,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { useSolanaWallets } from "@privy-io/react-auth/solana";
 
 export function ReleaseButton() {
+  const { wallets } = useSolanaWallets();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tokenInput, setTokenInput] = useState("");
   const [error, setError] = useState("");
@@ -86,6 +88,7 @@ export function ReleaseButton() {
         duration: 120, // 2 minutes in seconds
         createdWith: "AI Video Generator",
         prompt: "Create an animated video showcasing this token",
+        creator: wallets[0]?.address || null,
       };
 
       // API call to register the token and video

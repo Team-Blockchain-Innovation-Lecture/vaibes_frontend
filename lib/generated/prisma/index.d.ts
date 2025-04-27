@@ -2239,6 +2239,7 @@ export namespace Prisma {
     duration: number | null
     createdWith: string | null
     prompt: string | null
+    creator: string | null
     status: string | null
     playCount: number | null
     likeCount: number | null
@@ -2256,6 +2257,7 @@ export namespace Prisma {
     duration: number | null
     createdWith: string | null
     prompt: string | null
+    creator: string | null
     status: string | null
     playCount: number | null
     likeCount: number | null
@@ -2273,6 +2275,7 @@ export namespace Prisma {
     duration: number
     createdWith: number
     prompt: number
+    creator: number
     status: number
     playCount: number
     likeCount: number
@@ -2305,6 +2308,7 @@ export namespace Prisma {
     duration?: true
     createdWith?: true
     prompt?: true
+    creator?: true
     status?: true
     playCount?: true
     likeCount?: true
@@ -2322,6 +2326,7 @@ export namespace Prisma {
     duration?: true
     createdWith?: true
     prompt?: true
+    creator?: true
     status?: true
     playCount?: true
     likeCount?: true
@@ -2339,6 +2344,7 @@ export namespace Prisma {
     duration?: true
     createdWith?: true
     prompt?: true
+    creator?: true
     status?: true
     playCount?: true
     likeCount?: true
@@ -2444,6 +2450,7 @@ export namespace Prisma {
     duration: number | null
     createdWith: string | null
     prompt: string | null
+    creator: string
     status: string
     playCount: number
     likeCount: number
@@ -2481,6 +2488,7 @@ export namespace Prisma {
     duration?: boolean
     createdWith?: boolean
     prompt?: boolean
+    creator?: boolean
     status?: boolean
     playCount?: boolean
     likeCount?: boolean
@@ -2504,6 +2512,7 @@ export namespace Prisma {
     duration?: boolean
     createdWith?: boolean
     prompt?: boolean
+    creator?: boolean
     status?: boolean
     playCount?: boolean
     likeCount?: boolean
@@ -2513,7 +2522,7 @@ export namespace Prisma {
     tokenId?: boolean
   }
 
-  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "url" | "thumbnailUrl" | "duration" | "createdWith" | "prompt" | "status" | "playCount" | "likeCount" | "metadata" | "createdAt" | "updatedAt" | "tokenId", ExtArgs["result"]["video"]>
+  export type VideoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "description" | "url" | "thumbnailUrl" | "duration" | "createdWith" | "prompt" | "creator" | "status" | "playCount" | "likeCount" | "metadata" | "createdAt" | "updatedAt" | "tokenId", ExtArgs["result"]["video"]>
   export type VideoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     token?: boolean | TokenDefaultArgs<ExtArgs>
     likes?: boolean | Video$likesArgs<ExtArgs>
@@ -2535,6 +2544,7 @@ export namespace Prisma {
       duration: number | null
       createdWith: string | null
       prompt: string | null
+      creator: string
       status: string
       playCount: number
       likeCount: number
@@ -2921,6 +2931,7 @@ export namespace Prisma {
     readonly duration: FieldRef<"Video", 'Int'>
     readonly createdWith: FieldRef<"Video", 'String'>
     readonly prompt: FieldRef<"Video", 'String'>
+    readonly creator: FieldRef<"Video", 'String'>
     readonly status: FieldRef<"Video", 'String'>
     readonly playCount: FieldRef<"Video", 'Int'>
     readonly likeCount: FieldRef<"Video", 'Int'>
@@ -4276,6 +4287,7 @@ export namespace Prisma {
     duration: 'duration',
     createdWith: 'createdWith',
     prompt: 'prompt',
+    creator: 'creator',
     status: 'status',
     playCount: 'playCount',
     likeCount: 'likeCount',
@@ -4364,6 +4376,7 @@ export namespace Prisma {
     thumbnailUrl: 'thumbnailUrl',
     createdWith: 'createdWith',
     prompt: 'prompt',
+    creator: 'creator',
     status: 'status',
     tokenId: 'tokenId'
   };
@@ -4562,6 +4575,7 @@ export namespace Prisma {
     duration?: IntNullableFilter<"Video"> | number | null
     createdWith?: StringNullableFilter<"Video"> | string | null
     prompt?: StringNullableFilter<"Video"> | string | null
+    creator?: StringFilter<"Video"> | string
     status?: StringFilter<"Video"> | string
     playCount?: IntFilter<"Video"> | number
     likeCount?: IntFilter<"Video"> | number
@@ -4582,6 +4596,7 @@ export namespace Prisma {
     duration?: SortOrderInput | SortOrder
     createdWith?: SortOrderInput | SortOrder
     prompt?: SortOrderInput | SortOrder
+    creator?: SortOrder
     status?: SortOrder
     playCount?: SortOrder
     likeCount?: SortOrder
@@ -4606,6 +4621,7 @@ export namespace Prisma {
     duration?: IntNullableFilter<"Video"> | number | null
     createdWith?: StringNullableFilter<"Video"> | string | null
     prompt?: StringNullableFilter<"Video"> | string | null
+    creator?: StringFilter<"Video"> | string
     status?: StringFilter<"Video"> | string
     playCount?: IntFilter<"Video"> | number
     likeCount?: IntFilter<"Video"> | number
@@ -4626,6 +4642,7 @@ export namespace Prisma {
     duration?: SortOrderInput | SortOrder
     createdWith?: SortOrderInput | SortOrder
     prompt?: SortOrderInput | SortOrder
+    creator?: SortOrder
     status?: SortOrder
     playCount?: SortOrder
     likeCount?: SortOrder
@@ -4652,6 +4669,7 @@ export namespace Prisma {
     duration?: IntNullableWithAggregatesFilter<"Video"> | number | null
     createdWith?: StringNullableWithAggregatesFilter<"Video"> | string | null
     prompt?: StringNullableWithAggregatesFilter<"Video"> | string | null
+    creator?: StringWithAggregatesFilter<"Video"> | string
     status?: StringWithAggregatesFilter<"Video"> | string
     playCount?: IntWithAggregatesFilter<"Video"> | number
     likeCount?: IntWithAggregatesFilter<"Video"> | number
@@ -4859,6 +4877,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -4878,6 +4897,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -4897,6 +4917,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -4916,6 +4937,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -4935,6 +4957,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -4953,6 +4976,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -4970,6 +4994,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -5353,6 +5378,7 @@ export namespace Prisma {
     duration?: SortOrder
     createdWith?: SortOrder
     prompt?: SortOrder
+    creator?: SortOrder
     status?: SortOrder
     playCount?: SortOrder
     likeCount?: SortOrder
@@ -5377,6 +5403,7 @@ export namespace Prisma {
     duration?: SortOrder
     createdWith?: SortOrder
     prompt?: SortOrder
+    creator?: SortOrder
     status?: SortOrder
     playCount?: SortOrder
     likeCount?: SortOrder
@@ -5394,6 +5421,7 @@ export namespace Prisma {
     duration?: SortOrder
     createdWith?: SortOrder
     prompt?: SortOrder
+    creator?: SortOrder
     status?: SortOrder
     playCount?: SortOrder
     likeCount?: SortOrder
@@ -5885,6 +5913,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -5903,6 +5932,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -5950,6 +5980,7 @@ export namespace Prisma {
     duration?: IntNullableFilter<"Video"> | number | null
     createdWith?: StringNullableFilter<"Video"> | string | null
     prompt?: StringNullableFilter<"Video"> | string | null
+    creator?: StringFilter<"Video"> | string
     status?: StringFilter<"Video"> | string
     playCount?: IntFilter<"Video"> | number
     likeCount?: IntFilter<"Video"> | number
@@ -6108,6 +6139,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -6126,6 +6158,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -6160,6 +6193,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -6178,6 +6212,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -6196,6 +6231,7 @@ export namespace Prisma {
     duration?: number | null
     createdWith?: string | null
     prompt?: string | null
+    creator?: string
     status?: string
     playCount?: number
     likeCount?: number
@@ -6213,6 +6249,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -6231,6 +6268,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
@@ -6249,6 +6287,7 @@ export namespace Prisma {
     duration?: NullableIntFieldUpdateOperationsInput | number | null
     createdWith?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: NullableStringFieldUpdateOperationsInput | string | null
+    creator?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
     playCount?: IntFieldUpdateOperationsInput | number
     likeCount?: IntFieldUpdateOperationsInput | number
