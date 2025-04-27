@@ -168,13 +168,16 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
             <Heart className={`h-4 w-4 ${isLiked ? "fill-current" : ""}`} />
             <span className="sr-only">Like</span>
           </Button>
-          
+
           <CardHeader className="pb-1 pt-3 px-4">
-            <div className="pr-10"> {/* いいねボタンのスペースを確保 */}
+            <div className="pr-10">
+              {" "}
+              {/* いいねボタンのスペースを確保 */}
               <CardTitle className="text-lg line-clamp-1">
                 {video.title}
               </CardTitle>
               <CardDescription className="text-xs">
+                Creator :{" "}
                 {formatCreatorAddress(video.creator || video.token.symbol)}
               </CardDescription>
             </div>
@@ -190,19 +193,8 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
         </div>
       </div>
 
-      {/* カード下部の統計情報 - 4つの情報を表示 */}
-      <CardFooter className="p-2 grid grid-cols-4 gap-2 text-sm border-t">
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 mr-1 p-0"
-            onClick={handlePlay}
-          >
-            <Play className="h-4 w-4" />
-          </Button>
-          <span>Play</span>
-        </div>
+      {/* カード下部の統計情報 - Playボタンを削除し、3つの情報を均等に表示 */}
+      <CardFooter className="p-2 grid grid-cols-3 gap-2 text-sm border-t">
         <div>
           <p className="text-muted-foreground text-xs">Views</p>
           <p className="font-medium">{video.playCount.toLocaleString()}</p>

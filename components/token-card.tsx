@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatMarketCap } from "@/lib/utils";
+import Link from "next/link";
 
 type TokenCardProps = {
   token: {
@@ -42,41 +43,48 @@ export function TokenCard({ token }: TokenCardProps) {
   return (
     <Card className="overflow-hidden h-full flex flex-col">
       <div className="flex flex-row h-full">
-        {/* 左側のロゴエリア - カード幅の約半分を占める */}
-        <div className="w-1/2 bg-secondary/10 flex items-center justify-center p-4">
-          {token.logo ? (
-            <div className="w-full h-full flex items-center justify-center overflow-hidden">
+        {/* 左側のロゴエリア - VideoCardと同じ幅に調整 */}
+        <div className="w-2/5 bg-secondary/10 flex items-center justify-center relative">
+          <Link
+            href={`/tokens/${token.id}`}
+            className="w-full h-full flex items-center justify-center"
+          >
+            {token.logo ? (
               <img
                 src={token.logo}
                 alt={token.name}
-                className="w-full h-auto max-h-48 object-contain"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/placeholder-logo.svg";
                 }}
               />
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center text-5xl font-bold">
+                {token.symbol?.substring(0, 2) || "??"}
+              </div>
+            )}
+            {/* ホバー効果を追加 */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
+              <span className="text-white font-medium">View Details</span>
             </div>
-          ) : (
-            <div className="w-full aspect-square max-h-48 bg-secondary flex items-center justify-center text-5xl font-bold">
-              {token.symbol?.substring(0, 2) || "??"}
-            </div>
-          )}
+          </Link>
         </div>
 
-        {/* 右側のコンテンツエリア - カード幅の約半分を占める */}
-        <div className="w-1/2 flex flex-col">
+        {/* 右側のコンテンツエリア - VideoCardと同じ幅に調整 */}
+        <div className="w-3/5 flex flex-col relative">
           <CardHeader className="pb-1 pt-3 px-4">
             <div>
               <CardTitle className="text-lg line-clamp-1">
                 {token.name}
               </CardTitle>
               <CardDescription className="text-xs">
-                {token.symbol}
+                ${token.symbol}
               </CardDescription>
             </div>
           </CardHeader>
 
           <CardContent className="flex-1 p-4 pt-0">
-            <div className="text-sm text-muted-foreground min-h-[4.5rem] mb-auto">
+            <div className="text-sm text-muted-foreground mb-auto min-h-[4.5rem]">
               <p className="line-clamp-3 whitespace-pre-line">
                 {token.description || "No description available"}
               </p>
@@ -85,8 +93,8 @@ export function TokenCard({ token }: TokenCardProps) {
         </div>
       </div>
 
-      {/* カード下部の統計情報 - 横並びに4つの情報を表示 */}
-      <CardFooter className="p-4 grid grid-cols-4 gap-2 text-sm border-t">
+      {/* カード下部の統計情報 - パディングをVideoCardに合わせる */}
+      <CardFooter className="p-2 grid grid-cols-4 gap-2 text-sm border-t">
         <div>
           <p className="text-muted-foreground text-xs">Market Cap</p>
           <p className="font-medium">{formatMarketCap(token.marketCap)}</p>
