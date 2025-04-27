@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
     // フィルター条件の構築
     let whereCondition: any = {};
-    
+
     // フィルタリングが必要な場合は、status条件を追加
     // ステータスパラメータが指定された場合のみステータスでフィルタリング
     const status = searchParams.get("status");
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       whereCondition.status = status;
     }
     // それ以外はすべてのビデオを返す（準備中も含む）
-    
+
     // 検索条件を追加
     if (search) {
       whereCondition.OR = [
@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
             name: true,
             symbol: true,
             logo: true,
+            marketCap: true, // Add marketCap to the selection
           },
         },
       },

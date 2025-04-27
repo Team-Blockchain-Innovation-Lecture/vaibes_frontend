@@ -61,12 +61,13 @@ export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="h-64 bg-secondary/30 animate-pulse rounded-lg"
-          ></div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {Array.from({ length: 10 }).map((_, i) => (
+          <div key={i} className="space-y-2">
+            <div className="aspect-[9/16] bg-secondary/30 animate-pulse rounded-lg h-[180px] sm:h-[200px] md:h-[220px] lg:h-[240px]"></div>
+            <div className="h-4 bg-secondary/30 animate-pulse rounded w-2/3"></div>
+            <div className="h-3 bg-secondary/30 animate-pulse rounded w-1/3"></div>
+          </div>
         ))}
       </div>
     );
@@ -81,9 +82,11 @@ export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {videos.map((video) => (
-        <VideoCard key={video.id} video={video} onPlayTrack={onPlayTrack} />
+        <div key={video.id} className="h-auto">
+          <VideoCard video={video} onPlayTrack={onPlayTrack} />
+        </div>
       ))}
     </div>
   );
