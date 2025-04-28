@@ -112,7 +112,7 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
               ${video.token.symbol}
             </span>
             <span className="text-xs font-semibold text-primary-500">
-              ${formatMarketCap(video.token.marketCap)}
+              {formatMarketCap(video.token.marketCap)}
             </span>
           </div>
         </div>
