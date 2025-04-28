@@ -6,6 +6,7 @@ import { Play } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePrivy } from "@privy-io/react-auth";
 import { useSolanaWallets } from "@privy-io/react-auth/solana";
+import { useRouter } from "next/navigation";
 
 type VideoCardProps = {
   video: {
@@ -38,6 +39,7 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
   const { authenticated, login } = usePrivy();
   const { wallets } = useSolanaWallets();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const router = useRouter();
 
   // Handle video hover playback
   useEffect(() => {
@@ -50,17 +52,11 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
     }
   }, [isHovering]);
 
-  const handlePlay = async () => {
-    onPlayTrack(video);
-
-    // Update play count in the database
-    try {
-      await fetch(`/api/videos/${video.id}/play`, {
-        method: "POST",
-      });
-    } catch (error) {
-      console.error("Error updating play count:", error);
-    }
+  const handlePlay = async (e: React.MouseEvent) => {
+    // Navigate to the video detail page
+    router.push(`/videos/${video.id}`);
+    
+    // We're now letting the video detail page handle play count updates
   };
 
   // Format the market cap nicely
