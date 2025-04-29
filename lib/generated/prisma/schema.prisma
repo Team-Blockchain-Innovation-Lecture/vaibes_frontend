@@ -75,6 +75,9 @@ model Video {
   // Relation to likes
   likes VideoLike[]
 
+  // Relation to comments
+  comments Comment[]
+
   // Indexes for performance
   @@index([tokenId])
 }
@@ -95,4 +98,28 @@ model VideoLike {
   @@unique([userId, videoId])
   @@index([userId])
   @@index([videoId])
+}
+
+// Model for video comments
+model Comment {
+  id          String @id @default(cuid())
+  content     String @db.Text // Comment content
+  userAddress String // User's wallet address
+
+  // Relation to Video
+  videoId String // Foreign key referencing Video
+  video   Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  // Parent-child relationship for replies
+  parentId String? // Foreign key for parent comment (null if top-level)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Indexes for performance
+  @@index([videoId])
+  @@index([parentId])
+  @@index([userAddress])
 }
