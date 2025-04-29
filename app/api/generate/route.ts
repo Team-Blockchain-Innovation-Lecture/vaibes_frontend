@@ -7,7 +7,7 @@ const generatingTasks = new Map();
 export async function POST(req: NextRequest) {
   try {
     // リクエストボディからパラメータを抽出
-    const { prompt, genre = "EDM", instrumental = false, model_version = "v4", timeout = 120, task_id = null } = await req.json();
+    const { prompt, genre = "EDM", instrumental = false, model_version = "v4", timeout = 3, task_id = null } = await req.json();
     
     if (!prompt) {
       return NextResponse.json({ 
