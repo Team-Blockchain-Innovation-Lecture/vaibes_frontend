@@ -55,7 +55,7 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
   const handlePlay = async (e: React.MouseEvent) => {
     // Navigate to the video detail page
     router.push(`/videos/${video.id}`);
-    
+
     // We're now letting the video detail page handle play count updates
   };
 

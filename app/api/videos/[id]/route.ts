@@ -55,9 +55,10 @@ export async function GET(
 
     const videoIds = allVideos.map((v) => v.id);
     const currentIndex = videoIds.indexOf(videoId);
-    
+
     // Determine previous and next video IDs
-    const prevVideoId = currentIndex < videoIds.length - 1 ? videoIds[currentIndex + 1] : null;
+    const prevVideoId =
+      currentIndex < videoIds.length - 1 ? videoIds[currentIndex + 1] : null;
     const nextVideoId = currentIndex > 0 ? videoIds[currentIndex - 1] : null;
 
     // Update the play count

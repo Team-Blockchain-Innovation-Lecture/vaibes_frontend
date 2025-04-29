@@ -114,12 +114,17 @@ export default function VideoDetailPage() {
       if (!isDragging && videoElement) {
         const currentProgress =
           (videoElement.currentTime / videoElement.duration) * 100 || 0;
-        
+
         // 無効な値でないことを確認
         if (!isNaN(currentProgress)) {
           setProgress(currentProgress);
           setCurrentTime(formatTime(videoElement.currentTime));
-          console.log("Time update:", videoElement.currentTime, "Progress:", currentProgress); 
+          console.log(
+            "Time update:",
+            videoElement.currentTime,
+            "Progress:",
+            currentProgress
+          );
         }
       }
     };
@@ -128,7 +133,7 @@ export default function VideoDetailPage() {
       console.log("Video metadata loaded, duration:", videoElement.duration);
       // 動画の長さを設定
       setDuration(formatTime(videoElement.duration));
-      
+
       // 初期値を設定
       setProgress(0);
       setCurrentTime(formatTime(0));
@@ -149,11 +154,11 @@ export default function VideoDetailPage() {
     videoElement.addEventListener("timeupdate", handleTimeUpdate);
     videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
     videoElement.addEventListener("ended", handleVideoEnded);
-    
+
     // 既にメタデータが読み込まれている場合は手動で処理を実行
     if (videoElement.readyState >= 1) {
       handleLoadedMetadata();
-      
+
       // 現在位置を反映
       if (videoElement.currentTime > 0) {
         handleTimeUpdate();
@@ -222,13 +227,14 @@ export default function VideoDetailPage() {
           setTimeout(() => {
             if (videoRef.current) {
               videoRef.current.muted = false;
-              
+
               // プログレスバーの初期化を強制的に行う
               if (!isNaN(videoRef.current.duration)) {
                 setDuration(formatTime(videoRef.current.duration));
-                
-                const currentProgress = 
-                  (videoRef.current.currentTime / videoRef.current.duration) * 100 || 0;
+
+                const currentProgress =
+                  (videoRef.current.currentTime / videoRef.current.duration) *
+                    100 || 0;
                 setProgress(currentProgress);
                 setCurrentTime(formatTime(videoRef.current.currentTime));
                 console.log("Initial progress set to:", currentProgress);
@@ -250,7 +256,7 @@ export default function VideoDetailPage() {
       const handleCanPlay = () => {
         console.log("Video can play event fired");
         attemptPlay();
-        
+
         // メタデータが既に利用可能であれば、すぐに設定
         if (videoRef.current && !isNaN(videoRef.current.duration)) {
           setDuration(formatTime(videoRef.current.duration));
@@ -268,15 +274,22 @@ export default function VideoDetailPage() {
       videoRef.current.addEventListener("canplay", handleCanPlay, {
         once: true,
       });
-      
-      videoRef.current.addEventListener("loadedmetadata", handleLoadedMetadata, {
-        once: true,
-      });
+
+      videoRef.current.addEventListener(
+        "loadedmetadata",
+        handleLoadedMetadata,
+        {
+          once: true,
+        }
+      );
 
       return () => {
         if (videoRef.current) {
           videoRef.current.removeEventListener("canplay", handleCanPlay);
-          videoRef.current.removeEventListener("loadedmetadata", handleLoadedMetadata);
+          videoRef.current.removeEventListener(
+            "loadedmetadata",
+            handleLoadedMetadata
+          );
         }
       };
     }
@@ -285,10 +298,10 @@ export default function VideoDetailPage() {
   // Toggle video play/pause with improved error handling
   const togglePlay = () => {
     if (!videoRef.current) return;
-    
+
     try {
       console.log("Toggle play clicked, current state:", isPlaying);
-      
+
       if (isPlaying) {
         // 再生中 → 停止
         videoRef.current.pause();
@@ -296,18 +309,19 @@ export default function VideoDetailPage() {
       } else {
         // 停止中 → 再生
         const playPromise = videoRef.current.play();
-        
+
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
               console.log("Video playback started successfully");
               setIsPlaying(true);
             })
-            .catch(error => {
+            .catch((error) => {
               console.error("Error playing video:", error);
               // ブラウザの自動再生ポリシーに対応するため、一度ミュートして再生を試みる
               videoRef.current!.muted = true;
-              videoRef.current!.play()
+              videoRef
+                .current!.play()
                 .then(() => {
                   console.log("Muted playback started");
                   // 少し遅延してからミュートを解除
@@ -318,7 +332,7 @@ export default function VideoDetailPage() {
                     }
                   }, 100);
                 })
-                .catch(mutedError => {
+                .catch((mutedError) => {
                   console.error("Even muted playback failed:", mutedError);
                   setIsPlaying(false);
                 });
@@ -388,15 +402,15 @@ export default function VideoDetailPage() {
   useEffect(() => {
     // Handle swipe gestures (mainly for mobile)
     let touchStartY = 0;
-    
+
     const handleTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
     };
-    
+
     const handleTouchEnd = (e: TouchEvent) => {
       const touchEndY = e.changedTouches[0].clientY;
       const deltaY = touchEndY - touchStartY;
-      
+
       // If the swipe distance is significant enough
       if (Math.abs(deltaY) > 50) {
         if (deltaY > 0 && prevVideo) {
@@ -408,36 +422,36 @@ export default function VideoDetailPage() {
         }
       }
     };
-    
+
     // Handle wheel events (for desktop)
     const handleWheel = (e: WheelEvent) => {
       // 必ず e.preventDefault() を最初に呼び出して、デフォルトのスクロール動作を防ぐ
       e.preventDefault();
-      
+
       // ビデオコンテナ内でのホイールイベントのみを処理
       // 注：progressBarRef などの操作後でもビデオコンテナ内のイベントは処理する
       if (!videoContainerRef.current?.contains(e.target as Node)) return;
-      
+
       // すでに遷移処理中なら何もしない
       if (isNavigatingRef.current) return;
-      
+
       // 以前のタイムアウトをクリア
       if (wheelTimeoutRef.current) {
         clearTimeout(wheelTimeoutRef.current);
       }
-      
+
       // ナビゲーション処理中フラグをセット
       isNavigatingRef.current = true;
-      
+
       // 十分なスクロール量でないと遷移しない
       if (Math.abs(e.deltaY) < 20) {
         isNavigatingRef.current = false;
         return;
       }
-      
+
       // ログを追加して問題の診断をしやすくする
       console.log("Wheel event detected, deltaY:", e.deltaY);
-      
+
       wheelTimeoutRef.current = setTimeout(() => {
         if (e.deltaY > 0 && nextVideo) {
           // 下にスクロール - 次の動画へ
@@ -448,53 +462,59 @@ export default function VideoDetailPage() {
           console.log("Navigating to previous video");
           goToPreviousVideo();
         }
-        
+
         // ナビゲーションフラグをリセット
         setTimeout(() => {
           isNavigatingRef.current = false;
         }, 500);
       }, 150); // タイムアウトを短くして反応速度を上げる
     };
-    
+
     const videoContainer = videoContainerRef.current;
-    
+
     if (videoContainer) {
       // イベントリスナーを追加
-      videoContainer.addEventListener('touchstart', handleTouchStart);
-      videoContainer.addEventListener('touchend', handleTouchEnd);
-      
+      videoContainer.addEventListener("touchstart", handleTouchStart);
+      videoContainer.addEventListener("touchend", handleTouchEnd);
+
       // 重要: passive: false を設定して preventDefault() が機能するようにする
-      videoContainer.addEventListener('wheel', handleWheel, { passive: false });
-      
+      videoContainer.addEventListener("wheel", handleWheel, { passive: false });
+
       // ビデオ要素にも直接イベントハンドラを追加
       if (videoRef.current) {
-        videoRef.current.addEventListener('wheel', handleWheel, { passive: false });
+        videoRef.current.addEventListener("wheel", handleWheel, {
+          passive: false,
+        });
       }
-      
+
       // プログレスバー要素にもイベントハンドラを追加
       if (progressBarRef.current) {
-        progressBarRef.current.addEventListener('wheel', (e) => {
-          // プログレスバー上でのホイールイベントも処理できるように
-          handleWheel(e);
-        }, { passive: false });
+        progressBarRef.current.addEventListener(
+          "wheel",
+          (e) => {
+            // プログレスバー上でのホイールイベントも処理できるように
+            handleWheel(e);
+          },
+          { passive: false }
+        );
       }
     }
-    
+
     return () => {
       if (videoContainer) {
-        videoContainer.removeEventListener('touchstart', handleTouchStart);
-        videoContainer.removeEventListener('touchend', handleTouchEnd);
-        videoContainer.removeEventListener('wheel', handleWheel);
+        videoContainer.removeEventListener("touchstart", handleTouchStart);
+        videoContainer.removeEventListener("touchend", handleTouchEnd);
+        videoContainer.removeEventListener("wheel", handleWheel);
       }
-      
+
       if (videoRef.current) {
-        videoRef.current.removeEventListener('wheel', handleWheel);
+        videoRef.current.removeEventListener("wheel", handleWheel);
       }
-      
+
       if (progressBarRef.current) {
-        progressBarRef.current.removeEventListener('wheel', handleWheel);
+        progressBarRef.current.removeEventListener("wheel", handleWheel);
       }
-      
+
       if (wheelTimeoutRef.current) {
         clearTimeout(wheelTimeoutRef.current);
       }
@@ -507,27 +527,27 @@ export default function VideoDetailPage() {
     function globalWheelHandler(e: WheelEvent) {
       // ビデオエリア内のみ処理
       if (!videoContainerRef.current?.contains(e.target as Node)) return;
-      
+
       // デフォルトのスクロール防止
       e.preventDefault();
       e.stopPropagation();
-      
+
       // 遷移中なら何もしない
       if (isNavigatingRef.current) return;
-      
+
       // 既存のタイムアウトをクリア
       if (wheelTimeoutRef.current) {
         clearTimeout(wheelTimeoutRef.current);
       }
-      
+
       // スクロール量が小さすぎる場合は無視
       if (Math.abs(e.deltaY) < 20) return;
-      
+
       console.log("Global wheel handler fired with deltaY:", e.deltaY);
-      
+
       // 遷移フラグをセット
       isNavigatingRef.current = true;
-      
+
       // 遷移処理を実行
       if (e.deltaY > 0 && nextVideo) {
         console.log("Navigating to next video via global handler");
@@ -536,19 +556,24 @@ export default function VideoDetailPage() {
         console.log("Navigating to previous video via global handler");
         goToPreviousVideo();
       }
-      
+
       // フラグリセット
       setTimeout(() => {
         isNavigatingRef.current = false;
       }, 500);
     }
-    
+
     // documentレベルでイベントリスナーを追加
-    document.addEventListener('wheel', globalWheelHandler, { passive: false, capture: true });
-    
+    document.addEventListener("wheel", globalWheelHandler, {
+      passive: false,
+      capture: true,
+    });
+
     // クリーンアップ
     return () => {
-      document.removeEventListener('wheel', globalWheelHandler, { capture: true });
+      document.removeEventListener("wheel", globalWheelHandler, {
+        capture: true,
+      });
     };
   }, [prevVideo, nextVideo, goToNextVideo, goToPreviousVideo]);
 
@@ -686,8 +711,9 @@ export default function VideoDetailPage() {
             onTimeUpdate={() => {
               // インライン更新処理を追加して確実にプログレスバーを更新
               if (videoRef.current && !isDragging) {
-                const currentProgress = 
-                  (videoRef.current.currentTime / videoRef.current.duration) * 100;
+                const currentProgress =
+                  (videoRef.current.currentTime / videoRef.current.duration) *
+                  100;
                 if (!isNaN(currentProgress)) {
                   setProgress(currentProgress);
                   setCurrentTime(formatTime(videoRef.current.currentTime));
@@ -704,7 +730,10 @@ export default function VideoDetailPage() {
 
           {/* Play Button Overlay */}
           {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center cursor-pointer" onClick={togglePlay}>
+            <div
+              className="absolute inset-0 flex items-center justify-center cursor-pointer"
+              onClick={togglePlay}
+            >
               <div className="p-4 bg-black/30 rounded-full">
                 <Play size={40} className="text-white" />
               </div>
@@ -713,23 +742,23 @@ export default function VideoDetailPage() {
         </div>
 
         {/* Progress Bar */}
-        <div 
+        <div
           className="absolute bottom-6 left-4 right-4 mx-auto max-w-[500px] z-10"
           onWheel={(e) => {
             // プログレスバー上のホイールイベントも確実に処理
             e.stopPropagation();
             e.preventDefault();
-            
+
             if (isNavigatingRef.current) return;
-            
+
             // スクロール量が小さすぎる場合は無視
             if (Math.abs(e.deltaY) < 20) return;
-            
+
             console.log("Progress bar wheel event:", e.deltaY);
-            
+
             // 遷移フラグをセット
             isNavigatingRef.current = true;
-            
+
             // 遷移処理を実行
             if (e.deltaY > 0 && nextVideo) {
               console.log("Navigating to next video from progress bar");
@@ -738,7 +767,7 @@ export default function VideoDetailPage() {
               console.log("Navigating to previous video from progress bar");
               goToPreviousVideo();
             }
-            
+
             // フラグリセット
             setTimeout(() => {
               isNavigatingRef.current = false;
@@ -765,19 +794,19 @@ export default function VideoDetailPage() {
                 // プログレスバー上のスクロールも確実に処理
                 e.stopPropagation();
                 e.preventDefault();
-                
+
                 if (isNavigatingRef.current) return;
-                
+
                 if (Math.abs(e.deltaY) < 20) return;
-                
+
                 isNavigatingRef.current = true;
-                
+
                 if (e.deltaY > 0 && nextVideo) {
                   goToNextVideo();
                 } else if (e.deltaY < 0 && prevVideo) {
                   goToPreviousVideo();
                 }
-                
+
                 setTimeout(() => {
                   isNavigatingRef.current = false;
                 }, 500);
