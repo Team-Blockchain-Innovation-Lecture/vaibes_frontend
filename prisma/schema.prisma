@@ -123,3 +123,30 @@ model Comment {
   @@index([parentId])
   @@index([userAddress])
 }
+
+
+// Model for raw_music
+model Raw_music {
+  id                    String    @id @default(cuid())
+  userAddress           String    // User's wallet address
+  task_id               String    // Task ID for music generation
+  is_completed          Boolean   @default(false) // Whether the music generation is completed
+  audio_url             String?   // URL to the generated audio file
+  image_url             String?   // URL to the generated image/cover
+  
+  // Indexes for performance
+  @@index([userAddress])
+  @@index([task_id])
+}
+
+// Model for raw_video
+model Raw_video {
+  id                    String    @id @default(cuid())
+  userAddress           String    // User's wallet address
+  task_id               String    // Task ID for video generation
+  is_completed          Boolean   @default(false) // Whether the video generation is completed
+  
+  // Indexes for performance
+  @@index([userAddress])
+  @@index([task_id])
+}
