@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE `Video` ADD COLUMN `creator` VARCHAR(191) NOT NULL DEFAULT '0x000';

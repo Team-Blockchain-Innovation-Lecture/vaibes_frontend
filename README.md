@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Initialize DB
+
+1. Copy .env.sample .env file.
+2. `docker compose up -d`
+3. `npx prisma migrate deploy`
+4. `npx prisma generate`
+5. `docker exec -i vaibes_mysql mysql -uroot -prootpassword vaibes_db < init/mydb_2025-04-29.sql`
+6. `yarn dev`
