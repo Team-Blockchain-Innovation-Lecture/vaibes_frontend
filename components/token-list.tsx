@@ -9,6 +9,7 @@ type TokenListProps = {
 
 type Token = {
   id: string;
+  mint: string;
   name: string;
   symbol: string;
   description: string | null;

@@ -13,6 +13,7 @@ import Link from "next/link";
 type TokenCardProps = {
   token: {
     id: string;
+    mint: string;
     name: string;
     symbol: string;
     description: string | null;
@@ -46,7 +47,7 @@ export function TokenCard({ token }: TokenCardProps) {
         {/* 左側のロゴエリア - VideoCardと同じ幅に調整 */}
         <div className="w-2/5 bg-secondary/10 flex items-center justify-center relative">
           <Link
-            href={`/tokens/${token.id}`}
+            href={`/tokens/${token.mint}`}
             className="w-full h-full flex items-center justify-center"
           >
             {token.logo ? (

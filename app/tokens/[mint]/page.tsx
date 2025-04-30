@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { VideoCard } from "@/components/video-card";
 import { formatMarketCap } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
 import {
   Tooltip,
   TooltipContent,
@@ -14,12 +15,13 @@ import Link from "next/link";
 
 type TokenDetailProps = {
   params: {
-    id: string;
+    mint: string;
   };
 };
 
 type TokenDetail = {
   id: string;
+  mint: string;
   name: string;
   symbol: string;
   description: string | null;
@@ -44,9 +46,9 @@ type TokenDetail = {
 export default function TokenDetailPage({ params }: TokenDetailProps) {
   const [token, setToken] = useState<TokenDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  // Unwrap params with React.use()
-  const paramsData = React.use(params);
-  const id = paramsData.id;
+  // React.use()でパラメータをアンラップ
+  const mintParam = React.use(params);
+  const mint = mintParam.mint;
 
   // Handler function for playing tracks
   const handlePlayTrack = (track: any) => {
@@ -57,7 +59,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
   useEffect(() => {
     async function fetchTokenDetail() {
       try {
-        const response = await fetch(`/api/tokens/${id}`);
+        const response = await fetch(`/api/tokens/mint/${mint}`);
         if (!response.ok) throw new Error("Failed to fetch token details");
         const data = await response.json();
         setToken(data.token);
@@ -68,10 +70,10 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
       }
     }
 
-    if (id) {
+    if (mint) {
       fetchTokenDetail();
     }
-  }, [id]);
+  }, [mint]);
 
   if (loading) {
     return (
@@ -301,7 +303,11 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
       {/* Token Videos */}
       <section className="space-y-4 py-6">
         <h2 className="text-2xl font-bold">Videos</h2>
-        <CustomTokenVideos tokenId={token.id} onPlayTrack={handlePlayTrack} />
+        <CustomTokenVideos
+          tokenId={token.id}
+          mint={mint}
+          onPlayTrack={handlePlayTrack}
+        />
       </section>
     </div>
   );
@@ -310,18 +316,22 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
 // 代替的なビデオ表示用コンポーネント
 function CustomTokenVideos({
   tokenId,
+  mint,
   onPlayTrack,
 }: {
   tokenId: string;
+  mint: string;
   onPlayTrack: (track: any) => void;
 }) {
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // 親コンポーネントから渡されたmintを使用
   useEffect(() => {
     async function fetchTokenVideos() {
       try {
-        const response = await fetch(`/api/tokens/${tokenId}/videos`);
+        // mintアドレスを使用してビデオを取得
+        const response = await fetch(`/api/tokens/mint/${mint}/videos`);
         if (!response.ok) throw new Error("Failed to fetch token videos");
         const data = await response.json();
         setVideos(data.videos);
@@ -333,8 +343,10 @@ function CustomTokenVideos({
       }
     }
 
-    fetchTokenVideos();
-  }, [tokenId]);
+    if (mint) {
+      fetchTokenVideos();
+    }
+  }, [mint]);
 
   if (loading) {
     return (
