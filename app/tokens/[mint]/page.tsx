@@ -376,7 +376,11 @@ function CustomTokenVideos({
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {videos.map((video) => (
         <div key={video.id} className="h-auto">
-          <VideoCard video={video} onPlayTrack={onPlayTrack} />
+          <VideoCard
+            video={video}
+            onPlayTrack={onPlayTrack}
+            tokenContext={{ mintAddress: mint }}
+          />
         </div>
       ))}
     </div>

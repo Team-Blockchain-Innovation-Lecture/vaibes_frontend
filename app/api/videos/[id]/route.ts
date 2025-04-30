@@ -11,6 +11,7 @@ export async function GET(
     const videoId = params.id;
     const { searchParams } = new URL(request.url);
     const walletAddress = searchParams.get("walletAddress");
+    const tokenMint = searchParams.get("tokenMint"); // Get token mint address from query params
 
     // Fetch the current video with token information
     const video = await prisma.video.findUnique({
@@ -23,6 +24,7 @@ export async function GET(
             symbol: true,
             logo: true,
             marketCap: true,
+            mint: true, // Also include the mint address
           },
         },
       },
@@ -46,20 +48,51 @@ export async function GET(
       isLiked = !!like;
     }
 
-    // Find the previous and next videos
-    // Get all video IDs ordered by creation date
-    const allVideos = await prisma.video.findMany({
-      select: { id: true },
-      orderBy: { createdAt: "desc" },
-    });
+    let prevVideoId = null;
+    let nextVideoId = null;
 
-    const videoIds = allVideos.map((v) => v.id);
-    const currentIndex = videoIds.indexOf(videoId);
+    // If a token mint address is provided, find videos only for that token
+    if (tokenMint) {
+      // First find the token ID from the mint address
+      const token = await prisma.token.findUnique({
+        where: { mint: tokenMint },
+        select: { id: true },
+      });
 
-    // Determine previous and next video IDs
-    const prevVideoId =
-      currentIndex < videoIds.length - 1 ? videoIds[currentIndex + 1] : null;
-    const nextVideoId = currentIndex > 0 ? videoIds[currentIndex - 1] : null;
+      if (token) {
+        // Get all videos for this token ordered by creation date
+        const tokenVideos = await prisma.video.findMany({
+          where: { tokenId: token.id },
+          select: { id: true },
+          orderBy: { createdAt: "desc" },
+        });
+
+        const tokenVideoIds = tokenVideos.map((v) => v.id);
+        const currentTokenIndex = tokenVideoIds.indexOf(videoId);
+
+        // Determine previous and next video IDs within the token's videos
+        prevVideoId =
+          currentTokenIndex < tokenVideoIds.length - 1
+            ? tokenVideoIds[currentTokenIndex + 1]
+            : null;
+        nextVideoId =
+          currentTokenIndex > 0 ? tokenVideoIds[currentTokenIndex - 1] : null;
+      }
+    } else {
+      // Regular global navigation (all videos)
+      const allVideos = await prisma.video.findMany({
+        select: { id: true },
+        orderBy: { createdAt: "desc" },
+      });
+
+      const videoIds = allVideos.map((v) => v.id);
+      const currentIndex = videoIds.indexOf(videoId);
+
+      // Determine previous and next video IDs
+      prevVideoId =
+        currentIndex < videoIds.length - 1 ? videoIds[currentIndex + 1] : null;
+      nextVideoId = currentIndex > 0 ? videoIds[currentIndex - 1] : null;
+    }
 
     // Update the play count
     await prisma.video.update({

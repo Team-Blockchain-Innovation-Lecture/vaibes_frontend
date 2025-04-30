@@ -6,7 +6,7 @@ import { Play } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePrivy } from "@privy-io/react-auth";
 import { useSolanaWallets } from "@privy-io/react-auth/solana";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 type VideoCardProps = {
   video: {
@@ -21,16 +21,24 @@ type VideoCardProps = {
       name: string;
       symbol: string;
       logo: string | null;
-      marketCap?: number | null; // Add marketCap to the type
+      marketCap?: number | null;
+      mint?: string;
     };
     creator?: string;
     isLiked?: boolean;
     commentCount?: number;
   };
   onPlayTrack: (track: any) => void;
+  tokenContext?: {
+    mintAddress: string;
+  };
 };
 
-export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
+export function VideoCard({
+  video,
+  onPlayTrack,
+  tokenContext,
+}: VideoCardProps) {
   const [isLiked, setIsLiked] = useState(video.isLiked || false);
   const [likeCount, setLikeCount] = useState(video.likeCount);
   const [isHovering, setIsHovering] = useState(false);
@@ -40,6 +48,7 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
   const { wallets } = useSolanaWallets();
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
+  const params = useParams();
 
   // Handle video hover playback
   useEffect(() => {
@@ -53,10 +62,17 @@ export function VideoCard({ video, onPlayTrack }: VideoCardProps) {
   }, [isHovering]);
 
   const handlePlay = async (e: React.MouseEvent) => {
-    // Navigate to the video detail page
-    router.push(`/videos/${video.id}`);
-
-    // We're now letting the video detail page handle play count updates
+    // Determine the navigation path based on context
+    if (tokenContext) {
+      // Navigate to the token-specific video detail page
+      router.push(`/tokens/${tokenContext.mintAddress}/${video.id}`);
+    } else if (params?.mint) {
+      // If we're already in a token context from URL params
+      router.push(`/tokens/${params.mint}/${video.id}`);
+    } else {
+      // Regular video navigation
+      router.push(`/videos/${video.id}`);
+    }
   };
 
   // Format the market cap nicely
