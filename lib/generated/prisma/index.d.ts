@@ -33,6 +33,16 @@ export type VideoLike = $Result.DefaultSelection<Prisma.$VideoLikePayload>
  * 
  */
 export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
+/**
+ * Model Raw_music
+ * 
+ */
+export type Raw_music = $Result.DefaultSelection<Prisma.$Raw_musicPayload>
+/**
+ * Model Raw_video
+ * 
+ */
+export type Raw_video = $Result.DefaultSelection<Prisma.$Raw_videoPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -198,6 +208,26 @@ export class PrismaClient<
     * ```
     */
   get comment(): Prisma.CommentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.raw_music`: Exposes CRUD operations for the **Raw_music** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Raw_musics
+    * const raw_musics = await prisma.raw_music.findMany()
+    * ```
+    */
+  get raw_music(): Prisma.Raw_musicDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.raw_video`: Exposes CRUD operations for the **Raw_video** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Raw_videos
+    * const raw_videos = await prisma.raw_video.findMany()
+    * ```
+    */
+  get raw_video(): Prisma.Raw_videoDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -641,7 +671,9 @@ export namespace Prisma {
     Token: 'Token',
     Video: 'Video',
     VideoLike: 'VideoLike',
-    Comment: 'Comment'
+    Comment: 'Comment',
+    Raw_music: 'Raw_music',
+    Raw_video: 'Raw_video'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -660,7 +692,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "token" | "video" | "videoLike" | "comment"
+      modelProps: "token" | "video" | "videoLike" | "comment" | "raw_music" | "raw_video"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -928,6 +960,138 @@ export namespace Prisma {
           }
         }
       }
+      Raw_music: {
+        payload: Prisma.$Raw_musicPayload<ExtArgs>
+        fields: Prisma.Raw_musicFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.Raw_musicFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.Raw_musicFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>
+          }
+          findFirst: {
+            args: Prisma.Raw_musicFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.Raw_musicFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>
+          }
+          findMany: {
+            args: Prisma.Raw_musicFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>[]
+          }
+          create: {
+            args: Prisma.Raw_musicCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>
+          }
+          createMany: {
+            args: Prisma.Raw_musicCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.Raw_musicDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>
+          }
+          update: {
+            args: Prisma.Raw_musicUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>
+          }
+          deleteMany: {
+            args: Prisma.Raw_musicDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.Raw_musicUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.Raw_musicUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_musicPayload>
+          }
+          aggregate: {
+            args: Prisma.Raw_musicAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRaw_music>
+          }
+          groupBy: {
+            args: Prisma.Raw_musicGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Raw_musicGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.Raw_musicCountArgs<ExtArgs>
+            result: $Utils.Optional<Raw_musicCountAggregateOutputType> | number
+          }
+        }
+      }
+      Raw_video: {
+        payload: Prisma.$Raw_videoPayload<ExtArgs>
+        fields: Prisma.Raw_videoFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.Raw_videoFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.Raw_videoFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>
+          }
+          findFirst: {
+            args: Prisma.Raw_videoFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.Raw_videoFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>
+          }
+          findMany: {
+            args: Prisma.Raw_videoFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>[]
+          }
+          create: {
+            args: Prisma.Raw_videoCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>
+          }
+          createMany: {
+            args: Prisma.Raw_videoCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.Raw_videoDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>
+          }
+          update: {
+            args: Prisma.Raw_videoUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>
+          }
+          deleteMany: {
+            args: Prisma.Raw_videoDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.Raw_videoUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.Raw_videoUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Raw_videoPayload>
+          }
+          aggregate: {
+            args: Prisma.Raw_videoAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRaw_video>
+          }
+          groupBy: {
+            args: Prisma.Raw_videoGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Raw_videoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.Raw_videoCountArgs<ExtArgs>
+            result: $Utils.Optional<Raw_videoCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1016,6 +1180,8 @@ export namespace Prisma {
     video?: VideoOmit
     videoLike?: VideoLikeOmit
     comment?: CommentOmit
+    raw_music?: Raw_musicOmit
+    raw_video?: Raw_videoOmit
   }
 
   /* Types for Logging */
@@ -5387,6 +5553,1770 @@ export namespace Prisma {
 
 
   /**
+   * Model Raw_music
+   */
+
+  export type AggregateRaw_music = {
+    _count: Raw_musicCountAggregateOutputType | null
+    _min: Raw_musicMinAggregateOutputType | null
+    _max: Raw_musicMaxAggregateOutputType | null
+  }
+
+  export type Raw_musicMinAggregateOutputType = {
+    id: string | null
+    userAddress: string | null
+    task_id: string | null
+    is_completed: boolean | null
+    audio_url: string | null
+    image_url: string | null
+  }
+
+  export type Raw_musicMaxAggregateOutputType = {
+    id: string | null
+    userAddress: string | null
+    task_id: string | null
+    is_completed: boolean | null
+    audio_url: string | null
+    image_url: string | null
+  }
+
+  export type Raw_musicCountAggregateOutputType = {
+    id: number
+    userAddress: number
+    task_id: number
+    is_completed: number
+    audio_url: number
+    image_url: number
+    _all: number
+  }
+
+
+  export type Raw_musicMinAggregateInputType = {
+    id?: true
+    userAddress?: true
+    task_id?: true
+    is_completed?: true
+    audio_url?: true
+    image_url?: true
+  }
+
+  export type Raw_musicMaxAggregateInputType = {
+    id?: true
+    userAddress?: true
+    task_id?: true
+    is_completed?: true
+    audio_url?: true
+    image_url?: true
+  }
+
+  export type Raw_musicCountAggregateInputType = {
+    id?: true
+    userAddress?: true
+    task_id?: true
+    is_completed?: true
+    audio_url?: true
+    image_url?: true
+    _all?: true
+  }
+
+  export type Raw_musicAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Raw_music to aggregate.
+     */
+    where?: Raw_musicWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_musics to fetch.
+     */
+    orderBy?: Raw_musicOrderByWithRelationInput | Raw_musicOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: Raw_musicWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_musics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_musics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Raw_musics
+    **/
+    _count?: true | Raw_musicCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Raw_musicMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Raw_musicMaxAggregateInputType
+  }
+
+  export type GetRaw_musicAggregateType<T extends Raw_musicAggregateArgs> = {
+        [P in keyof T & keyof AggregateRaw_music]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRaw_music[P]>
+      : GetScalarType<T[P], AggregateRaw_music[P]>
+  }
+
+
+
+
+  export type Raw_musicGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: Raw_musicWhereInput
+    orderBy?: Raw_musicOrderByWithAggregationInput | Raw_musicOrderByWithAggregationInput[]
+    by: Raw_musicScalarFieldEnum[] | Raw_musicScalarFieldEnum
+    having?: Raw_musicScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Raw_musicCountAggregateInputType | true
+    _min?: Raw_musicMinAggregateInputType
+    _max?: Raw_musicMaxAggregateInputType
+  }
+
+  export type Raw_musicGroupByOutputType = {
+    id: string
+    userAddress: string
+    task_id: string
+    is_completed: boolean
+    audio_url: string | null
+    image_url: string | null
+    _count: Raw_musicCountAggregateOutputType | null
+    _min: Raw_musicMinAggregateOutputType | null
+    _max: Raw_musicMaxAggregateOutputType | null
+  }
+
+  type GetRaw_musicGroupByPayload<T extends Raw_musicGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Raw_musicGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Raw_musicGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Raw_musicGroupByOutputType[P]>
+            : GetScalarType<T[P], Raw_musicGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type Raw_musicSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userAddress?: boolean
+    task_id?: boolean
+    is_completed?: boolean
+    audio_url?: boolean
+    image_url?: boolean
+  }, ExtArgs["result"]["raw_music"]>
+
+
+
+  export type Raw_musicSelectScalar = {
+    id?: boolean
+    userAddress?: boolean
+    task_id?: boolean
+    is_completed?: boolean
+    audio_url?: boolean
+    image_url?: boolean
+  }
+
+  export type Raw_musicOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "is_completed" | "audio_url" | "image_url", ExtArgs["result"]["raw_music"]>
+
+  export type $Raw_musicPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Raw_music"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userAddress: string
+      task_id: string
+      is_completed: boolean
+      audio_url: string | null
+      image_url: string | null
+    }, ExtArgs["result"]["raw_music"]>
+    composites: {}
+  }
+
+  type Raw_musicGetPayload<S extends boolean | null | undefined | Raw_musicDefaultArgs> = $Result.GetResult<Prisma.$Raw_musicPayload, S>
+
+  type Raw_musicCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<Raw_musicFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Raw_musicCountAggregateInputType | true
+    }
+
+  export interface Raw_musicDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Raw_music'], meta: { name: 'Raw_music' } }
+    /**
+     * Find zero or one Raw_music that matches the filter.
+     * @param {Raw_musicFindUniqueArgs} args - Arguments to find a Raw_music
+     * @example
+     * // Get one Raw_music
+     * const raw_music = await prisma.raw_music.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends Raw_musicFindUniqueArgs>(args: SelectSubset<T, Raw_musicFindUniqueArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Raw_music that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {Raw_musicFindUniqueOrThrowArgs} args - Arguments to find a Raw_music
+     * @example
+     * // Get one Raw_music
+     * const raw_music = await prisma.raw_music.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends Raw_musicFindUniqueOrThrowArgs>(args: SelectSubset<T, Raw_musicFindUniqueOrThrowArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Raw_music that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicFindFirstArgs} args - Arguments to find a Raw_music
+     * @example
+     * // Get one Raw_music
+     * const raw_music = await prisma.raw_music.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends Raw_musicFindFirstArgs>(args?: SelectSubset<T, Raw_musicFindFirstArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Raw_music that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicFindFirstOrThrowArgs} args - Arguments to find a Raw_music
+     * @example
+     * // Get one Raw_music
+     * const raw_music = await prisma.raw_music.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends Raw_musicFindFirstOrThrowArgs>(args?: SelectSubset<T, Raw_musicFindFirstOrThrowArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Raw_musics that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Raw_musics
+     * const raw_musics = await prisma.raw_music.findMany()
+     * 
+     * // Get first 10 Raw_musics
+     * const raw_musics = await prisma.raw_music.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const raw_musicWithIdOnly = await prisma.raw_music.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends Raw_musicFindManyArgs>(args?: SelectSubset<T, Raw_musicFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Raw_music.
+     * @param {Raw_musicCreateArgs} args - Arguments to create a Raw_music.
+     * @example
+     * // Create one Raw_music
+     * const Raw_music = await prisma.raw_music.create({
+     *   data: {
+     *     // ... data to create a Raw_music
+     *   }
+     * })
+     * 
+     */
+    create<T extends Raw_musicCreateArgs>(args: SelectSubset<T, Raw_musicCreateArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Raw_musics.
+     * @param {Raw_musicCreateManyArgs} args - Arguments to create many Raw_musics.
+     * @example
+     * // Create many Raw_musics
+     * const raw_music = await prisma.raw_music.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends Raw_musicCreateManyArgs>(args?: SelectSubset<T, Raw_musicCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Raw_music.
+     * @param {Raw_musicDeleteArgs} args - Arguments to delete one Raw_music.
+     * @example
+     * // Delete one Raw_music
+     * const Raw_music = await prisma.raw_music.delete({
+     *   where: {
+     *     // ... filter to delete one Raw_music
+     *   }
+     * })
+     * 
+     */
+    delete<T extends Raw_musicDeleteArgs>(args: SelectSubset<T, Raw_musicDeleteArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Raw_music.
+     * @param {Raw_musicUpdateArgs} args - Arguments to update one Raw_music.
+     * @example
+     * // Update one Raw_music
+     * const raw_music = await prisma.raw_music.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends Raw_musicUpdateArgs>(args: SelectSubset<T, Raw_musicUpdateArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Raw_musics.
+     * @param {Raw_musicDeleteManyArgs} args - Arguments to filter Raw_musics to delete.
+     * @example
+     * // Delete a few Raw_musics
+     * const { count } = await prisma.raw_music.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends Raw_musicDeleteManyArgs>(args?: SelectSubset<T, Raw_musicDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Raw_musics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Raw_musics
+     * const raw_music = await prisma.raw_music.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends Raw_musicUpdateManyArgs>(args: SelectSubset<T, Raw_musicUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Raw_music.
+     * @param {Raw_musicUpsertArgs} args - Arguments to update or create a Raw_music.
+     * @example
+     * // Update or create a Raw_music
+     * const raw_music = await prisma.raw_music.upsert({
+     *   create: {
+     *     // ... data to create a Raw_music
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Raw_music we want to update
+     *   }
+     * })
+     */
+    upsert<T extends Raw_musicUpsertArgs>(args: SelectSubset<T, Raw_musicUpsertArgs<ExtArgs>>): Prisma__Raw_musicClient<$Result.GetResult<Prisma.$Raw_musicPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Raw_musics.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicCountArgs} args - Arguments to filter Raw_musics to count.
+     * @example
+     * // Count the number of Raw_musics
+     * const count = await prisma.raw_music.count({
+     *   where: {
+     *     // ... the filter for the Raw_musics we want to count
+     *   }
+     * })
+    **/
+    count<T extends Raw_musicCountArgs>(
+      args?: Subset<T, Raw_musicCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Raw_musicCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Raw_music.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Raw_musicAggregateArgs>(args: Subset<T, Raw_musicAggregateArgs>): Prisma.PrismaPromise<GetRaw_musicAggregateType<T>>
+
+    /**
+     * Group by Raw_music.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_musicGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends Raw_musicGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: Raw_musicGroupByArgs['orderBy'] }
+        : { orderBy?: Raw_musicGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, Raw_musicGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRaw_musicGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Raw_music model
+   */
+  readonly fields: Raw_musicFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Raw_music.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__Raw_musicClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Raw_music model
+   */
+  interface Raw_musicFieldRefs {
+    readonly id: FieldRef<"Raw_music", 'String'>
+    readonly userAddress: FieldRef<"Raw_music", 'String'>
+    readonly task_id: FieldRef<"Raw_music", 'String'>
+    readonly is_completed: FieldRef<"Raw_music", 'Boolean'>
+    readonly audio_url: FieldRef<"Raw_music", 'String'>
+    readonly image_url: FieldRef<"Raw_music", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Raw_music findUnique
+   */
+  export type Raw_musicFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_music to fetch.
+     */
+    where: Raw_musicWhereUniqueInput
+  }
+
+  /**
+   * Raw_music findUniqueOrThrow
+   */
+  export type Raw_musicFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_music to fetch.
+     */
+    where: Raw_musicWhereUniqueInput
+  }
+
+  /**
+   * Raw_music findFirst
+   */
+  export type Raw_musicFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_music to fetch.
+     */
+    where?: Raw_musicWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_musics to fetch.
+     */
+    orderBy?: Raw_musicOrderByWithRelationInput | Raw_musicOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Raw_musics.
+     */
+    cursor?: Raw_musicWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_musics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_musics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Raw_musics.
+     */
+    distinct?: Raw_musicScalarFieldEnum | Raw_musicScalarFieldEnum[]
+  }
+
+  /**
+   * Raw_music findFirstOrThrow
+   */
+  export type Raw_musicFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_music to fetch.
+     */
+    where?: Raw_musicWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_musics to fetch.
+     */
+    orderBy?: Raw_musicOrderByWithRelationInput | Raw_musicOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Raw_musics.
+     */
+    cursor?: Raw_musicWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_musics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_musics.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Raw_musics.
+     */
+    distinct?: Raw_musicScalarFieldEnum | Raw_musicScalarFieldEnum[]
+  }
+
+  /**
+   * Raw_music findMany
+   */
+  export type Raw_musicFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_musics to fetch.
+     */
+    where?: Raw_musicWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_musics to fetch.
+     */
+    orderBy?: Raw_musicOrderByWithRelationInput | Raw_musicOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Raw_musics.
+     */
+    cursor?: Raw_musicWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_musics from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_musics.
+     */
+    skip?: number
+    distinct?: Raw_musicScalarFieldEnum | Raw_musicScalarFieldEnum[]
+  }
+
+  /**
+   * Raw_music create
+   */
+  export type Raw_musicCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Raw_music.
+     */
+    data: XOR<Raw_musicCreateInput, Raw_musicUncheckedCreateInput>
+  }
+
+  /**
+   * Raw_music createMany
+   */
+  export type Raw_musicCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Raw_musics.
+     */
+    data: Raw_musicCreateManyInput | Raw_musicCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Raw_music update
+   */
+  export type Raw_musicUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Raw_music.
+     */
+    data: XOR<Raw_musicUpdateInput, Raw_musicUncheckedUpdateInput>
+    /**
+     * Choose, which Raw_music to update.
+     */
+    where: Raw_musicWhereUniqueInput
+  }
+
+  /**
+   * Raw_music updateMany
+   */
+  export type Raw_musicUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Raw_musics.
+     */
+    data: XOR<Raw_musicUpdateManyMutationInput, Raw_musicUncheckedUpdateManyInput>
+    /**
+     * Filter which Raw_musics to update
+     */
+    where?: Raw_musicWhereInput
+    /**
+     * Limit how many Raw_musics to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Raw_music upsert
+   */
+  export type Raw_musicUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Raw_music to update in case it exists.
+     */
+    where: Raw_musicWhereUniqueInput
+    /**
+     * In case the Raw_music found by the `where` argument doesn't exist, create a new Raw_music with this data.
+     */
+    create: XOR<Raw_musicCreateInput, Raw_musicUncheckedCreateInput>
+    /**
+     * In case the Raw_music was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<Raw_musicUpdateInput, Raw_musicUncheckedUpdateInput>
+  }
+
+  /**
+   * Raw_music delete
+   */
+  export type Raw_musicDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+    /**
+     * Filter which Raw_music to delete.
+     */
+    where: Raw_musicWhereUniqueInput
+  }
+
+  /**
+   * Raw_music deleteMany
+   */
+  export type Raw_musicDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Raw_musics to delete
+     */
+    where?: Raw_musicWhereInput
+    /**
+     * Limit how many Raw_musics to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Raw_music without action
+   */
+  export type Raw_musicDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_music
+     */
+    select?: Raw_musicSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_music
+     */
+    omit?: Raw_musicOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Raw_video
+   */
+
+  export type AggregateRaw_video = {
+    _count: Raw_videoCountAggregateOutputType | null
+    _min: Raw_videoMinAggregateOutputType | null
+    _max: Raw_videoMaxAggregateOutputType | null
+  }
+
+  export type Raw_videoMinAggregateOutputType = {
+    id: string | null
+    userAddress: string | null
+    task_id: string | null
+    is_completed: boolean | null
+  }
+
+  export type Raw_videoMaxAggregateOutputType = {
+    id: string | null
+    userAddress: string | null
+    task_id: string | null
+    is_completed: boolean | null
+  }
+
+  export type Raw_videoCountAggregateOutputType = {
+    id: number
+    userAddress: number
+    task_id: number
+    is_completed: number
+    _all: number
+  }
+
+
+  export type Raw_videoMinAggregateInputType = {
+    id?: true
+    userAddress?: true
+    task_id?: true
+    is_completed?: true
+  }
+
+  export type Raw_videoMaxAggregateInputType = {
+    id?: true
+    userAddress?: true
+    task_id?: true
+    is_completed?: true
+  }
+
+  export type Raw_videoCountAggregateInputType = {
+    id?: true
+    userAddress?: true
+    task_id?: true
+    is_completed?: true
+    _all?: true
+  }
+
+  export type Raw_videoAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Raw_video to aggregate.
+     */
+    where?: Raw_videoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_videos to fetch.
+     */
+    orderBy?: Raw_videoOrderByWithRelationInput | Raw_videoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: Raw_videoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Raw_videos
+    **/
+    _count?: true | Raw_videoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Raw_videoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Raw_videoMaxAggregateInputType
+  }
+
+  export type GetRaw_videoAggregateType<T extends Raw_videoAggregateArgs> = {
+        [P in keyof T & keyof AggregateRaw_video]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateRaw_video[P]>
+      : GetScalarType<T[P], AggregateRaw_video[P]>
+  }
+
+
+
+
+  export type Raw_videoGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: Raw_videoWhereInput
+    orderBy?: Raw_videoOrderByWithAggregationInput | Raw_videoOrderByWithAggregationInput[]
+    by: Raw_videoScalarFieldEnum[] | Raw_videoScalarFieldEnum
+    having?: Raw_videoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Raw_videoCountAggregateInputType | true
+    _min?: Raw_videoMinAggregateInputType
+    _max?: Raw_videoMaxAggregateInputType
+  }
+
+  export type Raw_videoGroupByOutputType = {
+    id: string
+    userAddress: string
+    task_id: string
+    is_completed: boolean
+    _count: Raw_videoCountAggregateOutputType | null
+    _min: Raw_videoMinAggregateOutputType | null
+    _max: Raw_videoMaxAggregateOutputType | null
+  }
+
+  type GetRaw_videoGroupByPayload<T extends Raw_videoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Raw_videoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Raw_videoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Raw_videoGroupByOutputType[P]>
+            : GetScalarType<T[P], Raw_videoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type Raw_videoSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userAddress?: boolean
+    task_id?: boolean
+    is_completed?: boolean
+  }, ExtArgs["result"]["raw_video"]>
+
+
+
+  export type Raw_videoSelectScalar = {
+    id?: boolean
+    userAddress?: boolean
+    task_id?: boolean
+    is_completed?: boolean
+  }
+
+  export type Raw_videoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "is_completed", ExtArgs["result"]["raw_video"]>
+
+  export type $Raw_videoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Raw_video"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userAddress: string
+      task_id: string
+      is_completed: boolean
+    }, ExtArgs["result"]["raw_video"]>
+    composites: {}
+  }
+
+  type Raw_videoGetPayload<S extends boolean | null | undefined | Raw_videoDefaultArgs> = $Result.GetResult<Prisma.$Raw_videoPayload, S>
+
+  type Raw_videoCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<Raw_videoFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Raw_videoCountAggregateInputType | true
+    }
+
+  export interface Raw_videoDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Raw_video'], meta: { name: 'Raw_video' } }
+    /**
+     * Find zero or one Raw_video that matches the filter.
+     * @param {Raw_videoFindUniqueArgs} args - Arguments to find a Raw_video
+     * @example
+     * // Get one Raw_video
+     * const raw_video = await prisma.raw_video.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends Raw_videoFindUniqueArgs>(args: SelectSubset<T, Raw_videoFindUniqueArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Raw_video that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {Raw_videoFindUniqueOrThrowArgs} args - Arguments to find a Raw_video
+     * @example
+     * // Get one Raw_video
+     * const raw_video = await prisma.raw_video.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends Raw_videoFindUniqueOrThrowArgs>(args: SelectSubset<T, Raw_videoFindUniqueOrThrowArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Raw_video that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoFindFirstArgs} args - Arguments to find a Raw_video
+     * @example
+     * // Get one Raw_video
+     * const raw_video = await prisma.raw_video.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends Raw_videoFindFirstArgs>(args?: SelectSubset<T, Raw_videoFindFirstArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Raw_video that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoFindFirstOrThrowArgs} args - Arguments to find a Raw_video
+     * @example
+     * // Get one Raw_video
+     * const raw_video = await prisma.raw_video.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends Raw_videoFindFirstOrThrowArgs>(args?: SelectSubset<T, Raw_videoFindFirstOrThrowArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Raw_videos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Raw_videos
+     * const raw_videos = await prisma.raw_video.findMany()
+     * 
+     * // Get first 10 Raw_videos
+     * const raw_videos = await prisma.raw_video.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const raw_videoWithIdOnly = await prisma.raw_video.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends Raw_videoFindManyArgs>(args?: SelectSubset<T, Raw_videoFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Raw_video.
+     * @param {Raw_videoCreateArgs} args - Arguments to create a Raw_video.
+     * @example
+     * // Create one Raw_video
+     * const Raw_video = await prisma.raw_video.create({
+     *   data: {
+     *     // ... data to create a Raw_video
+     *   }
+     * })
+     * 
+     */
+    create<T extends Raw_videoCreateArgs>(args: SelectSubset<T, Raw_videoCreateArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Raw_videos.
+     * @param {Raw_videoCreateManyArgs} args - Arguments to create many Raw_videos.
+     * @example
+     * // Create many Raw_videos
+     * const raw_video = await prisma.raw_video.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends Raw_videoCreateManyArgs>(args?: SelectSubset<T, Raw_videoCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Raw_video.
+     * @param {Raw_videoDeleteArgs} args - Arguments to delete one Raw_video.
+     * @example
+     * // Delete one Raw_video
+     * const Raw_video = await prisma.raw_video.delete({
+     *   where: {
+     *     // ... filter to delete one Raw_video
+     *   }
+     * })
+     * 
+     */
+    delete<T extends Raw_videoDeleteArgs>(args: SelectSubset<T, Raw_videoDeleteArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Raw_video.
+     * @param {Raw_videoUpdateArgs} args - Arguments to update one Raw_video.
+     * @example
+     * // Update one Raw_video
+     * const raw_video = await prisma.raw_video.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends Raw_videoUpdateArgs>(args: SelectSubset<T, Raw_videoUpdateArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Raw_videos.
+     * @param {Raw_videoDeleteManyArgs} args - Arguments to filter Raw_videos to delete.
+     * @example
+     * // Delete a few Raw_videos
+     * const { count } = await prisma.raw_video.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends Raw_videoDeleteManyArgs>(args?: SelectSubset<T, Raw_videoDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Raw_videos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Raw_videos
+     * const raw_video = await prisma.raw_video.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends Raw_videoUpdateManyArgs>(args: SelectSubset<T, Raw_videoUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Raw_video.
+     * @param {Raw_videoUpsertArgs} args - Arguments to update or create a Raw_video.
+     * @example
+     * // Update or create a Raw_video
+     * const raw_video = await prisma.raw_video.upsert({
+     *   create: {
+     *     // ... data to create a Raw_video
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Raw_video we want to update
+     *   }
+     * })
+     */
+    upsert<T extends Raw_videoUpsertArgs>(args: SelectSubset<T, Raw_videoUpsertArgs<ExtArgs>>): Prisma__Raw_videoClient<$Result.GetResult<Prisma.$Raw_videoPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Raw_videos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoCountArgs} args - Arguments to filter Raw_videos to count.
+     * @example
+     * // Count the number of Raw_videos
+     * const count = await prisma.raw_video.count({
+     *   where: {
+     *     // ... the filter for the Raw_videos we want to count
+     *   }
+     * })
+    **/
+    count<T extends Raw_videoCountArgs>(
+      args?: Subset<T, Raw_videoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Raw_videoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Raw_video.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Raw_videoAggregateArgs>(args: Subset<T, Raw_videoAggregateArgs>): Prisma.PrismaPromise<GetRaw_videoAggregateType<T>>
+
+    /**
+     * Group by Raw_video.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Raw_videoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends Raw_videoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: Raw_videoGroupByArgs['orderBy'] }
+        : { orderBy?: Raw_videoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, Raw_videoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRaw_videoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Raw_video model
+   */
+  readonly fields: Raw_videoFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Raw_video.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__Raw_videoClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Raw_video model
+   */
+  interface Raw_videoFieldRefs {
+    readonly id: FieldRef<"Raw_video", 'String'>
+    readonly userAddress: FieldRef<"Raw_video", 'String'>
+    readonly task_id: FieldRef<"Raw_video", 'String'>
+    readonly is_completed: FieldRef<"Raw_video", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Raw_video findUnique
+   */
+  export type Raw_videoFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_video to fetch.
+     */
+    where: Raw_videoWhereUniqueInput
+  }
+
+  /**
+   * Raw_video findUniqueOrThrow
+   */
+  export type Raw_videoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_video to fetch.
+     */
+    where: Raw_videoWhereUniqueInput
+  }
+
+  /**
+   * Raw_video findFirst
+   */
+  export type Raw_videoFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_video to fetch.
+     */
+    where?: Raw_videoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_videos to fetch.
+     */
+    orderBy?: Raw_videoOrderByWithRelationInput | Raw_videoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Raw_videos.
+     */
+    cursor?: Raw_videoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Raw_videos.
+     */
+    distinct?: Raw_videoScalarFieldEnum | Raw_videoScalarFieldEnum[]
+  }
+
+  /**
+   * Raw_video findFirstOrThrow
+   */
+  export type Raw_videoFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_video to fetch.
+     */
+    where?: Raw_videoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_videos to fetch.
+     */
+    orderBy?: Raw_videoOrderByWithRelationInput | Raw_videoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Raw_videos.
+     */
+    cursor?: Raw_videoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_videos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Raw_videos.
+     */
+    distinct?: Raw_videoScalarFieldEnum | Raw_videoScalarFieldEnum[]
+  }
+
+  /**
+   * Raw_video findMany
+   */
+  export type Raw_videoFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * Filter, which Raw_videos to fetch.
+     */
+    where?: Raw_videoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Raw_videos to fetch.
+     */
+    orderBy?: Raw_videoOrderByWithRelationInput | Raw_videoOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Raw_videos.
+     */
+    cursor?: Raw_videoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Raw_videos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Raw_videos.
+     */
+    skip?: number
+    distinct?: Raw_videoScalarFieldEnum | Raw_videoScalarFieldEnum[]
+  }
+
+  /**
+   * Raw_video create
+   */
+  export type Raw_videoCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Raw_video.
+     */
+    data: XOR<Raw_videoCreateInput, Raw_videoUncheckedCreateInput>
+  }
+
+  /**
+   * Raw_video createMany
+   */
+  export type Raw_videoCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Raw_videos.
+     */
+    data: Raw_videoCreateManyInput | Raw_videoCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Raw_video update
+   */
+  export type Raw_videoUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Raw_video.
+     */
+    data: XOR<Raw_videoUpdateInput, Raw_videoUncheckedUpdateInput>
+    /**
+     * Choose, which Raw_video to update.
+     */
+    where: Raw_videoWhereUniqueInput
+  }
+
+  /**
+   * Raw_video updateMany
+   */
+  export type Raw_videoUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Raw_videos.
+     */
+    data: XOR<Raw_videoUpdateManyMutationInput, Raw_videoUncheckedUpdateManyInput>
+    /**
+     * Filter which Raw_videos to update
+     */
+    where?: Raw_videoWhereInput
+    /**
+     * Limit how many Raw_videos to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Raw_video upsert
+   */
+  export type Raw_videoUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Raw_video to update in case it exists.
+     */
+    where: Raw_videoWhereUniqueInput
+    /**
+     * In case the Raw_video found by the `where` argument doesn't exist, create a new Raw_video with this data.
+     */
+    create: XOR<Raw_videoCreateInput, Raw_videoUncheckedCreateInput>
+    /**
+     * In case the Raw_video was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<Raw_videoUpdateInput, Raw_videoUncheckedUpdateInput>
+  }
+
+  /**
+   * Raw_video delete
+   */
+  export type Raw_videoDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+    /**
+     * Filter which Raw_video to delete.
+     */
+    where: Raw_videoWhereUniqueInput
+  }
+
+  /**
+   * Raw_video deleteMany
+   */
+  export type Raw_videoDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Raw_videos to delete
+     */
+    where?: Raw_videoWhereInput
+    /**
+     * Limit how many Raw_videos to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Raw_video without action
+   */
+  export type Raw_videoDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Raw_video
+     */
+    select?: Raw_videoSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Raw_video
+     */
+    omit?: Raw_videoOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5464,6 +7394,28 @@ export namespace Prisma {
   };
 
   export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
+  export const Raw_musicScalarFieldEnum: {
+    id: 'id',
+    userAddress: 'userAddress',
+    task_id: 'task_id',
+    is_completed: 'is_completed',
+    audio_url: 'audio_url',
+    image_url: 'image_url'
+  };
+
+  export type Raw_musicScalarFieldEnum = (typeof Raw_musicScalarFieldEnum)[keyof typeof Raw_musicScalarFieldEnum]
+
+
+  export const Raw_videoScalarFieldEnum: {
+    id: 'id',
+    userAddress: 'userAddress',
+    task_id: 'task_id',
+    is_completed: 'is_completed'
+  };
+
+  export type Raw_videoScalarFieldEnum = (typeof Raw_videoScalarFieldEnum)[keyof typeof Raw_videoScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -5560,6 +7512,26 @@ export namespace Prisma {
   export type CommentOrderByRelevanceFieldEnum = (typeof CommentOrderByRelevanceFieldEnum)[keyof typeof CommentOrderByRelevanceFieldEnum]
 
 
+  export const Raw_musicOrderByRelevanceFieldEnum: {
+    id: 'id',
+    userAddress: 'userAddress',
+    task_id: 'task_id',
+    audio_url: 'audio_url',
+    image_url: 'image_url'
+  };
+
+  export type Raw_musicOrderByRelevanceFieldEnum = (typeof Raw_musicOrderByRelevanceFieldEnum)[keyof typeof Raw_musicOrderByRelevanceFieldEnum]
+
+
+  export const Raw_videoOrderByRelevanceFieldEnum: {
+    id: 'id',
+    userAddress: 'userAddress',
+    task_id: 'task_id'
+  };
+
+  export type Raw_videoOrderByRelevanceFieldEnum = (typeof Raw_videoOrderByRelevanceFieldEnum)[keyof typeof Raw_videoOrderByRelevanceFieldEnum]
+
+
   /**
    * Field references
    */
@@ -5611,6 +7583,13 @@ export namespace Prisma {
    * Reference to a field of type 'QueryMode'
    */
   export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
   /**
    * Deep Input Types
@@ -5966,6 +7945,112 @@ export namespace Prisma {
     videoId?: StringWithAggregatesFilter<"Comment"> | string
     parentId?: StringNullableWithAggregatesFilter<"Comment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Comment"> | Date | string
+  }
+
+  export type Raw_musicWhereInput = {
+    AND?: Raw_musicWhereInput | Raw_musicWhereInput[]
+    OR?: Raw_musicWhereInput[]
+    NOT?: Raw_musicWhereInput | Raw_musicWhereInput[]
+    id?: StringFilter<"Raw_music"> | string
+    userAddress?: StringFilter<"Raw_music"> | string
+    task_id?: StringFilter<"Raw_music"> | string
+    is_completed?: BoolFilter<"Raw_music"> | boolean
+    audio_url?: StringNullableFilter<"Raw_music"> | string | null
+    image_url?: StringNullableFilter<"Raw_music"> | string | null
+  }
+
+  export type Raw_musicOrderByWithRelationInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    audio_url?: SortOrderInput | SortOrder
+    image_url?: SortOrderInput | SortOrder
+    _relevance?: Raw_musicOrderByRelevanceInput
+  }
+
+  export type Raw_musicWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: Raw_musicWhereInput | Raw_musicWhereInput[]
+    OR?: Raw_musicWhereInput[]
+    NOT?: Raw_musicWhereInput | Raw_musicWhereInput[]
+    userAddress?: StringFilter<"Raw_music"> | string
+    task_id?: StringFilter<"Raw_music"> | string
+    is_completed?: BoolFilter<"Raw_music"> | boolean
+    audio_url?: StringNullableFilter<"Raw_music"> | string | null
+    image_url?: StringNullableFilter<"Raw_music"> | string | null
+  }, "id">
+
+  export type Raw_musicOrderByWithAggregationInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    audio_url?: SortOrderInput | SortOrder
+    image_url?: SortOrderInput | SortOrder
+    _count?: Raw_musicCountOrderByAggregateInput
+    _max?: Raw_musicMaxOrderByAggregateInput
+    _min?: Raw_musicMinOrderByAggregateInput
+  }
+
+  export type Raw_musicScalarWhereWithAggregatesInput = {
+    AND?: Raw_musicScalarWhereWithAggregatesInput | Raw_musicScalarWhereWithAggregatesInput[]
+    OR?: Raw_musicScalarWhereWithAggregatesInput[]
+    NOT?: Raw_musicScalarWhereWithAggregatesInput | Raw_musicScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Raw_music"> | string
+    userAddress?: StringWithAggregatesFilter<"Raw_music"> | string
+    task_id?: StringWithAggregatesFilter<"Raw_music"> | string
+    is_completed?: BoolWithAggregatesFilter<"Raw_music"> | boolean
+    audio_url?: StringNullableWithAggregatesFilter<"Raw_music"> | string | null
+    image_url?: StringNullableWithAggregatesFilter<"Raw_music"> | string | null
+  }
+
+  export type Raw_videoWhereInput = {
+    AND?: Raw_videoWhereInput | Raw_videoWhereInput[]
+    OR?: Raw_videoWhereInput[]
+    NOT?: Raw_videoWhereInput | Raw_videoWhereInput[]
+    id?: StringFilter<"Raw_video"> | string
+    userAddress?: StringFilter<"Raw_video"> | string
+    task_id?: StringFilter<"Raw_video"> | string
+    is_completed?: BoolFilter<"Raw_video"> | boolean
+  }
+
+  export type Raw_videoOrderByWithRelationInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    _relevance?: Raw_videoOrderByRelevanceInput
+  }
+
+  export type Raw_videoWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: Raw_videoWhereInput | Raw_videoWhereInput[]
+    OR?: Raw_videoWhereInput[]
+    NOT?: Raw_videoWhereInput | Raw_videoWhereInput[]
+    userAddress?: StringFilter<"Raw_video"> | string
+    task_id?: StringFilter<"Raw_video"> | string
+    is_completed?: BoolFilter<"Raw_video"> | boolean
+  }, "id">
+
+  export type Raw_videoOrderByWithAggregationInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    _count?: Raw_videoCountOrderByAggregateInput
+    _max?: Raw_videoMaxOrderByAggregateInput
+    _min?: Raw_videoMinOrderByAggregateInput
+  }
+
+  export type Raw_videoScalarWhereWithAggregatesInput = {
+    AND?: Raw_videoScalarWhereWithAggregatesInput | Raw_videoScalarWhereWithAggregatesInput[]
+    OR?: Raw_videoScalarWhereWithAggregatesInput[]
+    NOT?: Raw_videoScalarWhereWithAggregatesInput | Raw_videoScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Raw_video"> | string
+    userAddress?: StringWithAggregatesFilter<"Raw_video"> | string
+    task_id?: StringWithAggregatesFilter<"Raw_video"> | string
+    is_completed?: BoolWithAggregatesFilter<"Raw_video"> | boolean
   }
 
   export type TokenCreateInput = {
@@ -6356,6 +8441,118 @@ export namespace Prisma {
     videoId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Raw_musicCreateInput = {
+    id?: string
+    userAddress: string
+    task_id: string
+    is_completed?: boolean
+    audio_url?: string | null
+    image_url?: string | null
+  }
+
+  export type Raw_musicUncheckedCreateInput = {
+    id?: string
+    userAddress: string
+    task_id: string
+    is_completed?: boolean
+    audio_url?: string | null
+    image_url?: string | null
+  }
+
+  export type Raw_musicUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+    audio_url?: NullableStringFieldUpdateOperationsInput | string | null
+    image_url?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type Raw_musicUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+    audio_url?: NullableStringFieldUpdateOperationsInput | string | null
+    image_url?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type Raw_musicCreateManyInput = {
+    id?: string
+    userAddress: string
+    task_id: string
+    is_completed?: boolean
+    audio_url?: string | null
+    image_url?: string | null
+  }
+
+  export type Raw_musicUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+    audio_url?: NullableStringFieldUpdateOperationsInput | string | null
+    image_url?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type Raw_musicUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+    audio_url?: NullableStringFieldUpdateOperationsInput | string | null
+    image_url?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type Raw_videoCreateInput = {
+    id?: string
+    userAddress: string
+    task_id: string
+    is_completed?: boolean
+  }
+
+  export type Raw_videoUncheckedCreateInput = {
+    id?: string
+    userAddress: string
+    task_id: string
+    is_completed?: boolean
+  }
+
+  export type Raw_videoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type Raw_videoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type Raw_videoCreateManyInput = {
+    id?: string
+    userAddress: string
+    task_id: string
+    is_completed?: boolean
+  }
+
+  export type Raw_videoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type Raw_videoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userAddress?: StringFieldUpdateOperationsInput | string
+    task_id?: StringFieldUpdateOperationsInput | string
+    is_completed?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -6869,6 +9066,79 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type Raw_musicOrderByRelevanceInput = {
+    fields: Raw_musicOrderByRelevanceFieldEnum | Raw_musicOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type Raw_musicCountOrderByAggregateInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    audio_url?: SortOrder
+    image_url?: SortOrder
+  }
+
+  export type Raw_musicMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    audio_url?: SortOrder
+    image_url?: SortOrder
+  }
+
+  export type Raw_musicMinOrderByAggregateInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+    audio_url?: SortOrder
+    image_url?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type Raw_videoOrderByRelevanceInput = {
+    fields: Raw_videoOrderByRelevanceFieldEnum | Raw_videoOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type Raw_videoCountOrderByAggregateInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+  }
+
+  export type Raw_videoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+  }
+
+  export type Raw_videoMinOrderByAggregateInput = {
+    id?: SortOrder
+    userAddress?: SortOrder
+    task_id?: SortOrder
+    is_completed?: SortOrder
+  }
+
   export type VideoCreateNestedManyWithoutTokenInput = {
     create?: XOR<VideoCreateWithoutTokenInput, VideoUncheckedCreateWithoutTokenInput> | VideoCreateWithoutTokenInput[] | VideoUncheckedCreateWithoutTokenInput[]
     connectOrCreate?: VideoCreateOrConnectWithoutTokenInput | VideoCreateOrConnectWithoutTokenInput[]
@@ -7139,6 +9409,10 @@ export namespace Prisma {
     deleteMany?: CommentScalarWhereInput | CommentScalarWhereInput[]
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[]
@@ -7370,6 +9644,19 @@ export namespace Prisma {
     gt?: InputJsonValue
     gte?: InputJsonValue
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type VideoCreateWithoutTokenInput = {

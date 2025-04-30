@@ -58,6 +58,7 @@ export default function ChatPage() {
   const [isMobile, setIsMobile] = useState(false)
   const [generationProgress, setGenerationProgress] = useState(0) // 生成の進行状況 (0-100)
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null)
+  const [currentTaskId, setCurrentTaskId] = useState<string>("") // 現在のタスクID
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const progressBarRef = useRef<HTMLDivElement>(null)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
@@ -148,6 +149,41 @@ export default function ChatPage() {
     }, 1000);
   };
 
+  // ポーリングを開始する関数
+  const startPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
+    const poll = async () => {
+      try {
+        const response = await fetch(`/api/callback?task_id=${taskId}`);
+        const data = await response.json();
+        
+        if (data.success && data.data) {
+          if (data.data.status === "completed") {
+            // 生成完了
+            setGenerationProgress(100);
+            setIsGenerating(false);
+            fetchMusicData(data.data, currentPrompt, currentGenre);
+          } else if (data.data.status === "failed") {
+            // 生成失敗
+            toast({
+              title: "エラーが発生しました",
+              description: "音楽生成に失敗しました",
+              variant: "destructive"
+            });
+            setIsGenerating(false);
+          } else {
+            // 処理中の場合、ポーリングを継続
+            setTimeout(poll, 5000); // 5秒後に再度チェック
+          }
+        }
+      } catch (error) {
+        console.error("Error polling:", error);
+        setTimeout(poll, 5000); // エラーが発生しても5秒後に再度チェック
+      }
+    };
+    
+    poll(); // 初回のポーリングを開始
+  };
+
   // 音楽生成APIを呼び出す関数
   const generateMusic = async (prompt: string, genre: string, instrumental: boolean, taskId: string) => {
     try {
@@ -164,7 +200,7 @@ export default function ChatPage() {
           genre, 
           instrumental,
           model_version: "v4",
-          timeout: 120, // タイムアウトを長めに設定
+          timeout: 3,
           task_id: taskId
         }),
       });
@@ -173,13 +209,45 @@ export default function ChatPage() {
       console.log("Generate API response:", data);
       
       if (data.success) {
-        setGenerationProgress(100); // 生成完了
-        
-        // ポーリングせずに直接レスポンスデータを使用
-        setTimeout(() => {
-          setIsGenerating(false);
-          fetchMusicData(data, prompt, genre);
-        }, 1000);
+        // APIレスポンスからtask_idを取得
+        const responseTaskId = data.data?.task_id || data.task_id;
+        setCurrentTaskId(responseTaskId); // レスポンスのタスクIDを設定
+
+        // Raw_musicテーブルにレコードを作成
+        const userAddress = "0x1234567890123456789012345678901234567890"; // 仮のユーザーアドレス
+        await fetch("/api/raw-music", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            task_id: responseTaskId,
+            userAddress: userAddress,
+            is_completed: false,
+            audio_url: "",
+            image_url: "",
+          }),
+        });
+
+        if (data.status === "processing") {
+          // タイムアウトメッセージを表示
+          setMessages((prev) => [
+            ...prev.slice(0, -1), // 最後のメッセージを削除
+            {
+              role: "assistant",
+              content: "音楽生成に時間がかかっています。少々お待ちください...",
+            },
+          ]);
+          
+          // ポーリングを開始
+          startPolling(responseTaskId, prompt, genre);
+        } else {
+          setGenerationProgress(100); // 生成完了
+          setTimeout(() => {
+            setIsGenerating(false);
+            fetchMusicData(data, prompt, genre);
+          }, 1000);
+        }
       } else {
         toast({
           title: "エラーが発生しました",
@@ -486,9 +554,11 @@ Where our love shines for all eternity`;
         </div>
         
         <h3 className="text-xl font-bold text-white mb-3">音楽を生成中...</h3>
-        <p className="text-white/70 text-center max-w-md">
-          AIが音楽を生成しています。完了までに1-3分程度かかります。このままお待ちください。
-        </p>
+        <div className="text-white/70 text-center max-w-md space-y-2">
+          <p>タスクID: {currentTaskId}</p>
+          <p>ステータス: 処理中</p>
+          <p>メッセージ: タイムアウトしました。処理は継続中です。</p>
+        </div>
         
         <div className="w-full max-w-md mt-8">
           <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
@@ -635,6 +705,11 @@ Where our love shines for all eternity`;
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-white/70">
             <p>音楽が生成されていません</p>
+            <div className="text-white/70 text-center max-w-md space-y-2">
+              <p>タスクID: {currentTaskId}</p>
+              <p>ステータス: 処理中</p>
+              <p>メッセージ: タイムアウトしました。処理は継続中です。</p>
+            </div>
           </div>
         )}
       </div>

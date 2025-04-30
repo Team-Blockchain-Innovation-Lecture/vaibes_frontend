@@ -72,6 +72,32 @@ CREATE TABLE `Comment` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Raw_music` (
+    `id` VARCHAR(191) NOT NULL,
+    `userAddress` VARCHAR(191) NOT NULL,
+    `task_id` VARCHAR(191) NOT NULL,
+    `is_completed` BOOLEAN NOT NULL DEFAULT false,
+    `audio_url` VARCHAR(191) NULL,
+    `image_url` VARCHAR(191) NULL,
+
+    INDEX `Raw_music_userAddress_idx`(`userAddress`),
+    INDEX `Raw_music_task_id_idx`(`task_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Raw_video` (
+    `id` VARCHAR(191) NOT NULL,
+    `userAddress` VARCHAR(191) NOT NULL,
+    `task_id` VARCHAR(191) NOT NULL,
+    `is_completed` BOOLEAN NOT NULL DEFAULT false,
+
+    INDEX `Raw_video_userAddress_idx`(`userAddress`),
+    INDEX `Raw_video_task_id_idx`(`task_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Video` ADD CONSTRAINT `Video_tokenId_fkey` FOREIGN KEY (`tokenId`) REFERENCES `Token`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
