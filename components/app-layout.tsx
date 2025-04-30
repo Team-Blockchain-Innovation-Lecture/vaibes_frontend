@@ -6,8 +6,6 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { MobileNav } from "@/components/mobile-nav";
-import { ConnectWalletButton } from "@/components/connect-wallet-button";
-import { WalletActionsButton } from "@/components/wallet-actions-button";
 import { MusicPlayer } from "@/components/music-player";
 
 interface Track {
@@ -67,10 +65,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-[#1a0a2e] text-white">
-        <div className="sticky top-0 z-10 flex justify-end gap-2 p-4 bg-[#1a0a2e]/80 backdrop-blur-sm border-b border-white/10">
-          <WalletActionsButton />
-          <ConnectWalletButton />
-        </div>
         {children}
         {shouldShowMusicPlayer && (
           <MusicPlayer
@@ -89,10 +83,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-[#1a0a2e] text-white">
       {/* <Sidebar /> */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
-        <div className="sticky top-0 z-10 flex justify-end gap-2 p-4 md:p-6 bg-[#1a0a2e]/80 backdrop-blur-sm border-b border-white/10">
-          <WalletActionsButton />
-          <ConnectWalletButton />
-        </div>
         <div className="flex-1 overflow-hidden">{children}</div>
         {shouldShowMusicPlayer && (
           <MusicPlayer
