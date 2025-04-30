@@ -132,6 +132,7 @@ model Raw_music {
   is_completed Boolean @default(false) // Whether the music generation is completed
   audio_url    String? // URL to the generated audio file
   image_url    String? // URL to the generated image/cover
+  prompt       String? @db.Text // The prompt used to generate the music
 
   // Indexes for performance
   @@index([userAddress])
@@ -144,6 +145,7 @@ model Raw_video {
   userAddress  String // User's wallet address
   task_id      String // Task ID for video generation
   is_completed Boolean @default(false) // Whether the video generation is completed
+  video_url    String? // URL to the generated video
 
   // Indexes for performance
   @@index([userAddress])
