@@ -253,15 +253,17 @@ export default function VideoDetailPage() {
       const attemptPlay = async () => {
         try {
           // 一時的にミュートして再生（ブラウザのポリシー対応）
-          videoRef.current.muted = true;
-          await videoRef.current.play();
+          if (videoRef.current) {
+            videoRef.current.muted = true;
+            await videoRef.current.play();
 
-          // 再生が始まったらミュートを解除
-          setTimeout(() => {
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-            }
-          }, 100);
+            // 再生が始まったらミュートを解除
+            setTimeout(() => {
+              if (videoRef.current) {
+                videoRef.current.muted = false;
+              }
+            }, 100);
+          }
 
           setIsPlaying(true);
         } catch (error) {
@@ -650,7 +652,7 @@ export default function VideoDetailPage() {
 
     if (marketCap >= 1e9) {
       return `$${(marketCap / 1e9).toFixed(1)}B`;
-    } else if (marketCap >= 1e6) {
+    } else if (marketCap >= 6) {
       return `$${(marketCap / 1e6).toFixed(1)}M`;
     } else if (marketCap >= 1e3) {
       return `$${(marketCap / 1e3).toFixed(1)}K`;
@@ -912,57 +914,57 @@ export default function VideoDetailPage() {
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
+            </div>
 
-              {/* Mobile Navigation Buttons */}
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-10">
-                {prevVideo && (
-                  <button
-                    onClick={goToPreviousVideo}
-                    className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
-                    aria-label="Previous video"
-                  >
-                    <ChevronUp size={24} className="text-white" />
-                  </button>
-                )}
+            {/* Mobile Navigation Buttons - Center of video container */}
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-10">
+              {prevVideo && (
+                <button
+                  onClick={goToPreviousVideo}
+                  className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
+                  aria-label="Previous video"
+                >
+                  <ChevronUp size={24} className="text-white" />
+                </button>
+              )}
 
-                {nextVideo && (
-                  <button
-                    onClick={goToNextVideo}
-                    className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
-                    aria-label="Next video"
-                  >
-                    <ChevronDown size={24} className="text-white" />
-                  </button>
-                )}
+              {nextVideo && (
+                <button
+                  onClick={goToNextVideo}
+                  className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
+                  aria-label="Next video"
+                >
+                  <ChevronDown size={24} className="text-white" />
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Action Buttons - Aligned with navigation arrows */}
+            <div className="absolute right-4 bottom-20 flex flex-col items-center gap-4 z-20">
+              <div className="flex flex-col items-center">
+                <button
+                  onClick={handleLike}
+                  className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
+                    isLiked ? "text-pink-500" : "text-white"
+                  }`}
+                  aria-label={isLiked ? "Unlike video" : "Like video"}
+                >
+                  <Heart
+                    className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
+                  />
+                </button>
+                <span className="text-xs mt-1 text-white">
+                  {video.likeCount.toLocaleString()}
+                </span>
               </div>
 
-              {/* Mobile Floating Action Buttons - 右下に配置し再生ケージより上にする */}
-              <div className="absolute bottom-20 right-4 flex flex-col items-center gap-4 z-20">
-                <div className="flex flex-col items-center">
-                  <button
-                    onClick={handleLike}
-                    className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
-                      isLiked ? "text-pink-500" : "text-white"
-                    }`}
-                    aria-label={isLiked ? "Unlike video" : "Like video"}
-                  >
-                    <Heart
-                      className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
-                    />
-                  </button>
-                  <span className="text-xs mt-1 text-white">
-                    {video.likeCount.toLocaleString()}
-                  </span>
+              <div className="flex flex-col items-center">
+                <div className="p-2 rounded-full bg-black/40">
+                  <Play className="w-6 h-6 text-white" />
                 </div>
-
-                <div className="flex flex-col items-center">
-                  <div className="p-2 rounded-full bg-black/40">
-                    <Play className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-xs mt-1 text-white">
-                    {video.playCount.toLocaleString()}
-                  </span>
-                </div>
+                <span className="text-xs mt-1 text-white">
+                  {video.playCount.toLocaleString()}
+                </span>
               </div>
             </div>
           </div>
