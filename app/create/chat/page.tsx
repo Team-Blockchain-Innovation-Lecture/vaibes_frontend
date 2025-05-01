@@ -65,6 +65,7 @@ export default function ChatPage() {
   const progressBarRef = useRef<HTMLDivElement>(null)
   const progressInterval = useRef<NodeJS.Timeout | null>(null)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const hasInitialized = useRef(false) // 初回実行フラグ
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
@@ -89,6 +90,9 @@ export default function ChatPage() {
 
   // Load initial prompt from URL parameters and fetch generated music
   useEffect(() => {
+    if (hasInitialized.current) return; // 既に初期化済みの場合は何もしない
+    hasInitialized.current = true; // 初期化済みフラグを設定
+
     const prompt = searchParams.get("prompt");
     const genre = searchParams.get("genre");
     const taskId = searchParams.get("task_id");
@@ -128,7 +132,7 @@ export default function ChatPage() {
         clearInterval(pollInterval);
       }
     };
-  }, [searchParams]);
+  }, []); // 依存配列を空に戻す
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
