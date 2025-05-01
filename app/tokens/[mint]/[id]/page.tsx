@@ -1037,9 +1037,12 @@ export default function TokenVideoDetailPage() {
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-1 text-sm">
-                            <p className="font-medium text-white/90">
+                            <Link
+                              href={`/users/${comment.userAddress}`}
+                              className="font-medium text-yellow-400 hover:text-yellow-300 cursor-pointer"
+                            >
                               {comment.userAddress.substring(0, 5)}...
-                            </p>
+                            </Link>
                             <span className="text-white/40">•</span>
                             <p className="text-white/60">
                               {new Date(comment.createdAt).toLocaleString()}
@@ -1417,9 +1420,12 @@ export default function TokenVideoDetailPage() {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-1 text-sm">
-                          <p className="font-medium text-white/90">
+                          <Link
+                            href={`/users/${comment.userAddress}`}
+                            className="font-medium text-yellow-400 hover:text-yellow-300 cursor-pointer"
+                          >
                             {comment.userAddress.substring(0, 5)}...
-                          </p>
+                          </Link>
                           <span className="text-white/40">•</span>
                           <p className="text-white/60">
                             {new Date(comment.createdAt).toLocaleString()}

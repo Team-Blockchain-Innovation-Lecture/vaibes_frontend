@@ -902,57 +902,57 @@ export default function VideoDetailPage() {
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
-            </div>
 
-            {/* Mobile Navigation Buttons */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-10">
-              {prevVideo && (
-                <button
-                  onClick={goToPreviousVideo}
-                  className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
-                  aria-label="Previous video"
-                >
-                  <ChevronUp size={24} className="text-white" />
-                </button>
-              )}
+              {/* Mobile Navigation Buttons */}
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-6 z-10">
+                {prevVideo && (
+                  <button
+                    onClick={goToPreviousVideo}
+                    className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
+                    aria-label="Previous video"
+                  >
+                    <ChevronUp size={24} className="text-white" />
+                  </button>
+                )}
 
-              {nextVideo && (
-                <button
-                  onClick={goToNextVideo}
-                  className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
-                  aria-label="Next video"
-                >
-                  <ChevronDown size={24} className="text-white" />
-                </button>
-              )}
-            </div>
-
-            {/* Mobile Floating Action Buttons - 右下に配置し再生ケージより上にする */}
-            <div className="absolute bottom-20 right-4 flex flex-col items-center gap-4 z-20">
-              <div className="flex flex-col items-center">
-                <button
-                  onClick={handleLike}
-                  className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
-                    isLiked ? "text-pink-500" : "text-white"
-                  }`}
-                  aria-label={isLiked ? "Unlike video" : "Like video"}
-                >
-                  <Heart
-                    className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
-                  />
-                </button>
-                <span className="text-xs mt-1 text-white">
-                  {video.likeCount.toLocaleString()}
-                </span>
+                {nextVideo && (
+                  <button
+                    onClick={goToNextVideo}
+                    className="p-2 bg-black/40 hover:bg-black/60 rounded-full"
+                    aria-label="Next video"
+                  >
+                    <ChevronDown size={24} className="text-white" />
+                  </button>
+                )}
               </div>
 
-              <div className="flex flex-col items-center">
-                <div className="p-2 rounded-full bg-black/40">
-                  <Play className="w-6 h-6 text-white" />
+              {/* Mobile Floating Action Buttons - 右下に配置し再生ケージより上にする */}
+              <div className="absolute bottom-20 right-4 flex flex-col items-center gap-4 z-20">
+                <div className="flex flex-col items-center">
+                  <button
+                    onClick={handleLike}
+                    className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
+                      isLiked ? "text-pink-500" : "text-white"
+                    }`}
+                    aria-label={isLiked ? "Unlike video" : "Like video"}
+                  >
+                    <Heart
+                      className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
+                    />
+                  </button>
+                  <span className="text-xs mt-1 text-white">
+                    {video.likeCount.toLocaleString()}
+                  </span>
                 </div>
-                <span className="text-xs mt-1 text-white">
-                  {video.playCount.toLocaleString()}
-                </span>
+
+                <div className="flex flex-col items-center">
+                  <div className="p-2 rounded-full bg-black/40">
+                    <Play className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs mt-1 text-white">
+                    {video.playCount.toLocaleString()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -1133,9 +1133,12 @@ export default function VideoDetailPage() {
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-1 text-sm">
-                            <p className="font-medium text-white/90">
+                            <Link
+                              href={`/users/${comment.userAddress}`}
+                              className="font-medium text-yellow-400 hover:text-yellow-300 cursor-pointer"
+                            >
                               {comment.userAddress.substring(0, 5)}...
-                            </p>
+                            </Link>
                             <span className="text-white/40">•</span>
                             <p className="text-white/60">
                               {new Date(comment.createdAt).toLocaleString()}
@@ -1552,9 +1555,12 @@ export default function VideoDetailPage() {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-1 text-sm">
-                          <p className="font-medium text-white/90">
+                          <Link
+                            href={`/users/${comment.userAddress}`}
+                            className="font-medium text-yellow-400 hover:text-yellow-300 cursor-pointer"
+                          >
                             {comment.userAddress.substring(0, 5)}...
-                          </p>
+                          </Link>
                           <span className="text-white/40">•</span>
                           <p className="text-white/60">
                             {new Date(comment.createdAt).toLocaleString()}
