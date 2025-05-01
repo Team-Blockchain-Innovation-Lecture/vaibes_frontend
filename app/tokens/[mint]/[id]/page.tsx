@@ -12,6 +12,7 @@ import {
   Heart,
   MessageSquare,
   Send,
+  Clipboard, // Add this
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePrivy } from "@privy-io/react-auth";
@@ -80,6 +81,9 @@ export default function TokenVideoDetailPage() {
   // Get mint address and video ID from params
   const videoId = params.id as string;
   const mintAddress = params.mint as string;
+
+  // Add a state to track if link was just copied
+  const [copied, setCopied] = useState(false);
 
   // Load video data
   useEffect(() => {
@@ -736,6 +740,39 @@ export default function TokenVideoDetailPage() {
     }
   };
 
+  // Add clipboard copy functionality
+  const handleCopyLink = () => {
+    // Get the base URL (without trailing slash)
+    const baseUrl = window.location.origin;
+    // Always use /videos/<videoId> format regardless of current URL
+    const videoLink = `${baseUrl}/videos/${video.id}`;
+
+    // Copy to clipboard
+    navigator.clipboard
+      .writeText(videoLink)
+      .then(() => {
+        // Set copied state to true to trigger UI feedback
+        setCopied(true);
+
+        // Reset after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
+
+        toast({
+          title: "Link copied",
+          description: "Video link has been copied to clipboard",
+          variant: "default",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to copy link:", error);
+        toast({
+          title: "Copy failed",
+          description: "Failed to copy the link. Please try again.",
+          variant: "destructive",
+        });
+      });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#1a0e26]">
@@ -884,6 +921,22 @@ export default function TokenVideoDetailPage() {
                 </div>
                 <span className="text-xs mt-1 text-white">
                   {video.playCount.toLocaleString()}
+                </span>
+              </div>
+
+              {/* Add clipboard button */}
+              <div className="flex flex-col items-center">
+                <button
+                  onClick={handleCopyLink}
+                  className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
+                    copied ? "text-green-500" : "text-white"
+                  }`}
+                  aria-label="Copy video link"
+                >
+                  <Clipboard className="w-6 h-6" />
+                </button>
+                <span className="text-xs mt-1 text-white">
+                  {copied ? "Copied!" : "Copy"}
                 </span>
               </div>
             </div>
@@ -1301,6 +1354,19 @@ export default function TokenVideoDetailPage() {
             <div className="flex items-center gap-1">
               <Play className="w-5 h-5" />
               <span>{video.playCount.toLocaleString()}</span>
+            </div>
+            {/* Add clipboard button */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleCopyLink}
+                className={`p-2 rounded-full hover:bg-black/20 ${
+                  copied ? "text-green-500" : "text-white"
+                }`}
+                aria-label="Copy video link"
+              >
+                <Clipboard className="w-5 h-5" />
+              </button>
+              <span>{copied ? "Copied!" : "Copy"}</span>
             </div>
           </div>
 

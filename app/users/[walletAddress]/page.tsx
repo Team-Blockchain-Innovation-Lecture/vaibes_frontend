@@ -7,6 +7,8 @@ import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
 import { truncateAddress } from "@/lib/utils";
+import { Clipboard } from "lucide-react"; // Import Clipboard icon
+import { useToast } from "@/components/ui/use-toast"; // Import toast for feedback
 
 type UserVideosStats = {
   totalVideos: number;
@@ -25,9 +27,40 @@ export default function UserDetailPage({ params }: UserDetailProps) {
   const [createdVideos, setCreatedVideos] = useState<any[]>([]);
   const [likedVideos, setLikedVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false); // New state for clipboard feedback
+  const { toast } = useToast(); // For showing toast notifications
+
   // React.use() to unwrap params
   const walletAddressParam = React.use(params);
   const walletAddress = walletAddressParam.walletAddress;
+
+  // Add clipboard copy functionality
+  const handleCopyWalletAddress = () => {
+    navigator.clipboard
+      .writeText(walletAddress)
+      .then(() => {
+        // Show visual feedback
+        setCopied(true);
+
+        // Reset after 2 seconds
+        setTimeout(() => setCopied(false), 2000);
+
+        // Also show toast notification
+        toast({
+          title: "Address copied",
+          description: "Wallet address has been copied to clipboard",
+          variant: "default",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to copy address:", error);
+        toast({
+          title: "Copy failed",
+          description: "Failed to copy the address. Please try again.",
+          variant: "destructive",
+        });
+      });
+  };
 
   // Handler function for playing tracks
   const handlePlayTrack = (track: any) => {
@@ -108,7 +141,18 @@ export default function UserDetailPage({ params }: UserDetailProps) {
         <div className="flex flex-col gap-6 items-start">
           <div>
             <h1 className="text-3xl font-bold">User Profile</h1>
-            <p className="text-lg text-muted-foreground">{walletAddress}</p>
+            <div className="flex items-center gap-2">
+              <p className="text-lg text-muted-foreground">{walletAddress}</p>
+              <button
+                onClick={handleCopyWalletAddress}
+                className={`p-1 rounded-full hover:bg-black/10 transition-colors ${
+                  copied ? "text-green-500" : "text-muted-foreground"
+                }`}
+                aria-label="Copy wallet address"
+              >
+                <Clipboard className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
