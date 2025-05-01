@@ -73,7 +73,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             onClose={() => setPlayerVisible(false)}
           />
         )}
-        <MobileNav />
+        {/* <MobileNav /> */}
       </div>
     );
   }
@@ -91,7 +91,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             onClose={() => setPlayerVisible(false)}
           />
         )}
-        <MobileNav />
+        {/* <MobileNav /> */}
       </main>
     </div>
   );
