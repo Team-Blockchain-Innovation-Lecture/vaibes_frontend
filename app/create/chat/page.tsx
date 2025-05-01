@@ -7,6 +7,8 @@ import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Send, Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { usePrivy } from "@privy-io/react-auth"
+import { useSolanaWallets } from "@privy-io/react-auth/solana"
 
 interface Message {
   role: "user" | "assistant"
@@ -66,6 +68,10 @@ export default function ChatPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { toast } = useToast()
+  const { user } = usePrivy()
+  const { wallets } = useSolanaWallets()
+  const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null
+  const userAddress = solanaWallet?.address || ""
 
   // Check if we're on mobile
   useEffect(() => {
@@ -214,7 +220,6 @@ export default function ChatPage() {
         setCurrentTaskId(responseTaskId); // レスポンスのタスクIDを設定
 
         // Raw_musicテーブルにレコードを作成
-        const userAddress = "0x1234567890123456789012345678901234567890"; // 仮のユーザーアドレス
         await fetch("/api/raw-music", {
           method: "POST",
           headers: {
