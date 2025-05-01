@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const videoId = params.id;
+    const videoId = (await params).id;
     const comments = await prisma.comment.findMany({
       where: {
         videoId: videoId,
@@ -43,7 +43,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const videoId = params.id;
+    const videoId = (await params).id;
     const { content, userAddress, parentId } = await request.json();
 
     if (!content || !userAddress) {

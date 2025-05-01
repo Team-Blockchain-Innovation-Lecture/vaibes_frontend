@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const videoId = params.id;
+    const videoId = (await params).id;
     const { searchParams } = new URL(request.url);
     const walletAddress = searchParams.get("walletAddress");
     const tokenMint = searchParams.get("tokenMint"); // Get token mint address from query params
