@@ -331,7 +331,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
         </div>
 
         {/* Token Description */}
-        <div className="bg-secondary/10 p-4 rounded-lg">
+        <div className="bg-[#2a1a3e] p-4 rounded-lg hover:bg-[#3a2a4e] transition-colors">
           <h2 className="text-xl font-semibold mb-2">About</h2>
           <p className="whitespace-pre-line">
             {token.description || "No description available for this token."}

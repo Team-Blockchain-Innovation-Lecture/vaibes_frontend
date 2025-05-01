@@ -1063,7 +1063,7 @@ export default function VideoDetailPage() {
               <TabsContent value="information" className="space-y-4">
                 {/* Video Information */}
                 {video.description && (
-                  <div>
+                  <div className="bg-[#2a1a3e] p-4 rounded-lg hover:bg-[#3a2a4e] transition-colors">
                     <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
                       Description
                     </h3>
@@ -1074,7 +1074,7 @@ export default function VideoDetailPage() {
                 )}
 
                 {video.prompt && (
-                  <div>
+                  <div className="bg-[#2a1a3e] p-4 rounded-lg hover:bg-[#3a2a4e] transition-colors">
                     <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
                       Prompt
                     </h3>
@@ -1485,7 +1485,7 @@ export default function VideoDetailPage() {
             <TabsContent value="information" className="space-y-4">
               {/* Video Information */}
               {video.description && (
-                <div>
+                <div className="bg-[#2a1a3e] p-4 rounded-lg hover:bg-[#3a2a4e] transition-colors">
                   <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
                     Description
                   </h3>
@@ -1496,7 +1496,7 @@ export default function VideoDetailPage() {
               )}
 
               {video.prompt && (
-                <div>
+                <div className="bg-[#2a1a3e] p-4 rounded-lg hover:bg-[#3a2a4e] transition-colors">
                   <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
                     Prompt
                   </h3>
