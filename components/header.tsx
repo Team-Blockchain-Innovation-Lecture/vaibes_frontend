@@ -17,7 +17,13 @@ export function Header() {
             height={32}
             className="cursor-pointer object-contain"
           />
-          <span className="hidden md:block text-4xl ">vaibes.fun</span>
+          <h1 className="hidden md:block text-4xl font-bold">
+            <span className="text-white">v</span>
+            <span className="bg-gradient-to-r from-[#00e5ff] to-[#ff16e2] text-transparent bg-clip-text">
+              ai
+            </span>
+            <span className="text-white">bes.fun</span>
+          </h1>
         </Link>
       </div>
 
