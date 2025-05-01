@@ -257,6 +257,35 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
                   </Tooltip>
                 </TooltipProvider>
               )}
+
+              {/* Pump.fun リンクボタンを追加 */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="sm"
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 flex items-center gap-1"
+                      asChild
+                    >
+                      <Link
+                        href={`https://pump.fun/coin/${mint}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <img
+                          src="/icons/pump-pill.png"
+                          alt="Pump.fun"
+                          className="w-4 h-4 mr-1"
+                        />
+                        Pump.fun
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>View on Pump.fun</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </div>

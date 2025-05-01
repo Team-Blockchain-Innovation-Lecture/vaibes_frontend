@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Link from "next/link";
 
 type Video = {
   id: string;
@@ -1021,6 +1022,27 @@ export default function VideoDetailPage() {
                   </div>
                 </div>
               </div>
+              {/* Pump.fun リンクを追加 */}
+              <div className="flex justify-end">
+                <Button
+                  size="sm"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 flex items-center gap-1"
+                  asChild
+                >
+                  <Link
+                    href={`https://pump.fun/coin/${video.token.mint}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="/icons/pump-pill.png"
+                      alt="Pump.fun"
+                      className="w-4 h-4 mr-1"
+                    />
+                    View on Pump.fun
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             {/* Tabs for Information/Comments */}
@@ -1412,6 +1434,27 @@ export default function VideoDetailPage() {
                   </span>
                 </div>
               </div>
+            </div>
+            {/* Pump.fun リンクを追加 */}
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white border-0 flex items-center gap-1"
+                asChild
+              >
+                <Link
+                  href={`https://pump.fun/coin/${video.token.mint}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <img
+                    src="/icons/pump-pill.png"
+                    alt="Pump.fun"
+                    className="w-4 h-4 mr-1"
+                  />
+                  View on Pump.fun
+                </Link>
+              </Button>
             </div>
           </div>
 
