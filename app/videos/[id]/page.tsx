@@ -135,12 +135,12 @@ export default function VideoDetailPage() {
     if (!videoElement) return;
 
     const handleTimeUpdate = () => {
-      // プログレスバー更新の改善: isDragging中でなければ常に更新する
+      // Always update the progress bar unless user is actively dragging
       if (!isDragging && videoElement) {
         const currentProgress =
           (videoElement.currentTime / videoElement.duration) * 100 || 0;
 
-        // 無効な値でないことを確認
+        // Check for valid values
         if (!isNaN(currentProgress)) {
           setProgress(currentProgress);
           setCurrentTime(formatTime(videoElement.currentTime));
@@ -150,12 +150,12 @@ export default function VideoDetailPage() {
 
     const handleLoadedMetadata = () => {
       console.log("Video metadata loaded, duration:", videoElement.duration);
-      // 動画の長さを設定
+      // Set video duration
       if (!isNaN(videoElement.duration)) {
         setDuration(formatTime(videoElement.duration));
       }
 
-      // 初期値を設定
+      // Set initial values
       setProgress(0);
       setCurrentTime(formatTime(0));
     };
@@ -166,34 +166,44 @@ export default function VideoDetailPage() {
       if (videoElement) videoElement.currentTime = 0;
     };
 
-    // イベントリスナーをクリーンアップして再登録（バグ修正のため）
+    // Clean up existing event listeners to prevent duplicates
     videoElement.removeEventListener("timeupdate", handleTimeUpdate);
     videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
     videoElement.removeEventListener("ended", handleVideoEnded);
 
-    // イベントリスナーを追加
+    // Add event listeners
     videoElement.addEventListener("timeupdate", handleTimeUpdate);
     videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
     videoElement.addEventListener("ended", handleVideoEnded);
 
-    // 既にメタデータが読み込まれている場合は手動で処理を実行
+    // If metadata is already loaded, run the handler manually
     if (videoElement.readyState >= 1) {
       if (!isNaN(videoElement.duration)) {
         setDuration(formatTime(videoElement.duration));
       }
 
-      // 現在位置を反映
+      // Reflect current position
       if (videoElement.currentTime > 0) {
         handleTimeUpdate();
       }
     }
 
+    // Make sure we trigger a timeupdate manually once
+    const triggerTimeUpdate = () => {
+      console.log("Manually triggering timeupdate");
+      handleTimeUpdate();
+    };
+
+    // Call it once after a short delay to ensure it runs properly
+    const timerId = setTimeout(triggerTimeUpdate, 500);
+
     return () => {
       videoElement.removeEventListener("timeupdate", handleTimeUpdate);
       videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
       videoElement.removeEventListener("ended", handleVideoEnded);
+      clearTimeout(timerId);
     };
-  }, [isDragging]); // formatTimeはメモ化するか、依存配列から外す
+  }, [isDragging, formatTime]); // Include isDragging and formatTime in the dependencies
 
   // Add video play/pause event listeners
   useEffect(() => {
