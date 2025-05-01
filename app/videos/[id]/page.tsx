@@ -963,7 +963,13 @@ export default function VideoDetailPage() {
             <div>
               <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
               <p className="text-white/70">
-                by {formatCreatorAddress(video.creator)}
+                by{" "}
+                <Link
+                  href={`/users/${video.creator}`}
+                  className="text-[#d4af37] hover:underline"
+                >
+                  {formatCreatorAddress(video.creator)}
+                </Link>
               </p>
             </div>
 
@@ -1376,7 +1382,13 @@ export default function VideoDetailPage() {
           <div>
             <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
             <p className="text-white/70">
-              by {formatCreatorAddress(video.creator)}
+              by{" "}
+              <Link
+                href={`/users/${video.creator}`}
+                className="text-[#d4af37] hover:underline"
+              >
+                {formatCreatorAddress(video.creator)}
+              </Link>
             </p>
           </div>
 

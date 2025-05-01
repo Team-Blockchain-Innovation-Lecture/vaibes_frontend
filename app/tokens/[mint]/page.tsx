@@ -143,7 +143,17 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
 
               <div className="bg-secondary/20 px-3 py-1 rounded-full">
                 <span className="text-sm font-medium">
-                  Creator: {token.creator?.username || "Anonymous"}
+                  Creator:{" "}
+                  {token.creator ? (
+                    <Link
+                      href={`/users/${token.creator.walletAddress}`}
+                      className="text-[#d4af37] hover:underline"
+                    >
+                      {token.creator.username || token.creator.walletAddress}
+                    </Link>
+                  ) : (
+                    "Anonymous"
+                  )}
                 </span>
               </div>
             </div>
