@@ -21,3 +21,17 @@ export function formatMarketCap(marketCap: number | null): string {
     return `$${marketCap.toFixed(2)}`;
   }
 }
+
+// Truncate wallet address for display
+export function truncateAddress(
+  address: string,
+  prefixLength: number = 6,
+  suffixLength: number = 4
+): string {
+  if (!address) return "";
+  if (address.length <= prefixLength + suffixLength) return address;
+
+  return `${address.substring(0, prefixLength)}...${address.substring(
+    address.length - suffixLength
+  )}`;
+}
