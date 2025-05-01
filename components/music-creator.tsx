@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/navigation"
 
 // ジャンルの選択肢
 const genres = [
@@ -17,28 +18,30 @@ const genres = [
 
 export function MusicCreator() {
   const [prompt, setPrompt] = useState("")
-  const [genre, setGenre] = useState("EDM")
-  const [isGenerating, setIsGenerating] = useState(false)
+  const [genre, setGenre] = useState("pop")
+  const router = useRouter()
 
   // 一時的なtask_idを生成する関数
   const generateTempTaskId = () => {
     return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const taskId = generateTempTaskId()
+    router.push(`/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&task_id=${taskId}`)
+  }
+
   return (
     <div className="py-6 md:py-10">
       <h1 className="text-2xl md:text-4xl font-bold mb-6 text-center">Drop your ideas, make a song</h1>
       <form 
-        action="/create/chat" 
-        method="get"
+        onSubmit={handleSubmit}
         className="flex flex-col items-center gap-3 max-w-3xl mx-auto"
       >
-        <input type="hidden" name="task_id" value={generateTempTaskId()} />
-        
         <div className="relative flex-1 w-full">
           <input
             type="text"
-            name="prompt"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="What do you want to make a song about?"
