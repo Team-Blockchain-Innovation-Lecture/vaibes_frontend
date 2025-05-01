@@ -2,7 +2,14 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
-const prisma = new PrismaClient();
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
 const BACKEND_URL = process.env.BACKEND__URL || 'http://localhost:8000';
 const S3_BUCKET = process.env.S3_BUCKET;
 
@@ -28,10 +35,24 @@ export async function POST(request: Request) {
     const taskId = body.request_id; // または適切なtask_idの取得方法
 
     try {
-      // 同じtask_idのレコードを探して更新
-      const updatedVideo = await prisma.rawVideo.update({
+      // task_idに基づいてレコードを検索
+      const existingVideo = await prisma.raw_video.findFirst({
         where: {
           task_id: taskId,
+        },
+      });
+
+      if (!existingVideo) {
+        return NextResponse.json(
+          { error: `No record found for task_id: ${taskId}` },
+          { status: 404 }
+        );
+      }
+
+      // レコードを更新
+      const updatedVideo = await prisma.raw_video.update({
+        where: {
+          id: existingVideo.id,
         },
         data: {
           video_url: body.payload.video.url,
@@ -46,7 +67,7 @@ export async function POST(request: Request) {
           is_completed: true,
         },
         orderBy: {
-          createdAt: 'desc',
+          id: 'desc',
         },
       });
 
@@ -88,9 +109,9 @@ export async function POST(request: Request) {
       const s3Url = `https://${S3_BUCKET}.s3.amazonaws.com/${fileName}`;
 
       // Raw_videoテーブルを更新
-      const finalVideo = await prisma.rawVideo.update({
+      const finalVideo = await prisma.raw_video.update({
         where: {
-          task_id: taskId,
+          id: existingVideo.id,
         },
         data: {
           video_url: s3Url,
@@ -102,8 +123,10 @@ export async function POST(request: Request) {
         data: {
           url: s3Url,
           creator: updatedVideo.userAddress,
-          prompt: updatedVideo.prompt,
           duration: 8,
+          title: `Generated Video ${Date.now()}`,
+          tokenId: 'default_token_id', // TODO: 適切なtokenIdを設定する必要があります
+          status: 'ready',
         },
       });
 

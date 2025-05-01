@@ -2,7 +2,29 @@ import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
+
+// 環境変数の設定
 const BACKEND_URL = process.env.BACKEND__URL || 'http://localhost:8000';
+
+// レスポンスの型定義
+interface MusicCallbackResponse {
+  success: boolean;
+  data?: {
+    music: {
+      task_id: string;
+      userAddress: string;
+      is_completed: boolean;
+      audio_url: string | null;
+      image_url: string | null;
+      prompt: string | null;
+    };
+    video: {
+      task_id: string;
+      status: string;
+    };
+  };
+  error?: string;
+}
 
 export async function POST(request: Request) {
   try {
@@ -18,9 +40,22 @@ export async function POST(request: Request) {
 
     try {
       // 同じtask_idのレコードを探して更新
-      const updatedMusic = await prisma.raw_music.update({
+      const existingMusic = await prisma.raw_music.findFirst({
         where: {
           task_id: taskId,
+        },
+      });
+
+      if (!existingMusic) {
+        return NextResponse.json(
+          { error: `No record found for task_id: ${taskId}` },
+          { status: 404 }
+        );
+      }
+
+      const updatedMusic = await prisma.raw_music.update({
+        where: {
+          id: existingMusic.id,
         },
         data: {
           is_completed: true,
@@ -41,6 +76,10 @@ export async function POST(request: Request) {
         }),
       });
 
+      if (!videoResponse.ok) {
+        throw new Error(`Video generation API returned ${videoResponse.status}`);
+      }
+
       const videoData = await videoResponse.json();
 
       if (videoData.code === 200 || videoData.code === 408) {
@@ -48,15 +87,15 @@ export async function POST(request: Request) {
         const videoTaskId = videoData.data.task_id;
 
         // Raw_videoに新しいレコードを作成
-        await prisma.rawVideo.create({
+        await prisma.raw_video.create({
           data: {
-            userAddress: updatedMusic.userAddress, // 音楽生成と同じユーザーアドレスを使用
+            userAddress: updatedMusic.userAddress,
             task_id: videoTaskId,
             is_completed: false,
           },
         });
 
-        return NextResponse.json({
+        const response: MusicCallbackResponse = {
           success: true,
           data: {
             music: updatedMusic,
@@ -65,13 +104,14 @@ export async function POST(request: Request) {
               status: videoData.data.status,
             },
           },
-        });
+        };
+
+        return NextResponse.json(response);
       } else {
-        throw new Error('Video generation request failed');
+        throw new Error(`Video generation failed with code: ${videoData.code}`);
       }
     } catch (error: any) {
       if (error.code === 'P2025') {
-        // Record not found
         return NextResponse.json(
           { error: `No record found for task_id: ${taskId}` },
           { status: 404 }
