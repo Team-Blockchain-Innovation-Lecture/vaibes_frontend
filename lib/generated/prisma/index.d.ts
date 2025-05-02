@@ -7999,16 +7999,16 @@ export namespace Prisma {
 
   export type Raw_musicWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    task_id?: string
     AND?: Raw_musicWhereInput | Raw_musicWhereInput[]
     OR?: Raw_musicWhereInput[]
     NOT?: Raw_musicWhereInput | Raw_musicWhereInput[]
     userAddress?: StringFilter<"Raw_music"> | string
-    task_id?: StringFilter<"Raw_music"> | string
     is_completed?: BoolFilter<"Raw_music"> | boolean
     audio_url?: StringNullableFilter<"Raw_music"> | string | null
     image_url?: StringNullableFilter<"Raw_music"> | string | null
     prompt?: StringNullableFilter<"Raw_music"> | string | null
-  }, "id">
+  }, "id" | "task_id">
 
   export type Raw_musicOrderByWithAggregationInput = {
     id?: SortOrder
