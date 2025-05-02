@@ -164,8 +164,11 @@ function ChatContent() {
   const startPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
     const poll = async () => {
       try {
+        console.log(`ポーリング開始 - タスクID: ${taskId}`);
         const response = await fetch(`/api/callback?task_id=${taskId}`);
         const data = await response.json();
+
+        console.log('ポーリングレスポンス:', data);
 
         if (data.success && data.data) {
           if (data.data.status === 'completed') {
@@ -183,8 +186,12 @@ function ChatContent() {
             setIsGenerating(false);
           } else {
             // 処理中の場合、ポーリングを継続
+            console.log('処理中...');
             setTimeout(poll, 5000); // 5秒後に再度チェック
           }
+        } else {
+          console.log('データ未取得...');
+          setTimeout(poll, 5000); // 5秒後に再度チェック
         }
       } catch (error) {
         console.error('Error polling:', error);
@@ -225,9 +232,10 @@ function ChatContent() {
       console.log('Generate API response:', data);
 
       if (data.success) {
-        // APIレスポンスからtask_idを取得
-        const responseTaskId = data.data?.task_id || data.task_id;
-        setCurrentTaskId(responseTaskId); // レスポンスのタスクIDを設定
+        // 外部APIからのレスポンスのtask_idを使用
+        const apiTaskId = data.data?.task_id || data.task_id;
+        console.log('外部APIからのタスクID:', apiTaskId);
+        setCurrentTaskId(apiTaskId);
 
         // Raw_musicテーブルにレコードを作成
         await fetch('/api/raw-music', {
@@ -236,7 +244,7 @@ function ChatContent() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            task_id: responseTaskId,
+            task_id: apiTaskId,
             userAddress: userAddress,
             is_completed: false,
             audio_url: '',
@@ -244,25 +252,17 @@ function ChatContent() {
           }),
         });
 
-        if (data.status === 'processing') {
-          // タイムアウトメッセージを表示
-          setMessages((prev) => [
-            ...prev.slice(0, -1), // 最後のメッセージを削除
-            {
-              role: 'assistant',
-              content: '音楽生成に時間がかかっています。少々お待ちください...',
-            },
-          ]);
+        // タイムアウトメッセージを表示
+        setMessages((prev) => [
+          ...prev.slice(0, -1), // 最後のメッセージを削除
+          {
+            role: 'assistant',
+            content: '音楽生成に時間がかかっています。少々お待ちください...',
+          },
+        ]);
 
-          // ポーリングを開始
-          startPolling(responseTaskId, prompt, genre);
-        } else {
-          setGenerationProgress(100); // 生成完了
-          setTimeout(() => {
-            setIsGenerating(false);
-            fetchMusicData(data, prompt, genre);
-          }, 1000);
-        }
+        // ポーリングを開始
+        startPolling(apiTaskId, prompt, genre);
       } else {
         toast({
           title: 'エラーが発生しました',
