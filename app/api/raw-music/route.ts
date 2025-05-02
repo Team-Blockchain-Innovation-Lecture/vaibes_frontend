@@ -29,4 +29,31 @@ export async function POST(request: Request) {
   } finally {
     await prisma.$disconnect();
   }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { task_id, is_completed, audio_url, image_url } = body;
+
+    // task_idでレコードを検索し、更新
+    const updated = await prisma.raw_music.updateMany({
+      where: { task_id },
+      data: {
+        is_completed,
+        audio_url,
+        image_url,
+      },
+    });
+
+    return NextResponse.json({ success: true, data: updated });
+  } catch (error) {
+    console.error("Error updating raw music record:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to update raw music record" },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
 } 

@@ -169,14 +169,13 @@ function ChatContent() {
         const data = await response.json();
 
         console.log('ポーリングレスポンス:', data);
-        console.log("確認",data.data.status);
 
         if (data.success && data.data) {
           if (data.data.status === 'success') {
             // 生成完了
             setGenerationProgress(100);
             setIsGenerating(false);
-            fetchMusicData(data.data, currentPrompt, currentGenre);
+            fetchMusicData(data.data, currentPrompt, currentGenre, taskId);
           } else if (data.data.status === 'failed') {
             // 生成失敗
             toast({
@@ -284,7 +283,7 @@ function ChatContent() {
   };
 
   // コールバックデータから音楽情報を取得
-  const fetchMusicData = async (data: any, prompt: string, genre: string) => {
+  const fetchMusicData = async (data: any, prompt: string, genre: string, taskId: string) => {
     try {
       setIsLoading(true);
 
@@ -341,6 +340,25 @@ function ChatContent() {
         console.log('Final song data:', songData);
 
         setGeneratedSong(songData);
+
+        // --- ここからDBのis_completed, audio_url, image_urlを更新 ---
+        try {
+          await fetch('/api/raw-music', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              task_id: taskId,
+              is_completed: true,
+              audio_url: songData.audioUrl,
+              image_url: songData.coverUrl,
+            }),
+          });
+        } catch (err) {
+          console.error('DB更新失敗:', err);
+        }
+        // --- ここまでDB更新 ---
 
         // 再生状態をリセット
         setIsPlaying(false);
