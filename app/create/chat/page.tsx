@@ -169,9 +169,10 @@ function ChatContent() {
         const data = await response.json();
 
         console.log('ポーリングレスポンス:', data);
+        console.log("確認",data.data.status);
 
         if (data.success && data.data) {
-          if (data.data.status === 'completed') {
+          if (data.data.status === 'success') {
             // 生成完了
             setGenerationProgress(100);
             setIsGenerating(false);
