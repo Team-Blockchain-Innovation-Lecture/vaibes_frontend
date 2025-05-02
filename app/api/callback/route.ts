@@ -64,7 +64,7 @@ export async function GET(request: Request) {
     
     // ローカルストレージになければ、外部APIからデータを取得
     try {
-      const apiEndpoint = `https://ae73-240b-10-27c1-7e00-2425-9b44-c411-f7a7.ngrok-free.app/callback/${task_id}`;
+      const apiEndpoint = `${process.env.CALLBACK_API_URL}/${task_id}`;
       console.log(`Fetching callback data from: ${apiEndpoint}`);
       
       const response = await fetch(apiEndpoint);
