@@ -103,18 +103,18 @@ function ChatContent() {
     if (!prompt || !genre || !taskId) {
       console.error('Missing required parameters:', { prompt, genre, taskId });
       toast({
-        title: 'エラーが発生しました',
-        description: '必要なパラメーターが不足しています',
+        title: 'An error occurred',
+        description: 'Required parameters are missing',
         variant: 'destructive',
       });
       router.push('/create');
       return;
     }
 
-    // 初期メッセージを設定
+    // Initial messages
     setMessages([
       { role: 'user', content: prompt },
-      { role: 'assistant', content: `${genre}ジャンルの曲を生成しています。少々お待ちください...` },
+      { role: 'assistant', content: `Generating a ${genre} song. Please wait...` },
     ]);
 
     // 生成プログレスの擬似アニメーションを開始
@@ -179,8 +179,8 @@ function ChatContent() {
           } else if (data.data.status === 'failed') {
             // 生成失敗
             toast({
-              title: 'エラーが発生しました',
-              description: '音楽生成に失敗しました',
+              title: 'An error occurred',
+              description: 'Music generation failed',
               variant: 'destructive',
             });
             setIsGenerating(false);
@@ -252,12 +252,12 @@ function ChatContent() {
           }),
         });
 
-        // タイムアウトメッセージを表示
+        // Timeout message
         setMessages((prev) => [
-          ...prev.slice(0, -1), // 最後のメッセージを削除
+          ...prev.slice(0, -1),
           {
             role: 'assistant',
-            content: '音楽生成に時間がかかっています。少々お待ちください...',
+            content: 'Music generation is taking longer than expected. Please wait...',
           },
         ]);
 
@@ -265,8 +265,8 @@ function ChatContent() {
         startPolling(apiTaskId, prompt, genre);
       } else {
         toast({
-          title: 'エラーが発生しました',
-          description: data.message || '音楽生成に失敗しました',
+          title: 'An error occurred',
+          description: data.message || 'Music generation failed',
           variant: 'destructive',
         });
         setIsGenerating(false);
@@ -274,8 +274,8 @@ function ChatContent() {
     } catch (error) {
       console.error('Error generating music:', error);
       toast({
-        title: 'エラーが発生しました',
-        description: '音楽生成中にエラーが発生しました',
+        title: 'An error occurred',
+        description: 'An error occurred during music generation',
         variant: 'destructive',
       });
       setIsGenerating(false);
@@ -341,7 +341,7 @@ function ChatContent() {
 
         setGeneratedSong(songData);
 
-        // --- ここからDBのis_completed, audio_url, image_urlを更新 ---
+        // --- DB update ---
         try {
           await fetch('/api/raw-music', {
             method: 'PATCH',
@@ -356,9 +356,9 @@ function ChatContent() {
             }),
           });
         } catch (err) {
-          console.error('DB更新失敗:', err);
+          console.error('Failed to update DB:', err);
         }
-        // --- ここまでDB更新 ---
+        // --- end DB update ---
 
         // 再生状態をリセット
         setIsPlaying(false);
@@ -367,24 +367,24 @@ function ChatContent() {
 
         // AIアシスタントの応答を追加
         setMessages((prev) => [
-          ...prev.slice(0, -1), // 最後の「生成中」メッセージを削除
+          ...prev.slice(0, -1),
           {
             role: 'assistant',
-            content: `${genre}ジャンルの曲を作成しました。右側のプレイヤーで再生できます。`,
+            content: `A ${genre} song has been created. You can play it on the right player.`,
           },
         ]);
       } else {
         toast({
-          title: 'エラーが発生しました',
-          description: '生成されたデータの形式が不正です',
+          title: 'An error occurred',
+          description: 'Invalid format of generated data',
           variant: 'destructive',
         });
       }
     } catch (error) {
       console.error('Error fetching music data:', error);
       toast({
-        title: 'エラーが発生しました',
-        description: '音楽データの取得中にエラーが発生しました',
+        title: 'An error occurred',
+        description: 'An error occurred while fetching music data',
         variant: 'destructive',
       });
     } finally {
@@ -597,11 +597,11 @@ Where our love shines for all eternity`;
           </div>
         </div>
 
-        <h3 className="text-xl font-bold text-white mb-3">音楽を生成中...</h3>
+        <h3 className="text-xl font-bold text-white mb-3">Generating music...</h3>
         <div className="text-white/70 text-center max-w-md space-y-2">
-          <p>タスクID: {currentTaskId}</p>
-          <p>ステータス: 処理中</p>
-          <p>メッセージ: タイムアウトしました。処理は継続中です。</p>
+          <p>Task ID: {currentTaskId}</p>
+          <p>Status: Processing</p>
+          <p>Message: Timeout occurred. Processing continues.</p>
         </div>
 
         <div className="w-full max-w-md mt-8">
@@ -612,9 +612,9 @@ Where our love shines for all eternity`;
             ></div>
           </div>
           <div className="mt-2 flex justify-between text-sm text-white/60">
-            <span>生成を開始</span>
-            <span>処理中...</span>
-            <span>完了</span>
+            <span>Start</span>
+            <span>Processing...</span>
+            <span>Complete</span>
           </div>
         </div>
       </div>
@@ -677,12 +677,12 @@ Where our love shines for all eternity`;
         ) : isLoading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-white/80">音楽データを読み込み中...</p>
+            <p className="mt-4 text-white/80">Loading music data...</p>
           </div>
         ) : generatedSong ? (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white">{generatedSong.title}</h2>
-            <p className="text-white/60 text-sm">ジャンル: {generatedSong.genre}</p>
+            <p className="text-white/60 text-sm">Genre: {generatedSong.genre}</p>
 
             <div className="relative aspect-square overflow-hidden rounded-lg">
               <Image src={generatedSong.coverUrl} alt="Album Cover" fill className="object-cover" />
@@ -724,7 +724,7 @@ Where our love shines for all eternity`;
 
             {generatedSong.lyrics && (
               <div className="mt-8">
-                <h3 className="text-xl font-bold text-white mb-3">歌詞</h3>
+                <h3 className="text-xl font-bold text-white mb-3">Lyrics</h3>
                 <div className="bg-[#1a0e26] rounded-lg p-4 text-white/90 whitespace-pre-wrap max-h-[300px] overflow-y-auto">
                   {generatedSong.lyrics}
                 </div>
@@ -733,11 +733,11 @@ Where our love shines for all eternity`;
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-white/70">
-            <p>音楽が生成されていません</p>
+            <p>No music has been generated</p>
             <div className="text-white/70 text-center max-w-md space-y-2">
-              <p>タスクID: {currentTaskId}</p>
-              <p>ステータス: 処理中</p>
-              <p>メッセージ: タイムアウトしました。処理は継続中です。</p>
+              <p>Task ID: {currentTaskId}</p>
+              <p>Status: Processing</p>
+              <p>Message: Timeout occurred. Processing continues.</p>
             </div>
           </div>
         )}
@@ -756,13 +756,13 @@ function ErrorFallback({
 }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h2 className="text-xl font-bold mb-4">エラーが発生しました</h2>
+      <h2 className="text-xl font-bold mb-4">An error occurred</h2>
       <p className="text-red-500 mb-4">{error.message}</p>
       <button
         onClick={resetErrorBoundary}
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
-        再試行
+        Retry
       </button>
     </div>
   );
