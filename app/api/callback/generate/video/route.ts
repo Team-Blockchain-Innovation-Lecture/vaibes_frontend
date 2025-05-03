@@ -92,6 +92,8 @@ export async function POST(request: Request) {
         throw new Error('Video-audio merge request failed');
       }
 
+      console.log(`[Task ID: ${taskId}] Merged Data:`, margedData);
+
       // Videoテーブルに新しいレコードを作成
       // const video = await prisma.video.create({
       //   data: {
