@@ -10,8 +10,7 @@ const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-const BACKEND_URL = process.env.BACKEND__URL || 'http://localhost:8000';
-const S3_BUCKET = process.env.S3_BUCKET;
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 // S3クライアントの初期化
 const s3Client = new S3Client({
@@ -91,51 +90,22 @@ export async function POST(request: Request) {
         throw new Error('Video-audio merge request failed');
       }
 
-      // マージされた動画データを取得（バイナリ）
-      const videoBuffer = await mergeResponse.arrayBuffer();
-
-      // S3に保存
-      const fileName = `merged-videos/${Date.now()}-${taskId}.mp4`;
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: S3_BUCKET,
-          Key: fileName,
-          Body: Buffer.from(videoBuffer),
-          ContentType: 'video/mp4',
-        })
-      );
-
-      // S3のURLを生成
-      const s3Url = `https://${S3_BUCKET}.s3.amazonaws.com/${fileName}`;
-
-      // Raw_videoテーブルを更新
-      const finalVideo = await prisma.raw_video.update({
-        where: {
-          id: existingVideo.id,
-        },
-        data: {
-          video_url: s3Url,
-        },
-      });
-
       // Videoテーブルに新しいレコードを作成
-      const video = await prisma.video.create({
-        data: {
-          url: s3Url,
-          creator: updatedVideo.userAddress,
-          duration: 8,
-          title: `Generated Video ${Date.now()}`,
-          tokenId: 'default_token_id', // TODO: 適切なtokenIdを設定する必要があります
-          status: 'ready',
-        },
-      });
+      // const video = await prisma.video.create({
+      //   data: {
+      //     url: margedData.output_path,
+      //     duration: 8,
+      //     title: `Generated Video ${Date.now()}`,
+      //     tokenId: updatedVideo.userAddress, // TODO: 適切なtokenIdを設定する必要があります
+      //     status: 'ready',
+      //   },
+      // });
 
       return NextResponse.json({
         success: true,
         data: {
-          video: finalVideo,
-          s3_url: s3Url,
-          created_video: video,
+          s3_url: margedData.output_path,
+          // video: video,
         },
       });
     } catch (error: any) {
