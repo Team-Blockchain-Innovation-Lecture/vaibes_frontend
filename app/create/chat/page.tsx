@@ -171,24 +171,10 @@ function ChatContent() {
         console.log('ポーリングレスポンス:', data);
 
         if (data.success && data.data) {
-          if (data.data.status === 'success') {
-            // 生成完了
-            setGenerationProgress(100);
-            setIsGenerating(false);
-            fetchMusicData(data.data, currentPrompt, currentGenre, taskId);
-          } else if (data.data.status === 'failed') {
-            // 生成失敗
-            toast({
-              title: 'An error occurred',
-              description: 'Music generation failed',
-              variant: 'destructive',
-            });
-            setIsGenerating(false);
-          } else {
-            // 処理中の場合、ポーリングを継続
-            console.log('処理中...');
-            setTimeout(poll, 5000); // 5秒後に再度チェック
-          }
+          // 生成完了
+          setGenerationProgress(100);
+          setIsGenerating(false);
+          fetchMusicData(data.data, currentPrompt, currentGenre, taskId);
         } else {
           console.log('データ未取得...');
           setTimeout(poll, 5000); // 5秒後に再度チェック
@@ -288,99 +274,59 @@ function ChatContent() {
     try {
       setIsLoading(true);
 
-      console.log('Raw API response data:', data);
+      //   // APIレスポンスから曲情報を設定
+      const songData = {
+        title: `${genre} Music`,
+        // オーディオURLの優先順位: audio_url > stream_audio_url > source_stream_audio_url
+        audioUrl:
+          data.audio_url ||
+          // selectedTrack.stream_audio_url ||
+          // selectedTrack.source_stream_audio_url ||
+          '',
+        coverUrl:
+          data.image_url ||
+          // selectedTrack.source_image_url ||
+          '/placeholder.svg?height=400&width=400',
+        genre: genre,
+        lyrics: extractLyrics(prompt, genre) || '',
+      };
 
-      // API応答から音楽データを抽出
-      let musicData: MusicTrack[] | undefined;
+      console.log('Final song data:', songData);
 
-      if (data.data) {
-        if (data.data.callback_data) {
-          // 旧形式のレスポンス
-          musicData = data.data.callback_data?.data?.data?.data;
-        } else if (data.data.data && data.data.data.data) {
-          // 直接レスポンスの形式
-          musicData = data.data.data.data;
-        }
-      }
+      setGeneratedSong(songData);
+      //}
+      //   // --- DB update ---
+      //   try {
+      //     await fetch('/api/raw-music', {
+      //       method: 'PATCH',
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //       },
+      //       body: JSON.stringify({
+      //         task_id: taskId,
+      //         is_completed: true,
+      //         audio_url: songData.audioUrl,
+      //         image_url: songData.coverUrl,
+      //       }),
+      //     });
+      //   } catch (err) {
+      //     console.error('Failed to update DB:', err);
+      //   }
+      // --- end DB update ---
 
-      console.log('Extracted music data:', musicData);
+      // 再生状態をリセット
+      setIsPlaying(false);
+      setProgress(0);
+      setCurrentTime('00:00');
 
-      if (musicData && musicData.length > 0) {
-        // 優先的に完成したオーディオがあるものを選ぶ
-        // source_stream_audio_urlやstream_audio_urlが利用可能であればそれを使用
-        let selectedTrack =
-          musicData.find((track) => track.audio_url) ||
-          musicData.find((track) => track.stream_audio_url) ||
-          musicData.find((track) => track.source_stream_audio_url) ||
-          musicData[0];
-
-        // 既存のオーディオを停止
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current.removeEventListener('timeupdate', updateProgress);
-          audioRef.current = null;
-        }
-
-        // APIレスポンスから曲情報を設定
-        const songData = {
-          title: selectedTrack.title || `${genre} Music`,
-          // オーディオURLの優先順位: audio_url > stream_audio_url > source_stream_audio_url
-          audioUrl:
-            selectedTrack.audio_url ||
-            selectedTrack.stream_audio_url ||
-            selectedTrack.source_stream_audio_url ||
-            '',
-          coverUrl:
-            selectedTrack.image_url ||
-            selectedTrack.source_image_url ||
-            '/placeholder.svg?height=400&width=400',
-          genre: genre,
-          lyrics: extractLyrics(selectedTrack.prompt, genre) || '',
-        };
-
-        console.log('Final song data:', songData);
-
-        setGeneratedSong(songData);
-
-        // --- DB update ---
-        try {
-          await fetch('/api/raw-music', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              task_id: taskId,
-              is_completed: true,
-              audio_url: songData.audioUrl,
-              image_url: songData.coverUrl,
-            }),
-          });
-        } catch (err) {
-          console.error('Failed to update DB:', err);
-        }
-        // --- end DB update ---
-
-        // 再生状態をリセット
-        setIsPlaying(false);
-        setProgress(0);
-        setCurrentTime('00:00');
-
-        // AIアシスタントの応答を追加
-        setMessages((prev) => [
-          ...prev.slice(0, -1),
-          {
-            role: 'assistant',
-            content: `A ${genre} song has been created. You can play it on the right player.`,
-          },
-        ]);
-      } else {
-        toast({
-          title: 'An error occurred',
-          description: 'Invalid format of generated data',
-          variant: 'destructive',
-        });
-      }
+      // AIアシスタントの応答を追加
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        {
+          role: 'assistant',
+          content: `A ${genre} song has been created. You can play it on the right player.`,
+        },
+      ]);
     } catch (error) {
       console.error('Error fetching music data:', error);
       toast({

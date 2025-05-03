@@ -86,6 +86,8 @@ export async function POST(request: Request) {
         }),
       });
 
+      const margedData = await mergeResponse.json();
+
       if (!mergeResponse.ok) {
         throw new Error('Video-audio merge request failed');
       }
