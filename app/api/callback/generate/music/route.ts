@@ -4,7 +4,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 // 環境変数の設定
-const BACKEND_URL = process.env.BACKEND__URL || 'http://localhost:8000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 // レスポンスの型定義
 interface MusicCallbackResponse {
@@ -79,12 +79,15 @@ export async function POST(request: Request) {
       if (!videoResponse.ok) {
         throw new Error(`Video generation API returned ${videoResponse.status}`);
       }
+      // if (!videoResponse.ok) {
+      //   throw new Error(`Video generation API returned ${videoResponse.status}`);
+      // }
 
       const videoData = await videoResponse.json();
 
-      if (videoData.code === 200 || videoData.code === 408) {
+      if (videoData.success) {
         // 動画生成のタスクIDを取得
-        const videoTaskId = videoData.data.task_id;
+        const videoTaskId = videoData.request_id;
 
         // Raw_videoに新しいレコードを作成
         await prisma.raw_video.create({
@@ -101,7 +104,7 @@ export async function POST(request: Request) {
             music: updatedMusic,
             video: {
               task_id: videoTaskId,
-              status: videoData.data.status,
+              status: 'success',
             },
           },
         };
