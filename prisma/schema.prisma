@@ -127,7 +127,7 @@ model Comment {
 
 // Model for raw_music
 model Raw_music {
-  id                    String    @id @default(cuid())
+  id                    Int     @id @default(autoincrement())
   userAddress           String    // User's wallet address
   task_id               String    @unique // Task ID for music generation
   is_completed          Boolean   @default(false) // Whether the music generation is completed

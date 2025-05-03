@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { task_id, userAddress } = body;
+    const { task_id, userAddress, prompt } = body;
 
     // raw_musicテーブルにレコードを作成
     const rawMusic = await prisma.raw_music.create({
@@ -16,6 +16,7 @@ export async function POST(request: Request) {
         is_completed: false,
         audio_url: '',
         image_url: '',
+        prompt: prompt || '',
       },
     });
 

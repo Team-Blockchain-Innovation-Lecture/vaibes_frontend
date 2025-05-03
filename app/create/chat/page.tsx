@@ -24,7 +24,7 @@ interface GeneratedSong {
 }
 
 interface MusicTrack {
-  id: string;
+  id: number;
   title: string;
   prompt: string;
   audio_url?: string;
@@ -249,6 +249,7 @@ function ChatContent() {
             is_completed: false,
             audio_url: '',
             image_url: '',
+            prompt: prompt,
           }),
         });
 

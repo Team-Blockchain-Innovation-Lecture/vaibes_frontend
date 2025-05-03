@@ -5558,12 +5558,22 @@ export namespace Prisma {
 
   export type AggregateRaw_music = {
     _count: Raw_musicCountAggregateOutputType | null
+    _avg: Raw_musicAvgAggregateOutputType | null
+    _sum: Raw_musicSumAggregateOutputType | null
     _min: Raw_musicMinAggregateOutputType | null
     _max: Raw_musicMaxAggregateOutputType | null
   }
 
+  export type Raw_musicAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Raw_musicSumAggregateOutputType = {
+    id: number | null
+  }
+
   export type Raw_musicMinAggregateOutputType = {
-    id: string | null
+    id: number | null
     userAddress: string | null
     task_id: string | null
     is_completed: boolean | null
@@ -5573,7 +5583,7 @@ export namespace Prisma {
   }
 
   export type Raw_musicMaxAggregateOutputType = {
-    id: string | null
+    id: number | null
     userAddress: string | null
     task_id: string | null
     is_completed: boolean | null
@@ -5593,6 +5603,14 @@ export namespace Prisma {
     _all: number
   }
 
+
+  export type Raw_musicAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type Raw_musicSumAggregateInputType = {
+    id?: true
+  }
 
   export type Raw_musicMinAggregateInputType = {
     id?: true
@@ -5663,6 +5681,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: Raw_musicAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Raw_musicSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: Raw_musicMinAggregateInputType
@@ -5693,12 +5723,14 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: Raw_musicCountAggregateInputType | true
+    _avg?: Raw_musicAvgAggregateInputType
+    _sum?: Raw_musicSumAggregateInputType
     _min?: Raw_musicMinAggregateInputType
     _max?: Raw_musicMaxAggregateInputType
   }
 
   export type Raw_musicGroupByOutputType = {
-    id: string
+    id: number
     userAddress: string
     task_id: string
     is_completed: boolean
@@ -5706,6 +5738,8 @@ export namespace Prisma {
     image_url: string | null
     prompt: string | null
     _count: Raw_musicCountAggregateOutputType | null
+    _avg: Raw_musicAvgAggregateOutputType | null
+    _sum: Raw_musicSumAggregateOutputType | null
     _min: Raw_musicMinAggregateOutputType | null
     _max: Raw_musicMaxAggregateOutputType | null
   }
@@ -5752,7 +5786,7 @@ export namespace Prisma {
     name: "Raw_music"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
+      id: number
       userAddress: string
       task_id: string
       is_completed: boolean
@@ -6128,7 +6162,7 @@ export namespace Prisma {
    * Fields of the Raw_music model
    */
   interface Raw_musicFieldRefs {
-    readonly id: FieldRef<"Raw_music", 'String'>
+    readonly id: FieldRef<"Raw_music", 'Int'>
     readonly userAddress: FieldRef<"Raw_music", 'String'>
     readonly task_id: FieldRef<"Raw_music", 'String'>
     readonly is_completed: FieldRef<"Raw_music", 'Boolean'>
@@ -7537,7 +7571,6 @@ export namespace Prisma {
 
 
   export const Raw_musicOrderByRelevanceFieldEnum: {
-    id: 'id',
     userAddress: 'userAddress',
     task_id: 'task_id',
     audio_url: 'audio_url',
@@ -7977,7 +8010,7 @@ export namespace Prisma {
     AND?: Raw_musicWhereInput | Raw_musicWhereInput[]
     OR?: Raw_musicWhereInput[]
     NOT?: Raw_musicWhereInput | Raw_musicWhereInput[]
-    id?: StringFilter<"Raw_music"> | string
+    id?: IntFilter<"Raw_music"> | number
     userAddress?: StringFilter<"Raw_music"> | string
     task_id?: StringFilter<"Raw_music"> | string
     is_completed?: BoolFilter<"Raw_music"> | boolean
@@ -7998,7 +8031,7 @@ export namespace Prisma {
   }
 
   export type Raw_musicWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id?: number
     task_id?: string
     AND?: Raw_musicWhereInput | Raw_musicWhereInput[]
     OR?: Raw_musicWhereInput[]
@@ -8019,15 +8052,17 @@ export namespace Prisma {
     image_url?: SortOrderInput | SortOrder
     prompt?: SortOrderInput | SortOrder
     _count?: Raw_musicCountOrderByAggregateInput
+    _avg?: Raw_musicAvgOrderByAggregateInput
     _max?: Raw_musicMaxOrderByAggregateInput
     _min?: Raw_musicMinOrderByAggregateInput
+    _sum?: Raw_musicSumOrderByAggregateInput
   }
 
   export type Raw_musicScalarWhereWithAggregatesInput = {
     AND?: Raw_musicScalarWhereWithAggregatesInput | Raw_musicScalarWhereWithAggregatesInput[]
     OR?: Raw_musicScalarWhereWithAggregatesInput[]
     NOT?: Raw_musicScalarWhereWithAggregatesInput | Raw_musicScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Raw_music"> | string
+    id?: IntWithAggregatesFilter<"Raw_music"> | number
     userAddress?: StringWithAggregatesFilter<"Raw_music"> | string
     task_id?: StringWithAggregatesFilter<"Raw_music"> | string
     is_completed?: BoolWithAggregatesFilter<"Raw_music"> | boolean
@@ -8480,7 +8515,6 @@ export namespace Prisma {
   }
 
   export type Raw_musicCreateInput = {
-    id?: string
     userAddress: string
     task_id: string
     is_completed?: boolean
@@ -8490,7 +8524,7 @@ export namespace Prisma {
   }
 
   export type Raw_musicUncheckedCreateInput = {
-    id?: string
+    id?: number
     userAddress: string
     task_id: string
     is_completed?: boolean
@@ -8500,7 +8534,6 @@ export namespace Prisma {
   }
 
   export type Raw_musicUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
     is_completed?: BoolFieldUpdateOperationsInput | boolean
@@ -8510,7 +8543,7 @@ export namespace Prisma {
   }
 
   export type Raw_musicUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id?: IntFieldUpdateOperationsInput | number
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
     is_completed?: BoolFieldUpdateOperationsInput | boolean
@@ -8520,7 +8553,7 @@ export namespace Prisma {
   }
 
   export type Raw_musicCreateManyInput = {
-    id?: string
+    id?: number
     userAddress: string
     task_id: string
     is_completed?: boolean
@@ -8530,7 +8563,6 @@ export namespace Prisma {
   }
 
   export type Raw_musicUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
     is_completed?: BoolFieldUpdateOperationsInput | boolean
@@ -8540,7 +8572,7 @@ export namespace Prisma {
   }
 
   export type Raw_musicUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id?: IntFieldUpdateOperationsInput | number
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
     is_completed?: BoolFieldUpdateOperationsInput | boolean
@@ -9137,6 +9169,10 @@ export namespace Prisma {
     prompt?: SortOrder
   }
 
+  export type Raw_musicAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
   export type Raw_musicMaxOrderByAggregateInput = {
     id?: SortOrder
     userAddress?: SortOrder
@@ -9155,6 +9191,10 @@ export namespace Prisma {
     audio_url?: SortOrder
     image_url?: SortOrder
     prompt?: SortOrder
+  }
+
+  export type Raw_musicSumOrderByAggregateInput = {
+    id?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
