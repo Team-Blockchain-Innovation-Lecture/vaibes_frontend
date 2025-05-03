@@ -38,6 +38,15 @@ export async function POST(request: Request) {
     const taskId = body.data.task_id;
     const musicData = body.data.data[0];
 
+    if (!musicData.audio_url || !musicData.audio_url) {
+      console.log(`[Task ID: ${taskId}] Audio URL:`, musicData.audio_url);
+      console.log(`[Task ID: ${taskId}] Image URL:`, musicData.image_url);
+      return NextResponse.json(
+        { error: `[Task ID: ${taskId}] Suno still generating` },
+        { status: 404 }
+      );
+    }
+
     try {
       // 同じtask_idのレコードを探して更新
       const existingMusic = await prisma.raw_music.findFirst({
