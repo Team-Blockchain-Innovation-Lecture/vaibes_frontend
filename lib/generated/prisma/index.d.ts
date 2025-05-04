@@ -5576,6 +5576,7 @@ export namespace Prisma {
     id: number | null
     userAddress: string | null
     task_id: string | null
+    music_task_id: string | null
     is_completed: boolean | null
     audio_url: string | null
     image_url: string | null
@@ -5586,6 +5587,7 @@ export namespace Prisma {
     id: number | null
     userAddress: string | null
     task_id: string | null
+    music_task_id: string | null
     is_completed: boolean | null
     audio_url: string | null
     image_url: string | null
@@ -5596,6 +5598,7 @@ export namespace Prisma {
     id: number
     userAddress: number
     task_id: number
+    music_task_id: number
     is_completed: number
     audio_url: number
     image_url: number
@@ -5616,6 +5619,7 @@ export namespace Prisma {
     id?: true
     userAddress?: true
     task_id?: true
+    music_task_id?: true
     is_completed?: true
     audio_url?: true
     image_url?: true
@@ -5626,6 +5630,7 @@ export namespace Prisma {
     id?: true
     userAddress?: true
     task_id?: true
+    music_task_id?: true
     is_completed?: true
     audio_url?: true
     image_url?: true
@@ -5636,6 +5641,7 @@ export namespace Prisma {
     id?: true
     userAddress?: true
     task_id?: true
+    music_task_id?: true
     is_completed?: true
     audio_url?: true
     image_url?: true
@@ -5733,6 +5739,7 @@ export namespace Prisma {
     id: number
     userAddress: string
     task_id: string
+    music_task_id: string | null
     is_completed: boolean
     audio_url: string | null
     image_url: string | null
@@ -5762,6 +5769,7 @@ export namespace Prisma {
     id?: boolean
     userAddress?: boolean
     task_id?: boolean
+    music_task_id?: boolean
     is_completed?: boolean
     audio_url?: boolean
     image_url?: boolean
@@ -5774,13 +5782,14 @@ export namespace Prisma {
     id?: boolean
     userAddress?: boolean
     task_id?: boolean
+    music_task_id?: boolean
     is_completed?: boolean
     audio_url?: boolean
     image_url?: boolean
     prompt?: boolean
   }
 
-  export type Raw_musicOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "is_completed" | "audio_url" | "image_url" | "prompt", ExtArgs["result"]["raw_music"]>
+  export type Raw_musicOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "music_task_id" | "is_completed" | "audio_url" | "image_url" | "prompt", ExtArgs["result"]["raw_music"]>
 
   export type $Raw_musicPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Raw_music"
@@ -5789,6 +5798,7 @@ export namespace Prisma {
       id: number
       userAddress: string
       task_id: string
+      music_task_id: string | null
       is_completed: boolean
       audio_url: string | null
       image_url: string | null
@@ -6165,6 +6175,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Raw_music", 'Int'>
     readonly userAddress: FieldRef<"Raw_music", 'String'>
     readonly task_id: FieldRef<"Raw_music", 'String'>
+    readonly music_task_id: FieldRef<"Raw_music", 'String'>
     readonly is_completed: FieldRef<"Raw_music", 'Boolean'>
     readonly audio_url: FieldRef<"Raw_music", 'String'>
     readonly image_url: FieldRef<"Raw_music", 'String'>
@@ -6496,22 +6507,34 @@ export namespace Prisma {
 
   export type AggregateRaw_video = {
     _count: Raw_videoCountAggregateOutputType | null
+    _avg: Raw_videoAvgAggregateOutputType | null
+    _sum: Raw_videoSumAggregateOutputType | null
     _min: Raw_videoMinAggregateOutputType | null
     _max: Raw_videoMaxAggregateOutputType | null
   }
 
+  export type Raw_videoAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Raw_videoSumAggregateOutputType = {
+    id: number | null
+  }
+
   export type Raw_videoMinAggregateOutputType = {
-    id: string | null
+    id: number | null
     userAddress: string | null
     task_id: string | null
+    video_task_id: string | null
     is_completed: boolean | null
     video_url: string | null
   }
 
   export type Raw_videoMaxAggregateOutputType = {
-    id: string | null
+    id: number | null
     userAddress: string | null
     task_id: string | null
+    video_task_id: string | null
     is_completed: boolean | null
     video_url: string | null
   }
@@ -6520,16 +6543,26 @@ export namespace Prisma {
     id: number
     userAddress: number
     task_id: number
+    video_task_id: number
     is_completed: number
     video_url: number
     _all: number
   }
 
 
+  export type Raw_videoAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type Raw_videoSumAggregateInputType = {
+    id?: true
+  }
+
   export type Raw_videoMinAggregateInputType = {
     id?: true
     userAddress?: true
     task_id?: true
+    video_task_id?: true
     is_completed?: true
     video_url?: true
   }
@@ -6538,6 +6571,7 @@ export namespace Prisma {
     id?: true
     userAddress?: true
     task_id?: true
+    video_task_id?: true
     is_completed?: true
     video_url?: true
   }
@@ -6546,6 +6580,7 @@ export namespace Prisma {
     id?: true
     userAddress?: true
     task_id?: true
+    video_task_id?: true
     is_completed?: true
     video_url?: true
     _all?: true
@@ -6589,6 +6624,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: Raw_videoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Raw_videoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: Raw_videoMinAggregateInputType
@@ -6619,17 +6666,22 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: Raw_videoCountAggregateInputType | true
+    _avg?: Raw_videoAvgAggregateInputType
+    _sum?: Raw_videoSumAggregateInputType
     _min?: Raw_videoMinAggregateInputType
     _max?: Raw_videoMaxAggregateInputType
   }
 
   export type Raw_videoGroupByOutputType = {
-    id: string
+    id: number
     userAddress: string
     task_id: string
+    video_task_id: string | null
     is_completed: boolean
     video_url: string | null
     _count: Raw_videoCountAggregateOutputType | null
+    _avg: Raw_videoAvgAggregateOutputType | null
+    _sum: Raw_videoSumAggregateOutputType | null
     _min: Raw_videoMinAggregateOutputType | null
     _max: Raw_videoMaxAggregateOutputType | null
   }
@@ -6652,6 +6704,7 @@ export namespace Prisma {
     id?: boolean
     userAddress?: boolean
     task_id?: boolean
+    video_task_id?: boolean
     is_completed?: boolean
     video_url?: boolean
   }, ExtArgs["result"]["raw_video"]>
@@ -6662,19 +6715,21 @@ export namespace Prisma {
     id?: boolean
     userAddress?: boolean
     task_id?: boolean
+    video_task_id?: boolean
     is_completed?: boolean
     video_url?: boolean
   }
 
-  export type Raw_videoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "is_completed" | "video_url", ExtArgs["result"]["raw_video"]>
+  export type Raw_videoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "video_task_id" | "is_completed" | "video_url", ExtArgs["result"]["raw_video"]>
 
   export type $Raw_videoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Raw_video"
     objects: {}
     scalars: $Extensions.GetPayloadResult<{
-      id: string
+      id: number
       userAddress: string
       task_id: string
+      video_task_id: string | null
       is_completed: boolean
       video_url: string | null
     }, ExtArgs["result"]["raw_video"]>
@@ -7046,9 +7101,10 @@ export namespace Prisma {
    * Fields of the Raw_video model
    */
   interface Raw_videoFieldRefs {
-    readonly id: FieldRef<"Raw_video", 'String'>
+    readonly id: FieldRef<"Raw_video", 'Int'>
     readonly userAddress: FieldRef<"Raw_video", 'String'>
     readonly task_id: FieldRef<"Raw_video", 'String'>
+    readonly video_task_id: FieldRef<"Raw_video", 'String'>
     readonly is_completed: FieldRef<"Raw_video", 'Boolean'>
     readonly video_url: FieldRef<"Raw_video", 'String'>
   }
@@ -7456,6 +7512,7 @@ export namespace Prisma {
     id: 'id',
     userAddress: 'userAddress',
     task_id: 'task_id',
+    music_task_id: 'music_task_id',
     is_completed: 'is_completed',
     audio_url: 'audio_url',
     image_url: 'image_url',
@@ -7469,6 +7526,7 @@ export namespace Prisma {
     id: 'id',
     userAddress: 'userAddress',
     task_id: 'task_id',
+    video_task_id: 'video_task_id',
     is_completed: 'is_completed',
     video_url: 'video_url'
   };
@@ -7573,6 +7631,7 @@ export namespace Prisma {
   export const Raw_musicOrderByRelevanceFieldEnum: {
     userAddress: 'userAddress',
     task_id: 'task_id',
+    music_task_id: 'music_task_id',
     audio_url: 'audio_url',
     image_url: 'image_url',
     prompt: 'prompt'
@@ -7582,9 +7641,9 @@ export namespace Prisma {
 
 
   export const Raw_videoOrderByRelevanceFieldEnum: {
-    id: 'id',
     userAddress: 'userAddress',
     task_id: 'task_id',
+    video_task_id: 'video_task_id',
     video_url: 'video_url'
   };
 
@@ -8013,6 +8072,7 @@ export namespace Prisma {
     id?: IntFilter<"Raw_music"> | number
     userAddress?: StringFilter<"Raw_music"> | string
     task_id?: StringFilter<"Raw_music"> | string
+    music_task_id?: StringNullableFilter<"Raw_music"> | string | null
     is_completed?: BoolFilter<"Raw_music"> | boolean
     audio_url?: StringNullableFilter<"Raw_music"> | string | null
     image_url?: StringNullableFilter<"Raw_music"> | string | null
@@ -8023,6 +8083,7 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    music_task_id?: SortOrderInput | SortOrder
     is_completed?: SortOrder
     audio_url?: SortOrderInput | SortOrder
     image_url?: SortOrderInput | SortOrder
@@ -8033,6 +8094,7 @@ export namespace Prisma {
   export type Raw_musicWhereUniqueInput = Prisma.AtLeast<{
     id?: number
     task_id?: string
+    music_task_id?: string
     AND?: Raw_musicWhereInput | Raw_musicWhereInput[]
     OR?: Raw_musicWhereInput[]
     NOT?: Raw_musicWhereInput | Raw_musicWhereInput[]
@@ -8041,12 +8103,13 @@ export namespace Prisma {
     audio_url?: StringNullableFilter<"Raw_music"> | string | null
     image_url?: StringNullableFilter<"Raw_music"> | string | null
     prompt?: StringNullableFilter<"Raw_music"> | string | null
-  }, "id" | "task_id">
+  }, "id" | "task_id" | "music_task_id">
 
   export type Raw_musicOrderByWithAggregationInput = {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    music_task_id?: SortOrderInput | SortOrder
     is_completed?: SortOrder
     audio_url?: SortOrderInput | SortOrder
     image_url?: SortOrderInput | SortOrder
@@ -8065,6 +8128,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Raw_music"> | number
     userAddress?: StringWithAggregatesFilter<"Raw_music"> | string
     task_id?: StringWithAggregatesFilter<"Raw_music"> | string
+    music_task_id?: StringNullableWithAggregatesFilter<"Raw_music"> | string | null
     is_completed?: BoolWithAggregatesFilter<"Raw_music"> | boolean
     audio_url?: StringNullableWithAggregatesFilter<"Raw_music"> | string | null
     image_url?: StringNullableWithAggregatesFilter<"Raw_music"> | string | null
@@ -8075,9 +8139,10 @@ export namespace Prisma {
     AND?: Raw_videoWhereInput | Raw_videoWhereInput[]
     OR?: Raw_videoWhereInput[]
     NOT?: Raw_videoWhereInput | Raw_videoWhereInput[]
-    id?: StringFilter<"Raw_video"> | string
+    id?: IntFilter<"Raw_video"> | number
     userAddress?: StringFilter<"Raw_video"> | string
     task_id?: StringFilter<"Raw_video"> | string
+    video_task_id?: StringNullableFilter<"Raw_video"> | string | null
     is_completed?: BoolFilter<"Raw_video"> | boolean
     video_url?: StringNullableFilter<"Raw_video"> | string | null
   }
@@ -8086,13 +8151,15 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    video_task_id?: SortOrderInput | SortOrder
     is_completed?: SortOrder
     video_url?: SortOrderInput | SortOrder
     _relevance?: Raw_videoOrderByRelevanceInput
   }
 
   export type Raw_videoWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
+    id?: number
+    video_task_id?: string
     AND?: Raw_videoWhereInput | Raw_videoWhereInput[]
     OR?: Raw_videoWhereInput[]
     NOT?: Raw_videoWhereInput | Raw_videoWhereInput[]
@@ -8100,26 +8167,30 @@ export namespace Prisma {
     task_id?: StringFilter<"Raw_video"> | string
     is_completed?: BoolFilter<"Raw_video"> | boolean
     video_url?: StringNullableFilter<"Raw_video"> | string | null
-  }, "id">
+  }, "id" | "video_task_id">
 
   export type Raw_videoOrderByWithAggregationInput = {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    video_task_id?: SortOrderInput | SortOrder
     is_completed?: SortOrder
     video_url?: SortOrderInput | SortOrder
     _count?: Raw_videoCountOrderByAggregateInput
+    _avg?: Raw_videoAvgOrderByAggregateInput
     _max?: Raw_videoMaxOrderByAggregateInput
     _min?: Raw_videoMinOrderByAggregateInput
+    _sum?: Raw_videoSumOrderByAggregateInput
   }
 
   export type Raw_videoScalarWhereWithAggregatesInput = {
     AND?: Raw_videoScalarWhereWithAggregatesInput | Raw_videoScalarWhereWithAggregatesInput[]
     OR?: Raw_videoScalarWhereWithAggregatesInput[]
     NOT?: Raw_videoScalarWhereWithAggregatesInput | Raw_videoScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Raw_video"> | string
+    id?: IntWithAggregatesFilter<"Raw_video"> | number
     userAddress?: StringWithAggregatesFilter<"Raw_video"> | string
     task_id?: StringWithAggregatesFilter<"Raw_video"> | string
+    video_task_id?: StringNullableWithAggregatesFilter<"Raw_video"> | string | null
     is_completed?: BoolWithAggregatesFilter<"Raw_video"> | boolean
     video_url?: StringNullableWithAggregatesFilter<"Raw_video"> | string | null
   }
@@ -8517,6 +8588,7 @@ export namespace Prisma {
   export type Raw_musicCreateInput = {
     userAddress: string
     task_id: string
+    music_task_id?: string | null
     is_completed?: boolean
     audio_url?: string | null
     image_url?: string | null
@@ -8527,6 +8599,7 @@ export namespace Prisma {
     id?: number
     userAddress: string
     task_id: string
+    music_task_id?: string | null
     is_completed?: boolean
     audio_url?: string | null
     image_url?: string | null
@@ -8536,6 +8609,7 @@ export namespace Prisma {
   export type Raw_musicUpdateInput = {
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    music_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     audio_url?: NullableStringFieldUpdateOperationsInput | string | null
     image_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8546,6 +8620,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    music_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     audio_url?: NullableStringFieldUpdateOperationsInput | string | null
     image_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8556,6 +8631,7 @@ export namespace Prisma {
     id?: number
     userAddress: string
     task_id: string
+    music_task_id?: string | null
     is_completed?: boolean
     audio_url?: string | null
     image_url?: string | null
@@ -8565,6 +8641,7 @@ export namespace Prisma {
   export type Raw_musicUpdateManyMutationInput = {
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    music_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     audio_url?: NullableStringFieldUpdateOperationsInput | string | null
     image_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8575,6 +8652,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    music_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     audio_url?: NullableStringFieldUpdateOperationsInput | string | null
     image_url?: NullableStringFieldUpdateOperationsInput | string | null
@@ -8582,57 +8660,61 @@ export namespace Prisma {
   }
 
   export type Raw_videoCreateInput = {
-    id?: string
     userAddress: string
     task_id: string
+    video_task_id?: string | null
     is_completed?: boolean
     video_url?: string | null
   }
 
   export type Raw_videoUncheckedCreateInput = {
-    id?: string
+    id?: number
     userAddress: string
     task_id: string
+    video_task_id?: string | null
     is_completed?: boolean
     video_url?: string | null
   }
 
   export type Raw_videoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type Raw_videoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id?: IntFieldUpdateOperationsInput | number
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type Raw_videoCreateManyInput = {
-    id?: string
+    id?: number
     userAddress: string
     task_id: string
+    video_task_id?: string | null
     is_completed?: boolean
     video_url?: string | null
   }
 
   export type Raw_videoUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type Raw_videoUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
+    id?: IntFieldUpdateOperationsInput | number
     userAddress?: StringFieldUpdateOperationsInput | string
     task_id?: StringFieldUpdateOperationsInput | string
+    video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
@@ -9163,6 +9245,7 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    music_task_id?: SortOrder
     is_completed?: SortOrder
     audio_url?: SortOrder
     image_url?: SortOrder
@@ -9177,6 +9260,7 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    music_task_id?: SortOrder
     is_completed?: SortOrder
     audio_url?: SortOrder
     image_url?: SortOrder
@@ -9187,6 +9271,7 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    music_task_id?: SortOrder
     is_completed?: SortOrder
     audio_url?: SortOrder
     image_url?: SortOrder
@@ -9215,14 +9300,20 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    video_task_id?: SortOrder
     is_completed?: SortOrder
     video_url?: SortOrder
+  }
+
+  export type Raw_videoAvgOrderByAggregateInput = {
+    id?: SortOrder
   }
 
   export type Raw_videoMaxOrderByAggregateInput = {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    video_task_id?: SortOrder
     is_completed?: SortOrder
     video_url?: SortOrder
   }
@@ -9231,8 +9322,13 @@ export namespace Prisma {
     id?: SortOrder
     userAddress?: SortOrder
     task_id?: SortOrder
+    video_task_id?: SortOrder
     is_completed?: SortOrder
     video_url?: SortOrder
+  }
+
+  export type Raw_videoSumOrderByAggregateInput = {
+    id?: SortOrder
   }
 
   export type VideoCreateNestedManyWithoutTokenInput = {

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       // task_idに基づいてレコードを検索
       const existingVideo = await prisma.raw_video.findFirst({
         where: {
-          task_id: taskId,
+          video_task_id: taskId,
         },
       });
 

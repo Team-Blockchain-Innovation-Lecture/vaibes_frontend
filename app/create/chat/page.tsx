@@ -23,6 +23,10 @@ interface GeneratedSong {
   genre: string;
 }
 
+interface GeneratedVideo {
+  videoUrl: string;
+}
+
 interface MusicTrack {
   id: number;
   title: string;
@@ -74,6 +78,10 @@ function ChatContent() {
   const { wallets } = useSolanaWallets();
   const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
   const userAddress = solanaWallet?.address || '';
+
+  const [isVideoGenerating, setIsVideoGenerating] = useState(true); // 初期状態は生成中
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(null);
 
   // Check if we're on mobile
   useEffect(() => {
@@ -165,12 +173,17 @@ function ChatContent() {
     const poll = async () => {
       try {
         console.log(`ポーリング開始 - タスクID: ${taskId}`);
-        const response = await fetch(`/api/callback?task_id=${taskId}`);
+        const response = await fetch(`/api/callback/music?task_id=${taskId}`);
         const data = await response.json();
 
         console.log('ポーリングレスポンス:', data);
 
         if (data.success && data.data) {
+          console.log('ポーリングレスポンス2:', data);
+
+          // if (data.data.status === 'success') {
+          console.log('ポーリングレスポンスkanryou:', data);
+
           // 生成完了
           setGenerationProgress(100);
           setIsGenerating(false);
@@ -186,6 +199,38 @@ function ChatContent() {
     };
 
     poll(); // 初回のポーリングを開始
+  };
+
+  // ポーリングを開始する関数
+  const startVideoPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
+    const videoPoll = async () => {
+      try {
+        console.log(`video ポーリング開始 - タスクID: ${taskId}`);
+        const response = await fetch(`/api/callback/video?task_id=${taskId}`);
+        const data = await response.json();
+
+        console.log('video ポーリングレスポンス:', data);
+
+        if (data.success && data.data) {
+          console.log('video ポーリングレスポンス2:', data);
+
+          console.log('video ポーリングレスポンスkanryou:', data);
+
+          // 生成完了
+          // setGenerationProgress(100);
+          setIsVideoGenerating(false);
+          fetchVideoData(data.data, currentPrompt, currentGenre, taskId);
+        } else {
+          console.log('video データ未取得...');
+          setTimeout(videoPoll, 5000); // 5秒後に再度チェック
+        }
+      } catch (error) {
+        console.error('Error vido polling:', error);
+        setTimeout(videoPoll, 5000); // エラーが発生しても5秒後に再度チェック
+      }
+    };
+
+    videoPoll(); // 初回のポーリングを開始
   };
 
   // 音楽生成APIを呼び出す関数
@@ -230,7 +275,8 @@ function ChatContent() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            task_id: apiTaskId,
+            task_id: taskId,
+            music_task_id: apiTaskId,
             userAddress: userAddress,
             is_completed: false,
             audio_url: '',
@@ -249,7 +295,7 @@ function ChatContent() {
         ]);
 
         // ポーリングを開始
-        startPolling(apiTaskId, prompt, genre);
+        startPolling(taskId, prompt, genre);
       } else {
         toast({
           title: 'An error occurred',
@@ -336,6 +382,62 @@ function ChatContent() {
       });
     } finally {
       setIsLoading(false);
+
+      // ポーリングを開始
+      startVideoPolling(taskId, prompt, genre);
+    }
+  };
+
+  // コールバックデータから音楽情報を取得
+  const fetchVideoData = async (data: any, prompt: string, genre: string, taskId: string) => {
+    try {
+      setIsVideoLoading(true);
+
+      //   // APIレスポンスから曲情報を設定
+      const videoData = {
+        videoUrl: data.video_url || '',
+      };
+
+      console.log('Final video data:', videoData);
+
+      setGeneratedVideo(videoData);
+      //}
+      //   // --- DB update ---
+      //   try {
+      //     await fetch('/api/raw-music', {
+      //       method: 'PATCH',
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //       },
+      //       body: JSON.stringify({
+      //         task_id: taskId,
+      //         is_completed: true,
+      //         audio_url: songData.audioUrl,
+      //         image_url: songData.coverUrl,
+      //       }),
+      //     });
+      //   } catch (err) {
+      //     console.error('Failed to update DB:', err);
+      //   }
+      // --- end DB update ---
+
+      // AIアシスタントの応答を追加
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        {
+          role: 'assistant',
+          content: `A ${genre} video has been created. You can play it on the right player.`,
+        },
+      ]);
+    } catch (error) {
+      console.error('Error fetching video data:', error);
+      toast({
+        title: 'An error occurred',
+        description: 'An error occurred while fetching video data',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsVideoLoading(false);
     }
   };
 
@@ -678,6 +780,44 @@ Where our love shines for all eternity`;
               </div>
             )}
           </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-white/70">
+            <p>No music has been generated</p>
+            <div className="text-white/70 text-center max-w-md space-y-2">
+              <p>Task ID: {currentTaskId}</p>
+              <p>Status: Processing</p>
+              <p>Message: Timeout occurred. Processing continues.</p>
+            </div>
+          </div>
+        )}
+
+        {isVideoGenerating ? (
+          // 生成中の表示
+          renderGenerationLoading()
+        ) : isVideoLoading ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-white/80">Loading music data...</p>
+          </div>
+        ) : generatedVideo ? (
+          <>
+            <div className="space-y-6">
+              <div className="relative aspect-square overflow-hidden rounded-lg">
+                <video
+                  src={generatedVideo.videoUrl}
+                  controls
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  onError={(e) => console.error('Video loading error:', e)}
+                >
+                  <source src={generatedVideo.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-white/70">
             <p>No music has been generated</p>

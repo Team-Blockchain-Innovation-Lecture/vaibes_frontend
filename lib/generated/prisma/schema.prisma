@@ -126,13 +126,14 @@ model Comment {
 
 // Model for raw_music
 model Raw_music {
-  id           Int     @id @default(autoincrement())
-  userAddress  String // User's wallet address
-  task_id      String  @unique // Task ID for music generation
-  is_completed Boolean @default(false) // Whether the music generation is completed
-  audio_url    String? // URL to the generated audio file
-  image_url    String? // URL to the generated image/cover
-  prompt       String? @db.Text // The prompt used to generate the music
+  id            Int     @id @default(autoincrement())
+  userAddress   String // User's wallet address
+  task_id       String  @unique // Task ID for music generation
+  music_task_id String? @unique // Task ID for API
+  is_completed  Boolean @default(false) // Whether the music generation is completed
+  audio_url     String? // URL to the generated audio file
+  image_url     String? // URL to the generated image/cover
+  prompt        String? @db.Text // The prompt used to generate the music
 
   // Indexes for performance
   @@index([userAddress])
@@ -141,11 +142,12 @@ model Raw_music {
 
 // Model for raw_video
 model Raw_video {
-  id           String  @id @default(cuid())
-  userAddress  String // User's wallet address
-  task_id      String // Task ID for video generation
-  is_completed Boolean @default(false) // Whether the video generation is completed
-  video_url    String? // URL to the generated video
+  id            Int     @id @default(autoincrement())
+  userAddress   String // User's wallet address
+  task_id       String // Task ID for video generation
+  video_task_id String? @unique // Task ID for API
+  is_completed  Boolean @default(false) // Whether the video generation is completed
+  video_url     String? // URL to the generated video
 
   // Indexes for performance
   @@index([userAddress])

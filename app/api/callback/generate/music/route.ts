@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       // 同じtask_idのレコードを探して更新
       const existingMusic = await prisma.raw_music.findFirst({
         where: {
-          task_id: taskId,
+          music_task_id: taskId,
         },
       });
 
@@ -102,7 +102,8 @@ export async function POST(request: Request) {
         await prisma.raw_video.create({
           data: {
             userAddress: updatedMusic.userAddress,
-            task_id: videoTaskId,
+            task_id: existingMusic.task_id,
+            video_task_id: videoTaskId,
             is_completed: false,
           },
         });
