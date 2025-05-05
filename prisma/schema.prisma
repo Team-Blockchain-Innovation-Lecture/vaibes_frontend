@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Model for pump.fun tokens
+model Token {
+  id                    String    @id @default(cuid())
+  mint                  String    @unique // The token mint address
+  name                  String    // Token name
+  symbol                String    // Token symbol
+  description           String?   @db.Text // Token description
+  creator               String    // token creator
+  
+  logo                  String?   // URL to token logo
+  decimals              Int?   // Number of decimal places
+  totalSupply           BigInt?   // Total supply as a raw value
+  tokenProgram          String?   // Token program
+  marketCap             Float?   // marketCap
+  
+  // Individual social links (replacing the JSON links field)
+  telegramLink          String?   // Telegram link
+  websiteLink           String?   // Website link
+  twitterLink           String?   // Twitter or X link
+
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relation to videos
+  videos                Video[]
+}
+
+// Model for AI-generated videos
+model Video {
+  id                    String    @id @default(cuid())
+  title                 String    // Video title
+  description           String?   @db.Text // Video description
+  url                   String    // URL to the video
+  thumbnailUrl          String?   // URL to video thumbnail
+  duration              Int?      // Video duration in seconds
+  createdWith           String?   // AI tool used to generate the video
+  prompt                String?   @db.Text // The prompt used to generate the video
+  creator               String    @default("0x000")// video creator address
+  
+  // Status of the video (e.g., "processing", "ready", "failed")
+  status                String    @default("processing")
+  
+  // Play and like counters
+  playCount             Int       @default(0) // Number of video plays
+  likeCount             Int       @default(0) // Number of likes for the video
+  
+  // Additional metadata
+  metadata              Json?     // Additional metadata about the video
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  // Relation to Token
+  tokenId               String    // Foreign key referencing Token
+  token                 Token     @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  
+  // Relation to likes
+  likes                 VideoLike[]
+  
+  // Relation to comments
+  comments              Comment[]
+
+  // Indexes for performance
+  @@index([tokenId])
+}
+
+// Model for tracking user likes on videos
+model VideoLike {
+  id                    String    @id @default(cuid())
+  userId                String    // Privy user ID
+  
+  // Relation to Video
+  videoId               String    // Foreign key referencing Video
+  video                 Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  
+  // Ensure a user can only like a video once
+  @@unique([userId, videoId])
+  @@index([userId])
+  @@index([videoId])
+}
+
+// Model for video comments
+model Comment {
+  id                    String    @id @default(cuid())
+  content               String    @db.Text // Comment content
+  userAddress           String    // User's wallet address
+  
+  // Relation to Video
+  videoId               String    // Foreign key referencing Video
+  video                 Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  
+  // Parent-child relationship for replies
+  parentId              String?   // Foreign key for parent comment (null if top-level)
+  parent                Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies               Comment[] @relation("CommentReplies")
+  
+  // Timestamps
+  createdAt             DateTime  @default(now())
+  
+  // Indexes for performance
+  @@index([videoId])
+  @@index([parentId])
+  @@index([userAddress])
+}
+
+
+// Model for raw_music
+model Raw_music {
+  id                    Int     @id @default(autoincrement())
+  userAddress           String    // User's wallet address
+  task_id               String    @unique // Task ID for music generation
+  music_task_id         String?    @unique // Task ID for API
+  is_completed          Boolean   @default(false) // Whether the music generation is completed
+  audio_url             String?   // URL to the generated audio file
+  image_url             String?   // URL to the generated image/cover
+  prompt                String?   @db.Text // The prompt used to generate the music
+  
+  // Indexes for performance
+  @@index([userAddress])
+  @@index([task_id])
+}
+
+// Model for raw_video
+model Raw_video {
+  id                    Int    @id @default(autoincrement())
+  userAddress           String    // User's wallet address
+  task_id               String    // Task ID for video generation
+  video_task_id         String?    @unique // Task ID for API
+  is_completed          Boolean   @default(false) // Whether the video generation is completed
+  video_url             String?   // URL to the generated video
+  merged_video_url      String?   // URL to the generated video merged with music
+
+  // Indexes for performance
+  @@index([userAddress])
+  @@index([task_id])
+}
