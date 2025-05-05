@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { usePrivy } from '@privy-io/react-auth';
 import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import { ErrorBoundary } from 'react-error-boundary';
+import { ReleaseButton } from '@/components/release-button';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -746,7 +747,7 @@ Where our love shines for all eternity`;
           <div ref={messagesEndRef} />
           {generatedVideo && (
             <div className="flex justify-end">
-              <ReleaseButton />
+              <ReleaseButton videoData={generatedVideo} musicData={generatedSong} />
             </div>
           )}
         </div>
