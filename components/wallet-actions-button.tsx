@@ -209,7 +209,7 @@ export function WalletActionsButton() {
     <>
       <Button
         variant="outline"
-        className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-4 py-2 transition-all duration-200 shadow-md flex items-center gap-1"
+        className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-4 py-2 w-full sm:w-auto text-base sm:text-sm transition-all duration-200 shadow-md flex items-center gap-1"
         onClick={() => setDialogOpen(true)}
       >
         <Wallet size={16} className="mr-1" />
@@ -217,7 +217,7 @@ export function WalletActionsButton() {
       </Button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="bg-[#1a0a2e] text-white border border-purple-400/30 sm:max-w-md">
+        <DialogContent className="bg-[#1a0a2e] text-white border border-purple-400/30 max-w-full sm:max-w-md px-2 sm:px-6 py-2 sm:py-6">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold flex items-center gap-2">
               <SolanaIcon size={24} />
@@ -259,14 +259,14 @@ export function WalletActionsButton() {
             <TabsList className="w-full bg-[#2a1242] mb-4">
               <TabsTrigger
                 value="receive"
-                className="w-1/2 data-[state=active]:bg-[#3a1a5a]"
+                className="w-1/2 data-[state=active]:bg-[#3a1a5a] text-base sm:text-sm"
               >
                 <ArrowDownToLine size={16} className="mr-2" />
                 Receive
               </TabsTrigger>
               <TabsTrigger
                 value="send"
-                className="w-1/2 data-[state=active]:bg-[#3a1a5a]"
+                className="w-1/2 data-[state=active]:bg-[#3a1a5a] text-base sm:text-sm"
               >
                 <ArrowUpRight size={16} className="mr-2" />
                 Send
@@ -274,12 +274,12 @@ export function WalletActionsButton() {
             </TabsList>
 
             <TabsContent value="receive" className="mt-0">
-              <div className="p-4 bg-[#2a1242] rounded-md my-2">
+              <div className="p-2 sm:p-4 bg-[#2a1242] rounded-md my-2">
                 <p className="text-sm text-gray-300 mb-2">
                   Your Solana Wallet Address:
                 </p>
                 <div
-                  className="p-3 bg-[#3a1a5a] rounded border border-purple-400/30 font-mono text-sm break-all cursor-pointer hover:bg-[#4a2a6a] transition-colors"
+                  className="p-2 sm:p-3 bg-[#3a1a5a] rounded border border-purple-400/30 font-mono text-xs sm:text-sm break-all cursor-pointer hover:bg-[#4a2a6a] transition-colors"
                   onClick={() => copyToClipboard(walletAddress)}
                 >
                   {walletAddress}
@@ -299,7 +299,7 @@ export function WalletActionsButton() {
                 <p className="text-sm text-gray-300">
                   You can receive funds by:
                 </p>
-                <ul className="list-disc list-inside text-sm space-y-1 text-gray-300">
+                <ul className="list-disc list-inside text-xs sm:text-sm space-y-1 text-gray-300">
                   <li>Sharing your address with others</li>
                   <li>Receiving SOL from an exchange</li>
                   <li>Using a fiat on-ramp service</li>
@@ -308,7 +308,7 @@ export function WalletActionsButton() {
 
               <div className="flex justify-center mt-4">
                 <Button
-                  className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-6"
+                  className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-4 py-2 w-full sm:w-auto text-base sm:text-sm"
                   onClick={() => copyToClipboard(walletAddress)}
                 >
                   <Copy size={16} className="mr-2" />
@@ -326,7 +326,7 @@ export function WalletActionsButton() {
                   <Input
                     id="recipient"
                     placeholder="Enter Solana address"
-                    className="bg-[#2a1242] border-purple-400/30 text-white"
+                    className="bg-[#2a1242] border-purple-400/30 text-white text-base sm:text-sm"
                     value={recipientAddress}
                     onChange={(e) => setRecipientAddress(e.target.value)}
                   />
@@ -351,7 +351,7 @@ export function WalletActionsButton() {
                     id="amount"
                     type="number"
                     placeholder="0.0"
-                    className="bg-[#2a1242] border-purple-400/30 text-white"
+                    className="bg-[#2a1242] border-purple-400/30 text-white text-base sm:text-sm"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     min="0"
@@ -382,7 +382,7 @@ export function WalletActionsButton() {
 
               <DialogFooter className="mt-4">
                 <Button
-                  className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full w-full"
+                  className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full w-full text-base sm:text-sm px-4 py-2"
                   onClick={handleSendTransaction}
                   disabled={sendingStatus === "loading" || loadingBalance}
                 >

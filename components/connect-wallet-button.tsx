@@ -55,7 +55,7 @@ export function ConnectWalletButton() {
   if (!ready) {
     return (
       <Button
-        className="bg-gray-300 text-gray-600 font-medium rounded-full px-6"
+        className="bg-gray-300 text-gray-600 font-medium rounded-full px-4 py-2 w-full sm:w-auto text-base sm:text-sm"
         disabled
       >
         Loading...
@@ -68,18 +68,20 @@ export function ConnectWalletButton() {
     const walletAddress = solanaWallet?.address || "";
 
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full sm:w-auto">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-6 transition-all duration-300 shadow-lg flex items-center gap-2"
+                className="bg-gradient-to-r from-[#00FFA3] to-[#DC1FFF] hover:opacity-90 text-white font-medium rounded-full px-4 py-2 w-full sm:w-auto text-sm sm:text-base transition-all duration-300 shadow-lg flex items-center gap-2"
                 onClick={() => walletAddress && copyToClipboard(walletAddress)}
               >
                 <SolanaIcon size={20} className="mr-1" />
-                {walletAddress
-                  ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-                  : "Wallet Connected"}
+                <span className="truncate max-w-[80px] sm:max-w-none text-xs sm:text-base">
+                  {walletAddress
+                    ? `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`
+                    : "Wallet Connected"}
+                </span>
                 {walletAddress && (
                   <span className="ml-1">
                     {copied ? (
@@ -99,7 +101,7 @@ export function ConnectWalletButton() {
 
         <Button
           variant="outline"
-          className="bg-[#2a1242] text-white border border-purple-400/30 hover:border-purple-400/50 hover:bg-[#3a1a5a] rounded-full px-4 transition-all duration-200 shadow-md flex items-center gap-1"
+          className="bg-[#2a1242] text-white border border-purple-400/30 hover:border-purple-400/50 hover:bg-[#3a1a5a] rounded-full px-4 py-2 w-full sm:w-auto text-base sm:text-sm transition-all duration-200 shadow-md flex items-center gap-1"
           onClick={() => logout()}
         >
           <LogOut size={16} className="opacity-80" />
@@ -111,7 +113,7 @@ export function ConnectWalletButton() {
 
   return (
     <Button
-      className="bg-[#d4af37] hover:bg-[#c4a027] text-black font-medium rounded-full px-6 transition-all duration-200"
+      className="bg-[#d4af37] hover:bg-[#c4a027] text-black font-medium rounded-full px-4 py-2 w-full sm:w-auto text-base sm:text-sm transition-all duration-200"
       onClick={() => login()}
     >
       Connect Wallet
