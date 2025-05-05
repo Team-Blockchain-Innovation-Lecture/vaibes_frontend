@@ -774,6 +774,44 @@ Where our love shines for all eternity`;
 
       {/* Music player section */}
       <div className="md:w-1/3 lg:w-2/5 bg-[#2a1a3e] p-4 md:p-6 overflow-y-auto">
+        {isVideoGenerating ? (
+          // Display during generation
+          renderVideoGenerationLoading()
+        ) : isVideoLoading ? (
+          <div className="flex flex-col items-center justify-center mb-10">
+            <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-4 text-white/80">Loading music data...</p>
+          </div>
+        ) : generatedVideo ? (
+          <>
+            <div className="space-y-6 mb-10">
+              <div className="relative aspect-[9/16] overflow-hidden rounded-lg">
+                <video
+                  src={generatedVideo.videoUrl}
+                  controls
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  loop
+                  muted
+                  onError={(e) => console.error('Video loading error:', e)}
+                >
+                  <source src={generatedVideo.videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-white/70 mb-10">
+            <p>No music has been generated</p>
+            <div className="text-white/70 text-center max-w-md space-y-2">
+              <p>Task ID: {currentTaskId}</p>
+              <p>Status: Processing</p>
+              <p>Message: Timeout occurred. Processing continues.</p>
+            </div>
+          </div>
+        )}
+
         {isGenerating ? (
           // Display during generation
           renderGenerationLoading()
@@ -834,44 +872,6 @@ Where our love shines for all eternity`;
               </div>
             )}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-white/70">
-            <p>No music has been generated</p>
-            <div className="text-white/70 text-center max-w-md space-y-2">
-              <p>Task ID: {currentTaskId}</p>
-              <p>Status: Processing</p>
-              <p>Message: Timeout occurred. Processing continues.</p>
-            </div>
-          </div>
-        )}
-
-        {isVideoGenerating ? (
-          // Display during generation
-          renderVideoGenerationLoading()
-        ) : isVideoLoading ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-white/80">Loading music data...</p>
-          </div>
-        ) : generatedVideo ? (
-          <>
-            <div className="space-y-6">
-              <div className="relative aspect-[9/16] overflow-hidden rounded-lg">
-                <video
-                  src={generatedVideo.videoUrl}
-                  controls
-                  className="w-full h-full object-cover"
-                  autoPlay
-                  loop
-                  muted
-                  onError={(e) => console.error('Video loading error:', e)}
-                >
-                  <source src={generatedVideo.videoUrl} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-              </div>
-            </div>
-          </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-white/70">
             <p>No music has been generated</p>
