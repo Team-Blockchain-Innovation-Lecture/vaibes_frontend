@@ -6528,6 +6528,7 @@ export namespace Prisma {
     video_task_id: string | null
     is_completed: boolean | null
     video_url: string | null
+    merged_video_url: string | null
   }
 
   export type Raw_videoMaxAggregateOutputType = {
@@ -6537,6 +6538,7 @@ export namespace Prisma {
     video_task_id: string | null
     is_completed: boolean | null
     video_url: string | null
+    merged_video_url: string | null
   }
 
   export type Raw_videoCountAggregateOutputType = {
@@ -6546,6 +6548,7 @@ export namespace Prisma {
     video_task_id: number
     is_completed: number
     video_url: number
+    merged_video_url: number
     _all: number
   }
 
@@ -6565,6 +6568,7 @@ export namespace Prisma {
     video_task_id?: true
     is_completed?: true
     video_url?: true
+    merged_video_url?: true
   }
 
   export type Raw_videoMaxAggregateInputType = {
@@ -6574,6 +6578,7 @@ export namespace Prisma {
     video_task_id?: true
     is_completed?: true
     video_url?: true
+    merged_video_url?: true
   }
 
   export type Raw_videoCountAggregateInputType = {
@@ -6583,6 +6588,7 @@ export namespace Prisma {
     video_task_id?: true
     is_completed?: true
     video_url?: true
+    merged_video_url?: true
     _all?: true
   }
 
@@ -6679,6 +6685,7 @@ export namespace Prisma {
     video_task_id: string | null
     is_completed: boolean
     video_url: string | null
+    merged_video_url: string | null
     _count: Raw_videoCountAggregateOutputType | null
     _avg: Raw_videoAvgAggregateOutputType | null
     _sum: Raw_videoSumAggregateOutputType | null
@@ -6707,6 +6714,7 @@ export namespace Prisma {
     video_task_id?: boolean
     is_completed?: boolean
     video_url?: boolean
+    merged_video_url?: boolean
   }, ExtArgs["result"]["raw_video"]>
 
 
@@ -6718,9 +6726,10 @@ export namespace Prisma {
     video_task_id?: boolean
     is_completed?: boolean
     video_url?: boolean
+    merged_video_url?: boolean
   }
 
-  export type Raw_videoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "video_task_id" | "is_completed" | "video_url", ExtArgs["result"]["raw_video"]>
+  export type Raw_videoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userAddress" | "task_id" | "video_task_id" | "is_completed" | "video_url" | "merged_video_url", ExtArgs["result"]["raw_video"]>
 
   export type $Raw_videoPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Raw_video"
@@ -6732,6 +6741,7 @@ export namespace Prisma {
       video_task_id: string | null
       is_completed: boolean
       video_url: string | null
+      merged_video_url: string | null
     }, ExtArgs["result"]["raw_video"]>
     composites: {}
   }
@@ -7107,6 +7117,7 @@ export namespace Prisma {
     readonly video_task_id: FieldRef<"Raw_video", 'String'>
     readonly is_completed: FieldRef<"Raw_video", 'Boolean'>
     readonly video_url: FieldRef<"Raw_video", 'String'>
+    readonly merged_video_url: FieldRef<"Raw_video", 'String'>
   }
     
 
@@ -7528,7 +7539,8 @@ export namespace Prisma {
     task_id: 'task_id',
     video_task_id: 'video_task_id',
     is_completed: 'is_completed',
-    video_url: 'video_url'
+    video_url: 'video_url',
+    merged_video_url: 'merged_video_url'
   };
 
   export type Raw_videoScalarFieldEnum = (typeof Raw_videoScalarFieldEnum)[keyof typeof Raw_videoScalarFieldEnum]
@@ -7644,7 +7656,8 @@ export namespace Prisma {
     userAddress: 'userAddress',
     task_id: 'task_id',
     video_task_id: 'video_task_id',
-    video_url: 'video_url'
+    video_url: 'video_url',
+    merged_video_url: 'merged_video_url'
   };
 
   export type Raw_videoOrderByRelevanceFieldEnum = (typeof Raw_videoOrderByRelevanceFieldEnum)[keyof typeof Raw_videoOrderByRelevanceFieldEnum]
@@ -8145,6 +8158,7 @@ export namespace Prisma {
     video_task_id?: StringNullableFilter<"Raw_video"> | string | null
     is_completed?: BoolFilter<"Raw_video"> | boolean
     video_url?: StringNullableFilter<"Raw_video"> | string | null
+    merged_video_url?: StringNullableFilter<"Raw_video"> | string | null
   }
 
   export type Raw_videoOrderByWithRelationInput = {
@@ -8154,6 +8168,7 @@ export namespace Prisma {
     video_task_id?: SortOrderInput | SortOrder
     is_completed?: SortOrder
     video_url?: SortOrderInput | SortOrder
+    merged_video_url?: SortOrderInput | SortOrder
     _relevance?: Raw_videoOrderByRelevanceInput
   }
 
@@ -8167,6 +8182,7 @@ export namespace Prisma {
     task_id?: StringFilter<"Raw_video"> | string
     is_completed?: BoolFilter<"Raw_video"> | boolean
     video_url?: StringNullableFilter<"Raw_video"> | string | null
+    merged_video_url?: StringNullableFilter<"Raw_video"> | string | null
   }, "id" | "video_task_id">
 
   export type Raw_videoOrderByWithAggregationInput = {
@@ -8176,6 +8192,7 @@ export namespace Prisma {
     video_task_id?: SortOrderInput | SortOrder
     is_completed?: SortOrder
     video_url?: SortOrderInput | SortOrder
+    merged_video_url?: SortOrderInput | SortOrder
     _count?: Raw_videoCountOrderByAggregateInput
     _avg?: Raw_videoAvgOrderByAggregateInput
     _max?: Raw_videoMaxOrderByAggregateInput
@@ -8193,6 +8210,7 @@ export namespace Prisma {
     video_task_id?: StringNullableWithAggregatesFilter<"Raw_video"> | string | null
     is_completed?: BoolWithAggregatesFilter<"Raw_video"> | boolean
     video_url?: StringNullableWithAggregatesFilter<"Raw_video"> | string | null
+    merged_video_url?: StringNullableWithAggregatesFilter<"Raw_video"> | string | null
   }
 
   export type TokenCreateInput = {
@@ -8665,6 +8683,7 @@ export namespace Prisma {
     video_task_id?: string | null
     is_completed?: boolean
     video_url?: string | null
+    merged_video_url?: string | null
   }
 
   export type Raw_videoUncheckedCreateInput = {
@@ -8674,6 +8693,7 @@ export namespace Prisma {
     video_task_id?: string | null
     is_completed?: boolean
     video_url?: string | null
+    merged_video_url?: string | null
   }
 
   export type Raw_videoUpdateInput = {
@@ -8682,6 +8702,7 @@ export namespace Prisma {
     video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
+    merged_video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type Raw_videoUncheckedUpdateInput = {
@@ -8691,6 +8712,7 @@ export namespace Prisma {
     video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
+    merged_video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type Raw_videoCreateManyInput = {
@@ -8700,6 +8722,7 @@ export namespace Prisma {
     video_task_id?: string | null
     is_completed?: boolean
     video_url?: string | null
+    merged_video_url?: string | null
   }
 
   export type Raw_videoUpdateManyMutationInput = {
@@ -8708,6 +8731,7 @@ export namespace Prisma {
     video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
+    merged_video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type Raw_videoUncheckedUpdateManyInput = {
@@ -8717,6 +8741,7 @@ export namespace Prisma {
     video_task_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_completed?: BoolFieldUpdateOperationsInput | boolean
     video_url?: NullableStringFieldUpdateOperationsInput | string | null
+    merged_video_url?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -9303,6 +9328,7 @@ export namespace Prisma {
     video_task_id?: SortOrder
     is_completed?: SortOrder
     video_url?: SortOrder
+    merged_video_url?: SortOrder
   }
 
   export type Raw_videoAvgOrderByAggregateInput = {
@@ -9316,6 +9342,7 @@ export namespace Prisma {
     video_task_id?: SortOrder
     is_completed?: SortOrder
     video_url?: SortOrder
+    merged_video_url?: SortOrder
   }
 
   export type Raw_videoMinOrderByAggregateInput = {
@@ -9325,6 +9352,7 @@ export namespace Prisma {
     video_task_id?: SortOrder
     is_completed?: SortOrder
     video_url?: SortOrder
+    merged_video_url?: SortOrder
   }
 
   export type Raw_videoSumOrderByAggregateInput = {

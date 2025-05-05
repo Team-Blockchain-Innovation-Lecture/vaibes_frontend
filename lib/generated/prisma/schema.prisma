@@ -142,12 +142,13 @@ model Raw_music {
 
 // Model for raw_video
 model Raw_video {
-  id            Int     @id @default(autoincrement())
-  userAddress   String // User's wallet address
-  task_id       String // Task ID for video generation
-  video_task_id String? @unique // Task ID for API
-  is_completed  Boolean @default(false) // Whether the video generation is completed
-  video_url     String? // URL to the generated video
+  id               Int     @id @default(autoincrement())
+  userAddress      String // User's wallet address
+  task_id          String // Task ID for video generation
+  video_task_id    String? @unique // Task ID for API
+  is_completed     Boolean @default(false) // Whether the video generation is completed
+  video_url        String? // URL to the generated video
+  merged_video_url String? // URL to the generated video merged with music
 
   // Indexes for performance
   @@index([userAddress])

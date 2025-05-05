@@ -74,7 +74,25 @@ export async function POST(request: Request) {
         },
       });
 
-      // 動画生成APIを呼び出す
+      console.log(`${BACKEND_URL}/api/generate-video`);
+
+      // 同一のvideo_task_idが存在するかチェック
+      const existingVideo = await prisma.raw_video.findFirst({
+        where: {
+          task_id: existingMusic.task_id,
+        },
+      });
+
+      if (existingVideo) {
+        console.log(`[Task ID: ${existingMusic.task_id}] Video task already exists. Skipping.`);
+        return NextResponse.json({
+          success: false,
+          message: 'Video task already exists',
+          data: existingVideo,
+        });
+      }
+
+      // 動画生成APIを呼び出し
       const videoResponse = await fetch(`${BACKEND_URL}/api/generate-video`, {
         method: 'POST',
         headers: {

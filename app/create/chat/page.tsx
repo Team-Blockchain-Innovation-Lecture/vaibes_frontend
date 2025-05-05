@@ -372,6 +372,10 @@ function ChatContent() {
           role: 'assistant',
           content: `A ${genre} song has been created. You can play it on the right player.`,
         },
+        {
+          role: 'assistant',
+          content: `Yeah, we’re dropping videos now.`,
+        },
       ]);
     } catch (error) {
       console.error('Error fetching music data:', error);
@@ -395,7 +399,7 @@ function ChatContent() {
 
       //   // APIレスポンスから曲情報を設定
       const videoData = {
-        videoUrl: data.video_url || '',
+        videoUrl: data.merged_video_url || '',
       };
 
       console.log('Final video data:', videoData);
@@ -423,10 +427,10 @@ function ChatContent() {
 
       // AIアシスタントの応答を追加
       setMessages((prev) => [
-        ...prev.slice(0, -1),
+        ...prev,
         {
           role: 'assistant',
-          content: `A ${genre} video has been created. You can play it on the right player.`,
+          content: `The video’s done...`,
         },
       ]);
     } catch (error) {

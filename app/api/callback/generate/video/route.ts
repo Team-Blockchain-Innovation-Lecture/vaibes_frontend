@@ -55,7 +55,6 @@ export async function POST(request: Request) {
         },
         data: {
           video_url: body.payload.video.url,
-          is_completed: true,
         },
       });
 
@@ -63,7 +62,6 @@ export async function POST(request: Request) {
       const musicData = await prisma.raw_music.findFirst({
         where: {
           userAddress: updatedVideo.userAddress,
-          is_completed: true,
         },
         orderBy: {
           id: 'desc',
@@ -105,10 +103,21 @@ export async function POST(request: Request) {
       //   },
       // });
 
+      // レコードを更新
+      const updatedMergedVideo = await prisma.raw_video.update({
+        where: {
+          id: existingVideo.id,
+        },
+        data: {
+          merged_video_url: margedData.s3_url,
+          is_completed: true,
+        },
+      });
+
       return NextResponse.json({
         success: true,
         data: {
-          s3_url: margedData.output_path,
+          s3_url: updatedMergedVideo.merged_video_url,
           // video: video,
         },
       });
