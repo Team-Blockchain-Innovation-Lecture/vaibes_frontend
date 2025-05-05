@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense, useImperativeHandle, forwardRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Send, Play, Pause, SkipBack, SkipForward, Heart } from 'lucide-react';
@@ -43,6 +43,11 @@ interface MusicTrack {
   model_name?: string;
 }
 
+interface ProgressRef {
+  startFakeProgressAnimation: () => void;
+  setGenerationProgress: (progress: number) => void;
+}
+
 interface Props {
   searchParams: {
     prompt?: string;
@@ -53,6 +58,7 @@ interface Props {
 
 // Create ChatContent component
 function ChatContent() {
+  console.log('ChatContent component rendering');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(true); // Initial state is generating
@@ -63,13 +69,9 @@ function ChatContent() {
   const [duration, setDuration] = useState('00:00');
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(0); // Generation progress (0-100)
-  const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
   const [currentTaskId, setCurrentTaskId] = useState<string>(''); // Current task ID
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
-  const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const hasInitialized = useRef(false); // First execution flag
   const router = useRouter();
@@ -84,19 +86,8 @@ function ChatContent() {
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(null);
 
-  // Check if we're on mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
-  }, []);
+  const musicProgressRef = useRef<ProgressRef>(null);
+  const videoProgressRef = useRef<ProgressRef>(null);
 
   // Load initial prompt from URL parameters and fetch generated music
   useEffect(() => {
@@ -127,22 +118,13 @@ function ChatContent() {
     ]);
 
     // Start fake progress animation
-    startFakeProgressAnimation();
 
+    setIsGenerating(true);
+    musicProgressRef.current?.startFakeProgressAnimation();
     // Call music generation API
     const instrumental = searchParams.get('instrumental') === 'true';
     generateMusic(prompt, genre, instrumental, taskId);
-
-    return () => {
-      // Clear intervals in cleanup function
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-      if (pollInterval) {
-        clearInterval(pollInterval);
-      }
-    };
-  }, []); // Reset dependency array
+  }, [searchParams]); // Reset dependency array
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -150,24 +132,6 @@ function ChatContent() {
   }, [messages]);
 
   // Start fake progress animation
-  const startFakeProgressAnimation = () => {
-    // Gradually increase progress but stop at 90% (wait for actual callback)
-    let currentProgress = 0;
-
-    progressInterval.current = setInterval(() => {
-      if (currentProgress < 90) {
-        // Slow down progress
-        const increment = (90 - currentProgress) / 20;
-        currentProgress += Math.max(0.5, increment);
-        setGenerationProgress(currentProgress);
-      } else {
-        // Clear interval when reaching 90%
-        if (progressInterval.current) {
-          clearInterval(progressInterval.current);
-        }
-      }
-    }, 1000);
-  };
 
   // Function to start polling
   const startPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
@@ -181,12 +145,10 @@ function ChatContent() {
 
         if (data.success && data.data) {
           console.log('Polling response 2:', data);
-
-          // if (data.data.status === 'success') {
           console.log('Polling response completed:', data);
 
           // Generation completed
-          setGenerationProgress(100);
+          musicProgressRef.current?.setGenerationProgress(100);
           setIsGenerating(false);
           fetchMusicData(data.data, currentPrompt, currentGenre, taskId);
         } else {
@@ -198,7 +160,6 @@ function ChatContent() {
         setTimeout(poll, 5000); // Check again after 5 seconds even if error occurs
       }
     };
-
     poll(); // Start initial polling
   };
 
@@ -214,11 +175,10 @@ function ChatContent() {
 
         if (data.success && data.data) {
           console.log('Video polling response 2:', data);
-
           console.log('Video polling response completed:', data);
 
           // Generation completed
-          // setGenerationProgress(100);
+          videoProgressRef.current?.setGenerationProgress(100);
           setIsVideoGenerating(false);
           fetchVideoData(data.data, currentPrompt, currentGenre, taskId);
         } else {
@@ -230,7 +190,6 @@ function ChatContent() {
         setTimeout(videoPoll, 5000); // Check again after 5 seconds even if error occurs
       }
     };
-
     videoPoll(); // Start initial polling
   };
 
@@ -242,7 +201,7 @@ function ChatContent() {
     taskId: string
   ) => {
     try {
-      setGenerationProgress(10); // Start generation
+      musicProgressRef.current?.setGenerationProgress(10);
 
       // Call music generation API
       const response = await fetch('/api/generate', {
@@ -324,22 +283,13 @@ function ChatContent() {
       // Set song information from API response
       const songData = {
         title: `${genre} Music`,
-        // Audio URL priority: audio_url > stream_audio_url > source_stream_audio_url
-        audioUrl:
-          data.audio_url ||
-          // selectedTrack.stream_audio_url ||
-          // selectedTrack.source_stream_audio_url ||
-          '',
-        coverUrl:
-          data.image_url ||
-          // selectedTrack.source_image_url ||
-          '/placeholder.svg?height=400&width=400',
+        audioUrl: data.audio_url || '',
+        coverUrl: data.image_url || '/placeholder.svg?height=400&width=400',
         genre: genre,
         lyrics: extractLyrics(prompt, genre) || '',
       };
 
       console.log('Final song data:', songData);
-
       setGeneratedSong(songData);
       //}
       //   // --- DB update ---
@@ -391,7 +341,7 @@ function ChatContent() {
       // Start polling
       startVideoPolling(taskId, prompt, genre);
       setIsVideoGenerating(true);
-      startFakeProgressAnimation();
+      videoProgressRef.current?.startFakeProgressAnimation();
     }
   };
 
@@ -406,7 +356,6 @@ function ChatContent() {
       };
 
       console.log('Final video data:', videoData);
-
       setGeneratedVideo(videoData);
       //}
       //   // --- DB update ---
@@ -486,7 +435,6 @@ Where our love shines for all eternity`;
       }
       audioRef.current.play();
     }
-
     setIsPlaying(!isPlaying);
   };
 
@@ -630,99 +578,13 @@ Where our love shines for all eternity`;
 
   // Render generation loading state
   const renderGenerationLoading = () => {
-    return (
-      <div className="flex flex-col items-center justify-center h-full">
-        <div className="relative w-40 h-40 mb-8">
-          <div className="absolute inset-0 rounded-full border-4 border-[#2a1a3e]"></div>
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="46"
-              fill="none"
-              stroke="#d4af37"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={`${generationProgress * 2.89}, 289`}
-              transform="rotate(-90, 50, 50)"
-              className="transition-all duration-500 ease-out"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
-          </div>
-        </div>
-
-        <h3 className="text-xl font-bold text-white mb-3">Generating music...</h3>
-        <div className="text-white/70 text-center max-w-md space-y-2">
-          <p>Task ID: {currentTaskId}</p>
-          <p>Status: Processing</p>
-          <p>Message: Timeout occurred. Processing continues.</p>
-        </div>
-
-        <div className="w-full max-w-md mt-8">
-          <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#d4af37] transition-all duration-500 ease-out"
-              style={{ width: `${generationProgress}%` }}
-            ></div>
-          </div>
-          <div className="mt-2 flex justify-between text-sm text-white/60">
-            <span>Start</span>
-            <span>Processing...</span>
-            <span>Complete</span>
-          </div>
-        </div>
-      </div>
-    );
+    // Loading display during music generation
+    return <MusicProgress ref={musicProgressRef} currentTaskId={currentTaskId} />;
   };
 
   const renderVideoGenerationLoading = () => {
-    return (
-      <div className="flex flex-col items-center justify-center mb-10">
-        <div className="relative w-40 h-40 mb-8">
-          <div className="absolute inset-0 rounded-full border-4 border-[#2a1a3e]"></div>
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="46"
-              fill="none"
-              stroke="#d4af37"
-              strokeWidth="8"
-              strokeLinecap="round"
-              strokeDasharray={`${generationProgress * 2.89}, 289`}
-              transform="rotate(-90, 50, 50)"
-              className="transition-all duration-500 ease-out"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
-          </div>
-        </div>
-
-        <h3 className="text-xl font-bold text-white mb-3">Generating video...</h3>
-        <div className="text-white/70 text-center max-w-md space-y-2">
-          <p>Task ID: {currentTaskId}</p>
-          <p>Status: Processing</p>
-          <p>Message: Timeout occurred. Processing continues.</p>
-        </div>
-
-        <div className="w-full max-w-md mt-8">
-          <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#d4af37] transition-all duration-500 ease-out"
-              style={{ width: `${generationProgress}%` }}
-            ></div>
-          </div>
-          <div className="mt-2 flex justify-between text-sm text-white/60">
-            <span>Start</span>
-            <span>Processing...</span>
-            <span>Complete</span>
-          </div>
-        </div>
-      </div>
-    );
+    // Loading display during video generation
+    return <VideoPrgress ref={videoProgressRef} currentTaskId={currentTaskId} />;
   };
 
   return (
@@ -746,7 +608,7 @@ Where our love shines for all eternity`;
           ))}
           <div ref={messagesEndRef} />
           {generatedVideo && (
-            <div className="flex justify-end">
+            <div className="flex">
               <ReleaseButton videoData={generatedVideo} musicData={generatedSong} />
             </div>
           )}
@@ -780,10 +642,10 @@ Where our love shines for all eternity`;
 
       {/* Music player section */}
       <div className="md:w-1/3 lg:w-2/5 bg-[#2a1a3e] p-4 md:p-6 overflow-y-auto">
-        {isVideoGenerating ? (
-          // Display during generation
-          renderVideoGenerationLoading()
-        ) : isVideoLoading ? (
+        <div className={`${isVideoGenerating ? 'block' : 'hidden'}`}>
+          {renderVideoGenerationLoading()}
+        </div>
+        {isVideoLoading ? (
           <div className="flex flex-col items-center justify-center mb-10">
             <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
             <p className="mt-4 text-white/80">Loading music data...</p>
@@ -817,11 +679,8 @@ Where our love shines for all eternity`;
             </div>
           </div>
         )}
-
-        {isGenerating ? (
-          // Display during generation
-          renderGenerationLoading()
-        ) : isLoading ? (
+        <div className={`${isGenerating ? 'block' : 'hidden'}`}>{renderGenerationLoading()}</div>
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
             <p className="mt-4 text-white/80">Loading music data...</p>
@@ -914,6 +773,165 @@ function ErrorFallback({
     </div>
   );
 }
+
+const VideoPrgress = forwardRef<
+  any,
+  {
+    currentTaskId: string;
+  }
+>(({ currentTaskId }, ref) => {
+  const [generationProgress, setGenerationProgress] = useState(0); // Generation progress (0-100)
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    startFakeProgressAnimation: () => {
+      // Gradually increase progress but stop at 90% (wait for actual callback)
+      let currentProgress = 0;
+
+      progressInterval.current = setInterval(() => {
+        if (currentProgress < 90) {
+          // Slow down progress
+          const increment = (90 - currentProgress) / 20;
+          currentProgress += Math.max(0.5, increment);
+          setGenerationProgress(currentProgress);
+        } else {
+          // Clear interval when reaching 90%
+          if (progressInterval.current) {
+            clearInterval(progressInterval.current);
+          }
+        }
+      }, 1000);
+    },
+    setGenerationProgress: (progress: number) => {
+      setGenerationProgress(progress);
+    },
+  }));
+  return (
+    <div className="flex flex-col items-center justify-center mb-10">
+      <div className="relative w-40 h-40 mb-8">
+        <div className="absolute inset-0 rounded-full border-4 border-[#2a1a3e]"></div>
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+          <circle
+            cx="50"
+            cy="50"
+            r="46"
+            fill="none"
+            stroke="#d4af37"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={`${generationProgress * 2.89}, 289`}
+            transform="rotate(-90, 50, 50)"
+            className="transition-all duration-500 ease-out"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
+        </div>
+      </div>
+
+      <h3 className="text-xl font-bold text-white mb-3">Generating video...</h3>
+      <div className="text-white/70 text-center max-w-md space-y-2">
+        <p>Task ID: {currentTaskId}</p>
+        <p>Status: Processing</p>
+        <p>Message: Timeout occurred. Processing continues.</p>
+      </div>
+
+      <div className="w-full max-w-md mt-8">
+        <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-[#d4af37] transition-all duration-500 ease-out"
+            style={{ width: `${generationProgress}%` }}
+          ></div>
+        </div>
+        <div className="mt-2 flex justify-between text-sm text-white/60">
+          <span>Start</span>
+          <span>Processing...</span>
+          <span>Complete</span>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const MusicProgress = forwardRef<
+  any,
+  {
+    currentTaskId: string;
+  }
+>(({ currentTaskId }, ref) => {
+  const [generationProgress, setGenerationProgress] = useState(0); // Generation progress (0-100)
+  const progressInterval = useRef<NodeJS.Timeout | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    startFakeProgressAnimation: () => {
+      // Gradually increase progress but stop at 90% (wait for actual callback)
+      let currentProgress = 0;
+
+      progressInterval.current = setInterval(() => {
+        if (currentProgress < 90) {
+          // Slow down progress
+          const increment = (90 - currentProgress) / 20;
+          currentProgress += Math.max(0.5, increment);
+          setGenerationProgress(currentProgress);
+        } else {
+          // Clear interval when reaching 90%
+          if (progressInterval.current) {
+            clearInterval(progressInterval.current);
+          }
+        }
+      }, 1000);
+    },
+    setGenerationProgress: (progress: number) => {
+      setGenerationProgress(progress);
+    },
+  }));
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full">
+      <div className="relative w-40 h-40 mb-8">
+        <div className="absolute inset-0 rounded-full border-4 border-[#2a1a3e]"></div>
+        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+          <circle
+            cx="50"
+            cy="50"
+            r="46"
+            fill="none"
+            stroke="#d4af37"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={`${generationProgress * 2.89}, 289`}
+            transform="rotate(-90, 50, 50)"
+            className="transition-all duration-500 ease-out"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
+        </div>
+      </div>
+
+      <h3 className="text-xl font-bold text-white mb-3">Generating music...</h3>
+      <div className="text-white/70 text-center max-w-md space-y-2">
+        <p>Task ID: {currentTaskId}</p>
+        <p>Status: Processing</p>
+        <p>Message: Timeout occurred. Processing continues.</p>
+      </div>
+
+      <div className="w-full max-w-md mt-8">
+        <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-[#d4af37] transition-all duration-500 ease-out"
+            style={{ width: `${generationProgress}%` }}
+          ></div>
+        </div>
+        <div className="mt-2 flex justify-between text-sm text-white/60">
+          <span>Start</span>
+          <span>Processing...</span>
+          <span>Complete</span>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 // Main page component
 export default function ChatPage() {

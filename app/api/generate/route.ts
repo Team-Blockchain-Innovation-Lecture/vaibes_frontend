@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
       if (existingTask) {
         console.log(`[Task ID: ${task_id}] Task already exists. Skipping processing.`);
         return NextResponse.json({
-          success: false,
+          success: true,
           message: 'Task already exists',
           data: existingTask,
         });
