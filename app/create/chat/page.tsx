@@ -744,6 +744,11 @@ Where our love shines for all eternity`;
             </div>
           ))}
           <div ref={messagesEndRef} />
+          {generatedVideo && (
+            <div className="flex justify-end">
+              <ReleaseButton />
+            </div>
+          )}
         </div>
 
         <div className="mt-auto">

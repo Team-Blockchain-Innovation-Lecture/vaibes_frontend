@@ -22,7 +22,6 @@ export default function HomePage() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl md:text-3xl font-bold">Discover</h2>
-          <ReleaseButton />
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
