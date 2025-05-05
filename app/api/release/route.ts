@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
               /^(https?:\/\/[^\/]+)(.*)$/
             );
             if (imageUrlMatch) {
-              // パス部分を維持しながらドメインを置換
+              // Replace domain while preserving path portion
               logoUrl = `https://gateway.pinata.cloud${imageUrlMatch[2]}`;
             } else {
               logoUrl = tokenMetadata.image;
