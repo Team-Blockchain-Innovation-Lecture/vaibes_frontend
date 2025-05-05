@@ -31,13 +31,13 @@ export async function GET(
   context: { params: Promise<{ mint: string }> }
 ) {
   try {
-    // Next.js 14での非同期パラメータの正しい扱い方
+    // Correct way to handle async parameters in Next.js 14
     const params = await context.params;
     const mintAddress = params.mint;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
 
-    // まずmintアドレスでトークンを検索
+    // Find token by mint address
     const token = await prisma.token.findUnique({
       where: {
         mint: mintAddress,
@@ -51,7 +51,7 @@ export async function GET(
       return NextResponse.json({ message: "Token not found" }, { status: 404 });
     }
 
-    // 見つかったトークンIDを使用して関連ビデオを検索
+    // Find videos by token ID
     const videos = await prisma.video.findMany({
       where: {
         tokenId: token.id,

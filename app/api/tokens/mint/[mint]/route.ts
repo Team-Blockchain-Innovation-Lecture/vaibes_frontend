@@ -31,11 +31,11 @@ export async function GET(
   context: { params: Promise<{ mint: string }> }
 ) {
   try {
-    // Next.js 14での非同期パラメータの正しい扱い方
+    // Correct way to handle async parameters in Next.js 14
     const params = await context.params;
     const mintAddress = params.mint;
 
-    // mintアドレスでトークンを検索
+    // Find token by mint address
     const token = await prisma.token.findUnique({
       where: {
         mint: mintAddress,

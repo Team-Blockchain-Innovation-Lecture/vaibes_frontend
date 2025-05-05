@@ -10,7 +10,7 @@ export async function POST(
   try {
     const videoId = params.id;
 
-    // 動画の存在を確認
+    // Check if video exists
     const video = await prisma.video.findUnique({
       where: { id: videoId },
     });
@@ -19,7 +19,7 @@ export async function POST(
       return NextResponse.json({ message: "Video not found" }, { status: 404 });
     }
 
-    // 再生回数をインクリメント
+    // Increment play count
     const updatedVideo = await prisma.video.update({
       where: { id: videoId },
       data: {

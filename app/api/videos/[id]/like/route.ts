@@ -18,7 +18,7 @@ export async function POST(
       );
     }
 
-    // 動画の存在を確認
+    // Check if video exists
     const video = await prisma.video.findUnique({
       where: { id: videoId },
     });
@@ -27,7 +27,7 @@ export async function POST(
       return NextResponse.json({ message: "Video not found" }, { status: 404 });
     }
 
-    // すでにいいねしていないか確認
+    // Check if already liked
     const existingLike = await prisma.videoLike.findUnique({
       where: {
         userId_videoId: {
@@ -44,16 +44,16 @@ export async function POST(
       );
     }
 
-    // トランザクションでいいねを作成し、動画のいいね数も更新
+    // Create like and update video like count in a transaction
     await prisma.$transaction([
-      // いいねを作成
+      // Create like
       prisma.videoLike.create({
         data: {
           userId: walletAddress,
           videoId: videoId,
         },
       }),
-      // 動画のいいね数をインクリメント
+      // Increment video like count
       prisma.video.update({
         where: { id: videoId },
         data: {

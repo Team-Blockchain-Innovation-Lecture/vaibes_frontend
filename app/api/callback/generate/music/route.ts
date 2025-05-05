@@ -3,10 +3,10 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// 環境変数の設定
+// Environment variable settings
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
-// レスポンスの型定義
+// Response type definition
 interface MusicCallbackResponse {
   success: boolean;
   data?: {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // リクエストのバリデーション
+    // Request validation
     if (!body.data?.task_id || !body.data?.data?.[0]) {
       return NextResponse.json({ error: 'Invalid request format' }, { status: 400 });
     }
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      // 同じtask_idのレコードを探して更新
+      // Find and update record with same task_id
       const existingMusic = await prisma.raw_music.findFirst({
         where: {
           music_task_id: taskId,
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
 
       console.log(`${BACKEND_URL}/api/generate-video`);
 
-      // 同一のvideo_task_idが存在するかチェック
+      // Check if video task already exists
       const existingVideo = await prisma.raw_video.findFirst({
         where: {
           task_id: existingMusic.task_id,
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
         });
       }
 
-      // 動画生成APIを呼び出し
+      // Call video generation API
       const videoResponse = await fetch(`${BACKEND_URL}/api/generate-video`, {
         method: 'POST',
         headers: {
@@ -104,19 +104,16 @@ export async function POST(request: Request) {
       });
 
       if (!videoResponse.ok) {
-        throw new Error(`Video generation API returned ${videoResponse.status}`);
+        throw new Error(`Video generation API error: ${videoResponse.status}`);
       }
-      // if (!videoResponse.ok) {
-      //   throw new Error(`Video generation API returned ${videoResponse.status}`);
-      // }
 
       const videoData = await videoResponse.json();
 
       if (videoData.success) {
-        // 動画生成のタスクIDを取得
+        // Get video task ID from response
         const videoTaskId = videoData.request_id;
 
-        // Raw_videoに新しいレコードを作成
+        // Record video generation task
         await prisma.raw_video.create({
           data: {
             userAddress: updatedMusic.userAddress,

@@ -12,43 +12,37 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       appId={privyAppId}
       clientId={privyClientId}
       config={{
-        // Emailログインとウォレットログインを許可
-        loginMethods: ["email", "wallet"],
+        // Allow email and wallet login
+        loginMethods: ['email', 'wallet'],
 
-        // エンベデッドウォレットの設定
+        // Embedded wallet configuration
         embeddedWallets: {
-          // すべてのユーザーに対してウォレットを作成
-          createOnLogin: "all-users",
+          // Create wallet for all users
+          createOnLogin: 'all-users',
 
-          // Ethereumウォレットを明示的に無効化 - 型に合わせて設定
+          // Explicitly disable Ethereum wallet - set according to type
           ethereum: {
-            createOnLogin: "off",
+            createOnLogin: 'off',
           },
 
-          // Solanaウォレットをサポート - すべてのユーザーに作成
+          // Support Solana wallet - create for all users
           solana: {
-            createOnLogin: "all-users",
+            createOnLogin: 'all-users',
           },
         },
 
-        // 外観設定
+        // Appearance settings
         appearance: {
-          theme: "dark",
-          accentColor: "#d4af37",
-          showWalletLoginFirst: true, // ウォレットログインを先に表示
-          walletChainType: "solana-only",
-          walletList: [
-            "detected_wallets",
-            "phantom",
-            "solflare",
-            "backpack",
-            "okx_wallet",
-          ],
+          theme: 'dark',
+          accentColor: '#d4af37',
+          showWalletLoginFirst: true, // Show wallet login first
+          walletChainType: 'solana-only',
+          walletList: ['detected_wallets', 'phantom', 'solflare', 'backpack', 'okx_wallet'],
         },
-        // Solanaウォレットの接続
+        // Solana wallet connection
         externalWallets: {
           solana: {
-            connectors: toSolanaWalletConnectors(), // Solanaウォレットコネクタの設定
+            connectors: toSolanaWalletConnectors(), // Configure Solana wallet connectors
           },
         },
       }}

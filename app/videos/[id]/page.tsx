@@ -65,7 +65,7 @@ export default function VideoDetailPage() {
   const [comments, setComments] = useState<any[]>([]);
   const [commentCount, setCommentCount] = useState(0);
   const [newComment, setNewComment] = useState("");
-  const [replyText, setReplyText] = useState(""); // 返信用の新しい状態変数
+  const [replyText, setReplyText] = useState(''); // New state variable for reply
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [loadingComments, setLoadingComments] = useState(false);
 
@@ -232,36 +232,36 @@ export default function VideoDetailPage() {
       console.error("Video error event:", e);
     };
 
-    // イベントリスナー追加
     videoElement.addEventListener("play", handlePlay);
     videoElement.addEventListener("pause", handlePause);
     videoElement.addEventListener("canplay", handleCanPlay);
     videoElement.addEventListener("error", handleError);
+    // Add event listeners
 
     return () => {
-      // クリーンアップ
       videoElement.removeEventListener("play", handlePlay);
       videoElement.removeEventListener("pause", handlePause);
       videoElement.removeEventListener("canplay", handleCanPlay);
       videoElement.removeEventListener("error", handleError);
+      // Cleanup
     };
   }, []);
 
   // Try to auto-play muted video when component mounts
   useEffect(() => {
-    // ビデオソースがロードされたら実行
+    // Video source loaded, execute
     if (video && videoRef.current) {
       console.log("Video source loaded", video.url);
 
-      // ブラウザの自動再生ポリシーに対応するための対策
+      // Try to play with mute first to handle browser autoplay policy
       const attemptPlay = async () => {
         try {
-          // 一時的にミュートして再生（ブラウザのポリシー対応）
+          // Temporarily mute to play (to handle browser policy)
           if (videoRef.current) {
             videoRef.current.muted = true;
             await videoRef.current.play();
 
-            // 再生が始まったらミュートを解除
+            // Unmute after playback starts
             setTimeout(() => {
               if (videoRef.current) {
                 videoRef.current.muted = false;
@@ -272,14 +272,14 @@ export default function VideoDetailPage() {
           setIsPlaying(true);
         } catch (error) {
           console.error("Auto-play failed:", error);
-          // 自動再生に失敗した場合はそのままミュート解除
+          // If auto-play fails, unmute anyway
           if (videoRef.current) {
             videoRef.current.muted = false;
           }
         }
       };
 
-      // ビデオがcanplayイベントを発生させたときに再生
+      // Video can play event fired
       const handleCanPlay = () => {
         console.log("Video can play event fired");
         attemptPlay();
@@ -305,11 +305,11 @@ export default function VideoDetailPage() {
       console.log("Toggle play clicked, current state:", isPlaying);
 
       if (isPlaying) {
-        // 再生中 → 停止
+        // Playing → Pause
         videoRef.current.pause();
         setIsPlaying(false);
       } else {
-        // 停止中 → 再生
+        // Paused → Play
         const playPromise = videoRef.current.play();
 
         if (playPromise !== undefined) {
@@ -320,13 +320,13 @@ export default function VideoDetailPage() {
             })
             .catch((error) => {
               console.error("Error playing video:", error);
-              // ブラウザの自動再生ポリシーに対応するため、一度ミュートして再生を試みる
+              // Browser auto-play policy handling
               videoRef.current!.muted = true;
               videoRef
                 .current!.play()
                 .then(() => {
                   console.log("Muted playback started");
-                  // 少し遅延してからミュートを解除
+                  // Wait a bit before unmuting
                   setTimeout(() => {
                     if (videoRef.current) {
                       videoRef.current.muted = false;
@@ -427,74 +427,74 @@ export default function VideoDetailPage() {
 
     // Handle wheel events (for desktop)
     const handleWheel = (e: WheelEvent) => {
-      // 必ず e.preventDefault() を最初に呼び出して、デフォルトのスクロール動作を防ぐ
+      // Always call e.preventDefault() first to prevent default scroll behavior
       e.preventDefault();
 
-      // ビデオコンテナ内でのホイールイベントのみを処理
-      // 注：progressBarRef などの操作後でもビデオコンテナ内のイベントは処理する
+      // Only process wheel events within the video container
+      // Note: Process events in the video container even after operations like progressBarRef
       if (!videoContainerRef.current?.contains(e.target as Node)) return;
 
-      // すでに遷移処理中なら何もしない
+      // Do nothing if already in transition
       if (isNavigatingRef.current) return;
 
-      // 以前のタイムアウトをクリア
+      // Clear previous timeout
       if (wheelTimeoutRef.current) {
         clearTimeout(wheelTimeoutRef.current);
       }
 
-      // ナビゲーション処理中フラグをセット
+      // Set navigation in progress flag
       isNavigatingRef.current = true;
 
-      // 十分なスクロール量でないと遷移しない
+      // Don't transition unless there's sufficient scroll amount
       if (Math.abs(e.deltaY) < 20) {
         isNavigatingRef.current = false;
         return;
       }
 
-      // ログを追加して問題の診断をしやすくする
       console.log("Wheel event detected, deltaY:", e.deltaY);
+      // Add logs to make problem diagnosis easier
 
       wheelTimeoutRef.current = setTimeout(() => {
         if (e.deltaY > 0 && nextVideo) {
-          // 下にスクロール - 次の動画へ
           console.log("Navigating to next video");
+          // Scroll down - go to next video
           goToNextVideo();
         } else if (e.deltaY < 0 && prevVideo) {
-          // 上にスクロール - 前の動画へ
           console.log("Navigating to previous video");
+          // Scroll up - go to previous video
           goToPreviousVideo();
         }
 
-        // ナビゲーションフラグをリセット
+        // Reset navigation flag
         setTimeout(() => {
           isNavigatingRef.current = false;
         }, 500);
-      }, 150); // タイムアウトを短くして反応速度を上げる
+      }, 150); // Reduce timeout to improve response speed
     };
 
     const videoContainer = videoContainerRef.current;
 
     if (videoContainer) {
-      // イベントリスナーを追加
       videoContainer.addEventListener("touchstart", handleTouchStart);
       videoContainer.addEventListener("touchend", handleTouchEnd);
+      // Add event listeners
 
-      // 重要: passive: false を設定して preventDefault() が機能するようにする
       videoContainer.addEventListener("wheel", handleWheel, { passive: false });
+      // Important: Set passive: false to make preventDefault() work
 
-      // ビデオ要素にも直接イベントハンドラを追加
+      // Add event handler directly to video element as well
       if (videoRef.current) {
         videoRef.current.addEventListener("wheel", handleWheel, {
           passive: false,
         });
       }
 
-      // プログレスバー要素にもイベントハンドラを追加
+      // Add event handler to progress bar element as well
       if (progressBarRef.current) {
         progressBarRef.current.addEventListener(
           "wheel",
           (e) => {
-            // プログレスバー上でのホイールイベントも処理できるように
+            // Process wheel events on progress bar as well
             handleWheel(e);
           },
           { passive: false }
@@ -525,41 +525,41 @@ export default function VideoDetailPage() {
 
   // Global wheel event handler
   useEffect(() => {
-    // このイベントリスナーをdocumentに直接追加して、すべてのホイールイベントを捕捉
+    // Add this event listener directly to document to capture all wheel events
     function globalWheelHandler(e: WheelEvent) {
-      // ビデオエリア内のみ処理
+      // Only process within video area
       if (!videoContainerRef.current?.contains(e.target as Node)) return;
 
-      // デフォルトのスクロール防止
+      // Prevent default scroll
       e.preventDefault();
       e.stopPropagation();
 
-      // 遷移中なら何もしない
+      // Do nothing if in transition
       if (isNavigatingRef.current) return;
 
-      // 既存のタイムアウトをクリア
+      // Clear existing timeout
       if (wheelTimeoutRef.current) {
         clearTimeout(wheelTimeoutRef.current);
       }
 
-      // スクロール量が小さすぎる場合は無視
+      // Ignore if scroll amount is too small
       if (Math.abs(e.deltaY) < 20) return;
 
-      console.log("Global wheel handler fired with deltaY:", e.deltaY);
+      console.log('Global wheel handler fired with deltaY:', e.deltaY);
 
-      // 遷移フラグをセット
+      // Set transition flag
       isNavigatingRef.current = true;
 
-      // 遷移処理を実行
+      // Execute transition
       if (e.deltaY > 0 && nextVideo) {
-        console.log("Navigating to next video via global handler");
+        console.log('Navigating to next video via global handler');
         goToNextVideo();
       } else if (e.deltaY < 0 && prevVideo) {
-        console.log("Navigating to previous video via global handler");
+        console.log('Navigating to previous video via global handler');
         goToPreviousVideo();
       }
 
-      // フラグリセット
+      // Reset flag
       setTimeout(() => {
         isNavigatingRef.current = false;
       }, 500);
@@ -567,13 +567,13 @@ export default function VideoDetailPage() {
 
     // Only add event listeners in the browser, not during server-side rendering
     if (typeof document !== "undefined") {
-      // documentレベルでイベントリスナーを追加
       document.addEventListener("wheel", globalWheelHandler, {
+      // Add event listener at document level
         passive: false,
         capture: true,
       });
 
-      // クリーンアップ
+      // Cleanup
       return () => {
         document.removeEventListener("wheel", globalWheelHandler, {
           capture: true,
@@ -754,13 +754,13 @@ export default function VideoDetailPage() {
   // Handle reply button click
   const handleReplyClick = (commentId: string) => {
     setReplyingTo(commentId);
-    setReplyText(""); // 返信用の新しい状態変数をクリア
+    setReplyText(''); // Clear reply state variable
   };
 
   // Handle canceling a reply
   const handleCancelReply = () => {
     setReplyingTo(null);
-    setReplyText(""); // 返信用の新しい状態変数をクリア
+    setReplyText(''); // Clear reply state variable
   };
 
   // Handle adding a reply to a comment
@@ -786,7 +786,7 @@ export default function VideoDetailPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          content: replyText, // 返信用の新しい状態変数を使用
+          content: replyText, // Use reply state variable
           userAddress: walletAddress,
           parentId: replyingTo,
         }),
@@ -800,7 +800,7 @@ export default function VideoDetailPage() {
 
       setComments(commentsData.comments);
       setCommentCount(commentsData.comments.length);
-      setReplyText(""); // 返信用の新しい状態変数をクリア
+      setReplyText(''); // Clear reply state variable
       setReplyingTo(null);
 
       toast({
@@ -881,7 +881,7 @@ export default function VideoDetailPage() {
   if (isMobile) {
     return (
       <div className="fixed inset-0 flex flex-col bg-[#1a0e26] pt-16">
-        {/* Mobile Tab Navigation - pt-16でヘッダーとの被りを解消 */}
+        {/* Mobile Tab Navigation - pt-16 to avoid overlap with header */}
         <div className="w-full mt-2 bg-[#1a0e26] border-b border-white/10 z-20">
           <Tabs
             value={mobileActiveTab}
@@ -897,11 +897,11 @@ export default function VideoDetailPage() {
 
         {/* Mobile Content Area */}
         {mobileActiveTab === "video" ? (
-          // Video View - 高さを調整し画面いっぱいに表示
+          // Video View - Adjust height to fill screen
           <div
             ref={videoContainerRef}
             className="relative flex-1 flex items-center justify-center bg-black"
-            style={{ height: "calc(100vh - 120px)" }} // ヘッダー+タブ分の高さを引く
+            style={{ height: 'calc(100vh - 120px)' }} // Subtract height of header + tabs
           >
             {/* Video Player */}
             <div className="relative w-full h-full max-h-full flex items-center justify-center">
@@ -930,7 +930,7 @@ export default function VideoDetailPage() {
               )}
             </div>
 
-            {/* Progress Bar - 中央に均等に配置 */}
+            {/* Progress Bar - Centered evenly */}
             <div className="absolute bottom-6 left-4 right-4 mx-auto z-10">
               <div className="flex justify-between text-xs text-white/80 mb-1">
                 <span>{currentTime}</span>
@@ -1105,7 +1105,7 @@ export default function VideoDetailPage() {
                   </div>
                 </div>
               </div>
-              {/* Pump.fun リンクを追加 */}
+              {/* Add Pump.fun link */}
               <div className="flex justify-end">
                 <Button
                   size="sm"
@@ -1316,10 +1316,10 @@ export default function VideoDetailPage() {
         ref={videoContainerRef}
         className="fixed md:relative inset-0 md:inset-auto md:flex-1 flex items-center justify-center bg-black"
         style={{
-          height: "calc(100% - 30px)", // ヘッダーの高さ分を引く
           width: "100%",
-          top: "30px", // ヘッダーの高さ分下にずらす
           maxWidth: "calc(100% - 400px)",
+          height: 'calc(100% - 30px)', // Subtract header height
+          top: '30px', // Offset by header height
         }}
       >
         {/* Video Player */}
@@ -1333,7 +1333,7 @@ export default function VideoDetailPage() {
             onError={(e) => console.error("Video error:", e)}
             preload="auto"
             controls={false}
-            muted={false} // 音声は有効にしておく
+            muted={false} // Keep audio enabled
           />
 
           {/* Play Button Overlay */}
@@ -1353,21 +1353,21 @@ export default function VideoDetailPage() {
         <div
           className="absolute bottom-6 left-4 right-4 mx-auto max-w-[500px] z-10"
           onWheel={(e) => {
-            // プログレスバー上のホイールイベントも確実に処理
+            // Make sure to handle wheel events on progress bar
             e.stopPropagation();
             e.preventDefault();
 
             if (isNavigatingRef.current) return;
 
-            // スクロール量が小さすぎる場合は無視
+            // Ignore if scroll amount is too small
             if (Math.abs(e.deltaY) < 20) return;
 
-            console.log("Progress bar wheel event:", e.deltaY);
+            console.log('Progress bar wheel event:', e.deltaY);
 
-            // 遷移フラグをセット
+            // Set transition flag
             isNavigatingRef.current = true;
 
-            // 遷移処理を実行
+            // Execute transition
             if (e.deltaY > 0 && nextVideo) {
               console.log("Navigating to next video from progress bar");
               goToNextVideo();
@@ -1376,7 +1376,7 @@ export default function VideoDetailPage() {
               goToPreviousVideo();
             }
 
-            // フラグリセット
+            // Reset flag
             setTimeout(() => {
               isNavigatingRef.current = false;
             }, 500);
@@ -1399,7 +1399,7 @@ export default function VideoDetailPage() {
               className="h-full bg-[#d4af37] rounded-full"
               style={{ width: `${progress}%` }}
               onWheel={(e) => {
-                // プログレスバー上のスクロールも確実に処理
+                // Make sure to handle scroll on progress bar
                 e.stopPropagation();
                 e.preventDefault();
 
@@ -1451,10 +1451,10 @@ export default function VideoDetailPage() {
       <div
         className="fixed top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#1a0e26] overflow-y-auto"
         style={{
-          height: "calc(100vh - 86px)", // ヘッダーの高さ分を引く
-          top: "86px", // ヘッダーの高さ分下にずらす
+          height: 'calc(100vh - 86px)', // Subtract header height
+          top: '86px', // Offset by header height
           zIndex: 10,
-          borderLeft: "1px solid rgba(255, 255, 255, 0.1)", // 情報エリアの左側に薄い境界線を追加
+          borderLeft: '1px solid rgba(255, 255, 255, 0.1)', // Add a thin border on the left of the info area
         }}
       >
         <div className="p-5 space-y-6">
@@ -1540,7 +1540,7 @@ export default function VideoDetailPage() {
                 </div>
               </div>
             </div>
-            {/* Pump.fun リンクを追加 */}
+            {/* Add Pump.fun link */}
             <div className="flex justify-end">
               <Button
                 size="sm"
@@ -1676,8 +1676,8 @@ export default function VideoDetailPage() {
                         <div className="mt-3 space-y-2 pl-4 border-l-2 border-[#3a2a4e]">
                           <Textarea
                             placeholder="Write a reply..."
-                            value={replyText} // 返信用の新しい状態変数を使用
-                            onChange={(e) => setReplyText(e.target.value)} // 返信用の新しい状態変数を更新
+                            value={replyText} // Use new state variable for replies
+                            onChange={(e) => setReplyText(e.target.value)} // Update new state variables for reply
                             className="bg-[#2a1a3e] border-[#3a2a4e] resize-none text-sm"
                           />
                           <div className="flex gap-2 justify-end">
@@ -1693,7 +1693,7 @@ export default function VideoDetailPage() {
                               onClick={handleAddReply}
                               size="sm"
                               className="bg-[#d4af37] text-black hover:bg-[#c39f35] text-xs h-8"
-                              disabled={!replyText.trim() || loadingComments} // 返信用の新しい状態変数を使用
+                              disabled={!replyText.trim() || loadingComments} // Use new state variable for replies
                             >
                               Reply
                             </Button>

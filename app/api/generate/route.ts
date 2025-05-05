@@ -4,12 +4,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// 生成中のタスクを格納するグローバル変数（本番環境ではRedisなどを使う）
+// Global variable to store generating tasks (use Redis in production)
 const generatingTasks = new Map();
 
 export async function POST(req: NextRequest) {
   try {
-    // リクエストボディからパラメータを抽出
+    // Extract parameters from request body
     const {
       prompt,
       genre = 'EDM',
@@ -23,16 +23,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: 'プロンプトが必要です',
+          message: 'Prompt is required',
         },
         { status: 400 }
       );
     }
 
-    // 一意のタスクIDを生成
+    // Generate unique task ID
     const taskId = task_id || uuidv4();
 
-    // 生成開始を記録
+    // Record generation start
     generatingTasks.set(taskId, {
       status: 'processing',
       startTime: Date.now(),
@@ -41,10 +41,10 @@ export async function POST(req: NextRequest) {
       instrumental,
     });
 
-    console.log(`音楽生成タスク開始: ${taskId}`);
+    console.log(`Music generation task started: ${taskId}`);
 
     try {
-      // 同一のtask_idが存在するかチェック
+      // Check if task with same task_id exists
       const existingTask = await prisma.raw_music.findUnique({
         where: {
           task_id: task_id,
@@ -52,17 +52,17 @@ export async function POST(req: NextRequest) {
       });
 
       if (existingTask) {
-        console.log(`[Task ID: ${task_id}] 既に存在するタスクです。処理をスキップします。`);
+        console.log(`[Task ID: ${task_id}] Task already exists. Skipping processing.`);
         return NextResponse.json({
           success: false,
-          message: '既に存在するタスクです',
+          message: 'Task already exists',
           data: existingTask,
         });
       }
 
-      // 外部APIを呼び出して音楽を生成
+      // Call external API to generate music
       if (!process.env.MUSIC_API_URL) {
-        throw new Error('MUSIC_API_URLが環境変数に設定されていません');
+        throw new Error('MUSIC_API_URL is not set in environment variables');
       }
       const response = await fetch(process.env.MUSIC_API_URL, {
         method: 'POST',
@@ -80,31 +80,31 @@ export async function POST(req: NextRequest) {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`外部API呼び出しエラー: ${response.status} ${errorText}`);
-        throw new Error(`外部API呼び出しエラー: ${response.status}`);
+        console.error(`External API call error: ${response.status} ${errorText}`);
+        throw new Error(`External API call error: ${response.status}`);
       }
 
-      // 外部APIからのレスポンスを直接返す
+      // Return response directly from external API
       const resultData = await response.json();
-      console.log('外部APIからのレスポンス:', resultData);
+      console.log('Response from external API:', resultData);
 
-      // 生成ステータスを更新
+      // Update generation status
       generatingTasks.set(taskId, {
         status: 'completed',
         endTime: Date.now(),
         data: resultData,
       });
 
-      // 外部APIからのレスポンスを直接クライアントに返す
+      // Return external API response directly to client
       return NextResponse.json({
         success: true,
         task_id: taskId,
         data: resultData,
       });
     } catch (error: any) {
-      console.error(`音楽生成エラー: ${error.message}`);
+      console.error(`Music generation error: ${error.message}`);
 
-      // エラーステータスを記録
+      // Record error status
       generatingTasks.set(taskId, {
         status: 'error',
         error: error.message,
@@ -114,18 +114,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          message: '音楽生成中にエラーが発生しました',
+          message: 'Error occurred during music generation',
           error: error.message,
         },
         { status: 500 }
       );
     }
   } catch (error: any) {
-    console.error(`リクエスト処理エラー: ${error.message}`);
+    console.error(`Request processing error: ${error.message}`);
     return NextResponse.json(
       {
         success: false,
-        message: 'リクエスト処理中にエラーが発生しました',
+        message: 'Error occurred while processing request',
       },
       { status: 500 }
     );

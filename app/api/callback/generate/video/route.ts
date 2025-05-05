@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
-// S3クライアントの初期化
+// Initialize S3 client
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'ap-northeast-1',
   credentials: {
@@ -25,16 +25,16 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // リクエストのバリデーション
+    // Request validation
     if (!body.payload?.video?.url) {
       return NextResponse.json({ error: 'Invalid request format' }, { status: 400 });
     }
 
-    // task_idを取得（リクエストから取得する必要があります）
-    const taskId = body.request_id; // または適切なtask_idの取得方法
+    // Get task_id from request
+    const taskId = body.request_id; // or appropriate task_id retrieval method
 
     try {
-      // task_idに基づいてレコードを検索
+      // Find record based on task_id
       const existingVideo = await prisma.raw_video.findFirst({
         where: {
           video_task_id: taskId,
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // レコードを更新
+      // Update record
       const updatedVideo = await prisma.raw_video.update({
         where: {
           id: existingVideo.id,
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
         },
       });
 
-      // 関連する音楽データを取得
+      // Get related music data
       const musicData = await prisma.raw_music.findFirst({
         where: {
           userAddress: updatedVideo.userAddress,
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         throw new Error('No audio URL found for merging');
       }
 
-      // 音声と動画をマージするAPIを呼び出す
+      // Call API to merge audio and video
       const mergeResponse = await fetch(`${BACKEND_URL}/api/merge-video-audio`, {
         method: 'POST',
         headers: {
@@ -92,18 +92,18 @@ export async function POST(request: Request) {
 
       console.log(`[Task ID: ${taskId}] Merged Data:`, margedData);
 
-      // Videoテーブルに新しいレコードを作成
+      // Create new record in Video table
       // const video = await prisma.video.create({
       //   data: {
       //     url: margedData.output_path,
       //     duration: 8,
       //     title: `Generated Video ${Date.now()}`,
-      //     tokenId: updatedVideo.userAddress, // TODO: 適切なtokenIdを設定する必要があります
+      //     tokenId: updatedVideo.userAddress, // TODO: Set appropriate tokenId
       //     status: 'ready',
       //   },
       // });
 
-      // レコードを更新
+      // Update record
       const updatedMergedVideo = await prisma.raw_video.update({
         where: {
           id: existingVideo.id,

@@ -5,7 +5,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ErrorBoundary } from 'react-error-boundary';
 
-// ジャンルの選択肢
+// Genre options
 const genres = [
   { value: 'EDM', label: 'EDM' },
   { value: 'pop', label: 'Pop' },
@@ -16,7 +16,7 @@ const genres = [
   { value: 'classical', label: 'Classical' },
 ];
 
-// CreateContentコンポーネント
+// CreateContent component
 function CreateContent() {
   const [prompt, setPrompt] = useState('');
   const [genre, setGenre] = useState('EDM');
@@ -24,7 +24,7 @@ function CreateContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // 一時的なtask_idを生成する関数
+  // Function to generate temporary task_id
   const generateTempTaskId = () => {
     return (
       Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
@@ -32,7 +32,7 @@ function CreateContent() {
   };
 
   useEffect(() => {
-    // URLからプロンプトとジャンルを取得
+    // Get prompt and genre from URL
     const urlPrompt = searchParams.get('prompt');
     const urlGenre = searchParams.get('genre');
 
@@ -69,7 +69,7 @@ function CreateContent() {
 
           <div className="w-full flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-white/90 mb-2 font-medium">ジャンル</label>
+              <label className="block text-white/90 mb-2 font-medium">Genre</label>
               <div className="relative">
                 <select
                   name="genre"
@@ -96,7 +96,7 @@ function CreateContent() {
             </div>
 
             <div className="flex-1">
-              <label className="block text-white/90 mb-2 font-medium">ボーカル</label>
+              <label className="block text-white/90 mb-2 font-medium">Vocals</label>
               <div className="relative">
                 <select
                   name="instrumental"
@@ -104,8 +104,8 @@ function CreateContent() {
                   onChange={(e) => setInstrumental(e.target.value === 'true')}
                   className="w-full bg-[#2a1a3e] rounded-xl py-3 px-6 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 cursor-pointer"
                 >
-                  <option value="false">ボーカルあり</option>
-                  <option value="true">インストゥルメンタル</option>
+                  <option value="false">With Vocals</option>
+                  <option value="true">Instrumental</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
                   <svg
@@ -132,7 +132,7 @@ function CreateContent() {
 
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl md:text-3xl font-bold">プロンプト例</h2>
+          <h2 className="text-2xl md:text-3xl font-bold">Example Prompts</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {examples.map((example, index) => (
@@ -150,7 +150,7 @@ function CreateContent() {
   );
 }
 
-// エラーフォールバックコンポーネント
+// Error fallback component
 function ErrorFallback({
   error,
   resetErrorBoundary,
@@ -160,19 +160,19 @@ function ErrorFallback({
 }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h2 className="text-xl font-bold mb-4">エラーが発生しました</h2>
+      <h2 className="text-xl font-bold mb-4">An error occurred</h2>
       <p className="text-red-500 mb-4">{error.message}</p>
       <button
         onClick={resetErrorBoundary}
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
-        再試行
+        Retry
       </button>
     </div>
   );
 }
 
-// メインのページコンポーネント
+// Main page component
 export default function CreatePage() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>

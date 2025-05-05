@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// グローバル変数としてコールバックデータを保存
-// TypeScriptの型定義
+// Store callback data as global variable
+// TypeScript type definitions
 declare global {
   var callbackStorage: Map<string, any>;
 }
 
-// コールバックデータを保持するためのグローバルストレージ
-// 本番環境では、Redisやデータベースなどの永続ストレージを使用することを推奨
+// Store callback data in global storage
+// In production, it is recommended to use persistent storage such as Redis or database
 if (typeof global.callbackStorage === 'undefined') {
   global.callbackStorage = new Map();
 }
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { callback_data, task_id, status, success } = body;
 
-    // コールバックデータを保存
+    // Save callback data
     global.callbackStorage.set(task_id, {
       callback_data,
       status,
@@ -28,12 +28,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: 'コールバックを受信しました',
+      message: 'Callback received',
     });
   } catch (error) {
     console.error('Error handling callback:', error);
     return NextResponse.json(
-      { success: false, message: 'コールバック処理中にエラーが発生しました' },
+      { success: false, message: 'Error occurred while processing callback' },
       { status: 500 }
     );
   }
@@ -41,15 +41,15 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    // URLパラメータからtask_idを取得
+    // Get task_id from URL parameters
     const { searchParams } = new URL(request.url);
     const task_id = searchParams.get('task_id');
 
     if (!task_id) {
-      return NextResponse.json({ success: false, message: 'task_idは必須です' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'task_id is required' }, { status: 400 });
     }
 
-    // Raw_musicテーブルでtask_idとis_completedの状態を確認
+    // Check task_id and is_completed status in Raw_music table
     const rawMusic = await prisma.raw_music.findFirst({
       where: {
         task_id: task_id,
@@ -59,7 +59,7 @@ export async function GET(request: Request) {
 
     if (!rawMusic) {
       return NextResponse.json(
-        { success: false, message: '完了した音楽が見つかりません' },
+        { success: false, message: 'No completed music found' },
         { status: 404 }
       );
     }
@@ -71,7 +71,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error retrieving callback data:', error);
     return NextResponse.json(
-      { success: false, message: 'コールバックデータの取得中にエラーが発生しました' },
+      { success: false, message: 'Error occurred while retrieving callback data' },
       { status: 500 }
     );
   }

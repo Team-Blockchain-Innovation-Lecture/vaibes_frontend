@@ -8,26 +8,26 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
-    const sort = searchParams.get("sort") || "playCount"; // デフォルトは再生数でソート
-    const order = searchParams.get("order") || "desc"; // デフォルトは降順
-    const tokenId = searchParams.get("tokenId") || undefined; // 特定のトークンに関連する動画のみを取得
-    const walletAddress = searchParams.get("walletAddress") || null; // ユーザーのウォレットアドレス（いいね状態の確認用）
+    const sort = searchParams.get('sort') || 'playCount'; // Default is sort by playCount
+    const order = searchParams.get('order') || 'desc'; // Default is descending order
+    const tokenId = searchParams.get('tokenId') || undefined; // Get videos related to a specific token
+    const walletAddress = searchParams.get('walletAddress') || null; // User's wallet address for like status check
 
-    // 検索条件
-    const search = searchParams.get("search") || undefined; // 検索キーワード
+    // Search conditions
+    const search = searchParams.get('search') || undefined; // Search keyword
 
-    // フィルター条件の構築
+    // Build filter conditions
     let whereCondition: any = {};
 
-    // フィルタリングが必要な場合は、status条件を追加
-    // ステータスパラメータが指定された場合のみステータスでフィルタリング
     const status = searchParams.get("status");
+    // Add status condition if filtering is needed
+    // Filter by status only if the status parameter is specified
     if (status) {
       whereCondition.status = status;
     }
-    // それ以外はすべてのビデオを返す（準備中も含む）
+    // Return all videos (including those in preparation) if no filtering is needed
 
-    // 検索条件を追加
+    // Add search conditions
     if (search) {
       whereCondition.OR = [
         { title: { contains: search } },
@@ -35,12 +35,12 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // 特定のトークンの動画のみを取得する場合
+    // Get videos for a specific token
     if (tokenId) {
       whereCondition.tokenId = tokenId;
     }
 
-    // 動画を取得
+    // Get videos
     const videos = await prisma.video.findMany({
       where: whereCondition,
       take: limit,
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     });
     console.log("videos", videos);
 
-    // ユーザーのいいね情報を取得
+    // Get user's like information
     let videosWithLikeStatus = videos;
 
     if (walletAddress) {
@@ -78,17 +78,17 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      // いいねしたビデオIDのセットを作成
+      // Create a set of liked video IDs
       const likedVideoIds = new Set(userLikes.map((like) => like.videoId));
 
-      // 各ビデオにisLikedフラグを追加
+      // Add isLiked flag to each video
       videosWithLikeStatus = videos.map((video) => ({
         ...video,
         isLiked: likedVideoIds.has(video.id),
       }));
     }
 
-    // ビデオの総数を取得
+    // Get total video count
     const totalCount = await prisma.video.count({
       where: whereCondition,
     });

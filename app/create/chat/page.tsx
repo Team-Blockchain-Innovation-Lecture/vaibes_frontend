@@ -50,11 +50,11 @@ interface Props {
   };
 }
 
-// ChatContentコンポーネントを作成
+// Create ChatContent component
 function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [isGenerating, setIsGenerating] = useState(true); // 初期状態は生成中
+  const [isGenerating, setIsGenerating] = useState(true); // Initial state is generating
   const [isLoading, setIsLoading] = useState(true);
   const [generatedSong, setGeneratedSong] = useState<GeneratedSong | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -63,14 +63,14 @@ function ChatContent() {
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [generationProgress, setGenerationProgress] = useState(0); // 生成の進行状況 (0-100)
+  const [generationProgress, setGenerationProgress] = useState(0); // Generation progress (0-100)
   const [pollInterval, setPollInterval] = useState<NodeJS.Timeout | null>(null);
-  const [currentTaskId, setCurrentTaskId] = useState<string>(''); // 現在のタスクID
+  const [currentTaskId, setCurrentTaskId] = useState<string>(''); // Current task ID
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const hasInitialized = useRef(false); // 初回実行フラグ
+  const hasInitialized = useRef(false); // First execution flag
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -79,7 +79,7 @@ function ChatContent() {
   const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
   const userAddress = solanaWallet?.address || '';
 
-  const [isVideoGenerating, setIsVideoGenerating] = useState(true); // 初期状態は生成中
+  const [isVideoGenerating, setIsVideoGenerating] = useState(true); // Initial state is generating
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(null);
 
@@ -99,8 +99,8 @@ function ChatContent() {
 
   // Load initial prompt from URL parameters and fetch generated music
   useEffect(() => {
-    if (hasInitialized.current) return; // 既に初期化済みの場合は何もしない
-    hasInitialized.current = true; // 初期化済みフラグを設定
+    if (hasInitialized.current) return; // Do nothing if already initialized
+    hasInitialized.current = true; // Set initialized flag
 
     const prompt = searchParams.get('prompt');
     const genre = searchParams.get('genre');
@@ -125,15 +125,15 @@ function ChatContent() {
       { role: 'assistant', content: `Generating a ${genre} song. Please wait...` },
     ]);
 
-    // 生成プログレスの擬似アニメーションを開始
+    // Start fake progress animation
     startFakeProgressAnimation();
 
-    // 音楽生成APIを呼び出し
+    // Call music generation API
     const instrumental = searchParams.get('instrumental') === 'true';
     generateMusic(prompt, genre, instrumental, taskId);
 
     return () => {
-      // クリーンアップ関数でインターバルをクリア
+      // Clear intervals in cleanup function
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
@@ -141,26 +141,26 @@ function ChatContent() {
         clearInterval(pollInterval);
       }
     };
-  }, []); // 依存配列を空に戻す
+  }, []); // Reset dependency array
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // 擬似的な進行状況アニメーションを開始
+  // Start fake progress animation
   const startFakeProgressAnimation = () => {
-    // プログレスを徐々に増加させるが、90%で止める（実際のコールバックを待つ）
+    // Gradually increase progress but stop at 90% (wait for actual callback)
     let currentProgress = 0;
 
     progressInterval.current = setInterval(() => {
       if (currentProgress < 90) {
-        // 進行速度を遅くする
+        // Slow down progress
         const increment = (90 - currentProgress) / 20;
         currentProgress += Math.max(0.5, increment);
         setGenerationProgress(currentProgress);
       } else {
-        // 90%に達したらインターバルをクリア
+        // Clear interval when reaching 90%
         if (progressInterval.current) {
           clearInterval(progressInterval.current);
         }
@@ -168,72 +168,72 @@ function ChatContent() {
     }, 1000);
   };
 
-  // ポーリングを開始する関数
+  // Function to start polling
   const startPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
     const poll = async () => {
       try {
-        console.log(`ポーリング開始 - タスクID: ${taskId}`);
+        console.log(`Starting polling - Task ID: ${taskId}`);
         const response = await fetch(`/api/callback/music?task_id=${taskId}`);
         const data = await response.json();
 
-        console.log('ポーリングレスポンス:', data);
+        console.log('Polling response:', data);
 
         if (data.success && data.data) {
-          console.log('ポーリングレスポンス2:', data);
+          console.log('Polling response 2:', data);
 
           // if (data.data.status === 'success') {
-          console.log('ポーリングレスポンスkanryou:', data);
+          console.log('Polling response completed:', data);
 
-          // 生成完了
+          // Generation completed
           setGenerationProgress(100);
           setIsGenerating(false);
           fetchMusicData(data.data, currentPrompt, currentGenre, taskId);
         } else {
-          console.log('データ未取得...');
-          setTimeout(poll, 5000); // 5秒後に再度チェック
+          console.log('Data not retrieved yet...');
+          setTimeout(poll, 5000); // Check again after 5 seconds
         }
       } catch (error) {
         console.error('Error polling:', error);
-        setTimeout(poll, 5000); // エラーが発生しても5秒後に再度チェック
+        setTimeout(poll, 5000); // Check again after 5 seconds even if error occurs
       }
     };
 
-    poll(); // 初回のポーリングを開始
+    poll(); // Start initial polling
   };
 
-  // ポーリングを開始する関数
+  // Function to start video polling
   const startVideoPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
     const videoPoll = async () => {
       try {
-        console.log(`video ポーリング開始 - タスクID: ${taskId}`);
+        console.log(`Starting video polling - Task ID: ${taskId}`);
         const response = await fetch(`/api/callback/video?task_id=${taskId}`);
         const data = await response.json();
 
-        console.log('video ポーリングレスポンス:', data);
+        console.log('Video polling response:', data);
 
         if (data.success && data.data) {
-          console.log('video ポーリングレスポンス2:', data);
+          console.log('Video polling response 2:', data);
 
-          console.log('video ポーリングレスポンスkanryou:', data);
+          console.log('Video polling response completed:', data);
 
-          // 生成完了
+          // Generation completed
           // setGenerationProgress(100);
           setIsVideoGenerating(false);
           fetchVideoData(data.data, currentPrompt, currentGenre, taskId);
         } else {
-          console.log('video データ未取得...');
-          setTimeout(videoPoll, 5000); // 5秒後に再度チェック
+          console.log('Video data not retrieved yet...');
+          setTimeout(videoPoll, 5000); // Check again after 5 seconds
         }
       } catch (error) {
-        console.error('Error vido polling:', error);
-        setTimeout(videoPoll, 5000); // エラーが発生しても5秒後に再度チェック
+        console.error('Error video polling:', error);
+        setTimeout(videoPoll, 5000); // Check again after 5 seconds even if error occurs
       }
     };
 
-    videoPoll(); // 初回のポーリングを開始
+    videoPoll(); // Start initial polling
   };
 
-  // 音楽生成APIを呼び出す関数
+  // Function to call music generation API
   const generateMusic = async (
     prompt: string,
     genre: string,
@@ -241,9 +241,9 @@ function ChatContent() {
     taskId: string
   ) => {
     try {
-      setGenerationProgress(10); // 生成開始
+      setGenerationProgress(10); // Start generation
 
-      // 音楽生成APIの呼び出し
+      // Call music generation API
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
@@ -263,12 +263,12 @@ function ChatContent() {
       console.log('Generate API response:', data);
 
       if (data.success) {
-        // 外部APIからのレスポンスのtask_idを使用
+        // Use task_id from external API response
         const apiTaskId = data.data?.task_id || data.task_id;
-        console.log('外部APIからのタスクID:', apiTaskId);
+        console.log('Task ID from external API:', apiTaskId);
         setCurrentTaskId(apiTaskId);
 
-        // Raw_musicテーブルにレコードを作成
+        // Create record in Raw_music table
         await fetch('/api/raw-music', {
           method: 'POST',
           headers: {
@@ -294,7 +294,7 @@ function ChatContent() {
           },
         ]);
 
-        // ポーリングを開始
+        // Start polling
         startPolling(taskId, prompt, genre);
       } else {
         toast({
@@ -315,15 +315,15 @@ function ChatContent() {
     }
   };
 
-  // コールバックデータから音楽情報を取得
+  // Function to fetch music data from callback
   const fetchMusicData = async (data: any, prompt: string, genre: string, taskId: string) => {
     try {
       setIsLoading(true);
 
-      //   // APIレスポンスから曲情報を設定
+      // Set song information from API response
       const songData = {
         title: `${genre} Music`,
-        // オーディオURLの優先順位: audio_url > stream_audio_url > source_stream_audio_url
+        // Audio URL priority: audio_url > stream_audio_url > source_stream_audio_url
         audioUrl:
           data.audio_url ||
           // selectedTrack.stream_audio_url ||
@@ -360,12 +360,12 @@ function ChatContent() {
       //   }
       // --- end DB update ---
 
-      // 再生状態をリセット
+      // Reset playback state
       setIsPlaying(false);
       setProgress(0);
       setCurrentTime('00:00');
 
-      // AIアシスタントの応答を追加
+      // Add AI assistant response
       setMessages((prev) => [
         ...prev.slice(0, -1),
         {
@@ -374,7 +374,7 @@ function ChatContent() {
         },
         {
           role: 'assistant',
-          content: `Yeah, we’re dropping videos now.`,
+          content: `Yeah, we're dropping videos now.`,
         },
       ]);
     } catch (error) {
@@ -387,17 +387,17 @@ function ChatContent() {
     } finally {
       setIsLoading(false);
 
-      // ポーリングを開始
+      // Start polling
       startVideoPolling(taskId, prompt, genre);
     }
   };
 
-  // コールバックデータから音楽情報を取得
+  // Function to fetch video data from callback
   const fetchVideoData = async (data: any, prompt: string, genre: string, taskId: string) => {
     try {
       setIsVideoLoading(true);
 
-      //   // APIレスポンスから曲情報を設定
+      // Set video information from API response
       const videoData = {
         videoUrl: data.merged_video_url || '',
       };
@@ -425,12 +425,12 @@ function ChatContent() {
       //   }
       // --- end DB update ---
 
-      // AIアシスタントの応答を追加
+      // Add AI assistant response
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          content: `The video’s done...`,
+          content: `The video's done...`,
         },
       ]);
     } catch (error) {
@@ -445,9 +445,9 @@ function ChatContent() {
     }
   };
 
-  // プロンプトから歌詞を抽出する関数（実際の歌詞がない場合）
+  // Function to extract lyrics from prompt (when no actual lyrics are available)
   const extractLyrics = (prompt: string, genre: string = 'EDM'): string => {
-    // プロンプトをもとに簡単な歌詞を生成
+    // Generate simple lyrics based on prompt
     return `(Verse 1)
 City lights reflecting in your eyes
 We're dancing underneath these digital skies
@@ -467,7 +467,7 @@ Together we'll create a new reality
 Where our love shines for all eternity`;
   };
 
-  // 音楽プレイヤーの制御関数
+  // Music player control functions
   const togglePlay = () => {
     if (!audioRef.current || !generatedSong) return;
 
@@ -625,7 +625,7 @@ Where our love shines for all eternity`;
     }
   }, [generatedSong?.audioUrl]);
 
-  // 生成中のロード画面のレンダリング
+  // Render generation loading state
   const renderGenerationLoading = () => {
     return (
       <div className="flex flex-col items-center justify-center h-full">
@@ -837,7 +837,7 @@ Where our love shines for all eternity`;
   );
 }
 
-// エラーフォールバックコンポーネント
+// Error fallback component
 function ErrorFallback({
   error,
   resetErrorBoundary,
@@ -859,7 +859,7 @@ function ErrorFallback({
   );
 }
 
-// メインのページコンポーネント
+// Main page component
 export default function ChatPage() {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>

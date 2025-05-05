@@ -3,14 +3,14 @@ import { PrismaClient } from "@/lib/generated/prisma";
 
 const prisma = new PrismaClient();
 
-// BigInt型の値を含むオブジェクトをJSON化できるようにするヘルパー関数
+// Helper function to handle BigInt serialization
 const serializeBigInt = (data: any): any => {
   if (data === null || data === undefined) {
     return data;
   }
 
-  if (typeof data === "bigint") {
-    return data.toString(); // BigIntを文字列に変換
+  if (typeof data === 'bigint') {
+    return data.toString(); // Convert BigInt to string
   }
 
   if (Array.isArray(data)) {
@@ -70,14 +70,14 @@ export async function GET(request: NextRequest) {
       })
     );
 
-    // BigInt値を文字列に変換してからJSONレスポンスを返す
+    // Convert BigInt values to strings before returning JSON response
     return NextResponse.json({
       tokens: serializeBigInt(tokensWithStats),
     });
   } catch (error) {
-    console.error("Error fetching tokens:", error);
+    console.error('Error fetching tokens:', error);
     return NextResponse.json(
-      { message: "An error occurred while fetching tokens" },
+      { message: 'An error occurred while fetching tokens' },
       { status: 500 }
     );
   } finally {

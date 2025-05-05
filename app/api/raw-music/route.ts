@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { task_id, userAddress, prompt, music_task_id } = body;
 
-    // raw_musicテーブルにレコードを作成
+    // Create record in raw_music table
     const rawMusic = await prisma.raw_music.create({
       data: {
         task_id: task_id,
@@ -38,7 +38,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const { task_id, is_completed, audio_url, image_url } = body;
 
-    // task_idでレコードを検索し、更新
+    // Find and update record by task_id
     const updated = await prisma.raw_music.updateMany({
       where: { task_id },
       data: {

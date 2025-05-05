@@ -31,14 +31,14 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Next.js 14での非同期パラメータの正しい扱い方
+    // Correct way to handle async parameters in Next.js 14
     const params = await context.params;
     const tokenId = params.id;
 
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
 
-    // prisma.videoスキーマで確認したところ、creatorはリレーションではなく文字列フィールド
+    // According to prisma.video schema, creator is a string field, not a relation
     const videos = await prisma.video.findMany({
       where: {
         tokenId: tokenId,

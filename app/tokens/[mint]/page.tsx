@@ -109,7 +109,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
       <section className="space-y-6 pt-6">
         {/* Token Header */}
         <div className="flex flex-col md:flex-row gap-6 items-start">
-          {/* Token Logo - サイズを拡大 */}
+          {/* Token Logo - Enlarged size */}
           <div className="w-40 h-40 md:w-48 md:h-48 bg-secondary/10 rounded-lg flex items-center justify-center overflow-hidden shrink-0">
             {token.logo ? (
               <img
@@ -268,7 +268,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
                 </TooltipProvider>
               )}
 
-              {/* Pump.fun リンクボタンを追加 */}
+              {/* Pump.fun link button */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -300,7 +300,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
           </div>
         </div>
 
-        {/* ビデオ統計情報 - Descriptionの上に配置 */}
+        {/* Video statistics - Placed above Description */}
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="bg-primary/10 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold">

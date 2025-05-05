@@ -3,15 +3,15 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET(request: Request) {
   try {
-    // URLパラメータからtask_idを取得
+    // Get task_id from URL parameters
     const { searchParams } = new URL(request.url);
     const task_id = searchParams.get('task_id');
 
     if (!task_id) {
-      return NextResponse.json({ success: false, message: 'task_idは必須です' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'task_id is required' }, { status: 400 });
     }
 
-    // raw_videoテーブルでtask_idとis_completedの状態を確認
+    // Check task_id and is_completed status in Raw_video table
     const rawVideo = await prisma.raw_video.findFirst({
       where: {
         task_id: task_id,
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
     if (!rawVideo) {
       return NextResponse.json(
-        { success: false, message: '完了した音楽が見つかりません' },
+        { success: false, message: 'No completed video found' },
         { status: 404 }
       );
     }
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error retrieving callback data:', error);
     return NextResponse.json(
-      { success: false, message: 'コールバックデータの取得中にエラーが発生しました' },
+      { success: false, message: 'Error occurred while retrieving callback data' },
       { status: 500 }
     );
   }

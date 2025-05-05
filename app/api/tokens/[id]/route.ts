@@ -31,7 +31,7 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Next.js 14での非同期パラメータの正しい扱い方
+    // Correct way to handle async parameters in Next.js 14
     const params = await context.params;
     const tokenId = params.id;
 
