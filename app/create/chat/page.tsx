@@ -55,7 +55,7 @@ function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(true); // Initial state is generating
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [generatedSong, setGeneratedSong] = useState<GeneratedSong | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState('00:00');
@@ -79,8 +79,8 @@ function ChatContent() {
   const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
   const userAddress = solanaWallet?.address || '';
 
-  const [isVideoGenerating, setIsVideoGenerating] = useState(true); // Initial state is generating
-  const [isVideoLoading, setIsVideoLoading] = useState(true);
+  const [isVideoGenerating, setIsVideoGenerating] = useState(false);
+  const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(null);
 
   // Check if we're on mobile
@@ -389,6 +389,8 @@ function ChatContent() {
 
       // Start polling
       startVideoPolling(taskId, prompt, genre);
+      setIsVideoGenerating(true);
+      startFakeProgressAnimation();
     }
   };
 
@@ -674,6 +676,54 @@ Where our love shines for all eternity`;
     );
   };
 
+  const renderVideoGenerationLoading = () => {
+    return (
+      <div className="flex flex-col items-center justify-center mb-10">
+        <div className="relative w-40 h-40 mb-8">
+          <div className="absolute inset-0 rounded-full border-4 border-[#2a1a3e]"></div>
+          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
+            <circle
+              cx="50"
+              cy="50"
+              r="46"
+              fill="none"
+              stroke="#d4af37"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeDasharray={`${generationProgress * 2.89}, 289`}
+              transform="rotate(-90, 50, 50)"
+              className="transition-all duration-500 ease-out"
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
+          </div>
+        </div>
+
+        <h3 className="text-xl font-bold text-white mb-3">Generating video...</h3>
+        <div className="text-white/70 text-center max-w-md space-y-2">
+          <p>Task ID: {currentTaskId}</p>
+          <p>Status: Processing</p>
+          <p>Message: Timeout occurred. Processing continues.</p>
+        </div>
+
+        <div className="w-full max-w-md mt-8">
+          <div className="h-2 bg-[#2a1a3e] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#d4af37] transition-all duration-500 ease-out"
+              style={{ width: `${generationProgress}%` }}
+            ></div>
+          </div>
+          <div className="mt-2 flex justify-between text-sm text-white/60">
+            <span>Start</span>
+            <span>Processing...</span>
+            <span>Complete</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="h-full flex flex-col md:flex-row">
       {/* Chat section */}
@@ -725,7 +775,7 @@ Where our love shines for all eternity`;
       {/* Music player section */}
       <div className="md:w-1/3 lg:w-2/5 bg-[#2a1a3e] p-4 md:p-6 overflow-y-auto">
         {isGenerating ? (
-          // 生成中の表示
+          // Display during generation
           renderGenerationLoading()
         ) : isLoading ? (
           <div className="flex flex-col items-center justify-center h-full">
@@ -733,15 +783,15 @@ Where our love shines for all eternity`;
             <p className="mt-4 text-white/80">Loading music data...</p>
           </div>
         ) : generatedSong ? (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white">{generatedSong.title}</h2>
-            <p className="text-white/60 text-sm">Genre: {generatedSong.genre}</p>
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-6">{generatedSong.title}</h2>
+            <p className="text-white/60 text-sm mb-6">Genre: {generatedSong.genre}</p>
 
-            <div className="relative aspect-square overflow-hidden rounded-lg">
+            <div className="relative aspect-square overflow-hidden rounded-lg mb-6">
               <Image src={generatedSong.coverUrl} alt="Album Cover" fill className="object-cover" />
             </div>
 
-            <div className="space-y-4">
+            <div className="mb-6">
               <div className="flex items-center justify-between">
                 <span className="text-white/80 text-sm">{currentTime}</span>
                 <span className="text-white/80 text-sm">{duration}</span>
@@ -776,7 +826,7 @@ Where our love shines for all eternity`;
             </div>
 
             {generatedSong.lyrics && (
-              <div className="mt-8">
+              <div className="mt-8 mb-8">
                 <h3 className="text-xl font-bold text-white mb-3">Lyrics</h3>
                 <div className="bg-[#1a0e26] rounded-lg p-4 text-white/90 whitespace-pre-wrap max-h-[300px] overflow-y-auto">
                   {generatedSong.lyrics}
@@ -796,8 +846,8 @@ Where our love shines for all eternity`;
         )}
 
         {isVideoGenerating ? (
-          // 生成中の表示
-          renderGenerationLoading()
+          // Display during generation
+          renderVideoGenerationLoading()
         ) : isVideoLoading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
@@ -806,7 +856,7 @@ Where our love shines for all eternity`;
         ) : generatedVideo ? (
           <>
             <div className="space-y-6">
-              <div className="relative aspect-square overflow-hidden rounded-lg">
+              <div className="relative aspect-[9/16] overflow-hidden rounded-lg">
                 <video
                   src={generatedVideo.videoUrl}
                   controls

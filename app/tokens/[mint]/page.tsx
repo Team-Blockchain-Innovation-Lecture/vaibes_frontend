@@ -46,7 +46,7 @@ type TokenDetail = {
 export default function TokenDetailPage({ params }: TokenDetailProps) {
   const [token, setToken] = useState<TokenDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  // React.use()でパラメータをアンラップ
+  // Unwrap parameters using React.use()
   const mintParam = React.use(params);
   const mint = mintParam.mint;
 
@@ -352,7 +352,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
   );
 }
 
-// 代替的なビデオ表示用コンポーネント
+// Alternative video display component
 function CustomTokenVideos({
   tokenId,
   mint,
@@ -365,11 +365,11 @@ function CustomTokenVideos({
   const [videos, setVideos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // 親コンポーネントから渡されたmintを使用
+  // Use the mint passed from the parent component
   useEffect(() => {
     async function fetchTokenVideos() {
       try {
-        // mintアドレスを使用してビデオを取得
+        // Fetch videos using mint address
         const response = await fetch(`/api/tokens/mint/${mint}/videos`);
         if (!response.ok) throw new Error("Failed to fetch token videos");
         const data = await response.json();
