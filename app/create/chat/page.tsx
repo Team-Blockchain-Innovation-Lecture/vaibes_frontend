@@ -224,7 +224,7 @@ function ChatContent() {
 
       if (data.success) {
         // Use task_id from external API response
-        const apiTaskId = data.data?.music_task_id || data.music_task_id;
+        const apiTaskId = data.data?.task_id || data.task_id;
         console.log('Task ID from external API:', apiTaskId);
         setCurrentTaskId(apiTaskId);
 
