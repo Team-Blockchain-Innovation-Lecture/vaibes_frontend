@@ -97,8 +97,9 @@ function ChatContent() {
     const prompt = searchParams.get('prompt');
     const genre = searchParams.get('genre');
     const taskId = searchParams.get('task_id');
+    const videoStyle = searchParams.get('video_style') || 'anime';
 
-    console.log('URL Parameters:', { prompt, genre, taskId });
+    console.log('URL Parameters:', { prompt, genre, taskId, videoStyle });
 
     if (!prompt || !genre || !taskId) {
       console.error('Missing required parameters:', { prompt, genre, taskId });
@@ -123,7 +124,7 @@ function ChatContent() {
     musicProgressRef.current?.startFakeProgressAnimation();
     // Call music generation API
     const instrumental = searchParams.get('instrumental') === 'true';
-    generateMusic(prompt, genre, instrumental, taskId);
+    generateMusic(prompt, genre, instrumental, taskId, videoStyle);
   }, [searchParams]); // Reset dependency array
 
   // Auto-scroll to bottom of messages
@@ -198,7 +199,8 @@ function ChatContent() {
     prompt: string,
     genre: string,
     instrumental: boolean,
-    taskId: string
+    taskId: string,
+    videoStyle: string
   ) => {
     try {
       musicProgressRef.current?.setGenerationProgress(10);
@@ -242,6 +244,7 @@ function ChatContent() {
             audio_url: '',
             image_url: '',
             prompt: prompt,
+            video_style: videoStyle,
           }),
         });
 

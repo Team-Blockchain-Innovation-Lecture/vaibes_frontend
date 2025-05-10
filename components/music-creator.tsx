@@ -16,9 +16,19 @@ const genres = [
   { value: "classical", label: "Classical" },
 ]
 
+// ビデオスタイルの選択肢
+const videoStyles = [
+  { value: "anime", label: "anime" },
+  { value: "3d_animation", label: "3d_animation" },
+  { value: "clay", label: "clay" },
+  { value: "comic", label: "comic" },
+  { value: "cyberpunk", label: "cyberpunk" },
+]
+
 export function MusicCreator() {
   const [prompt, setPrompt] = useState("")
   const [genre, setGenre] = useState("pop")
+  const [videoStyle, setVideoStyle] = useState("anime")
   const router = useRouter()
 
   // 一時的なtask_idを生成する関数
@@ -29,7 +39,7 @@ export function MusicCreator() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const taskId = generateTempTaskId()
-    router.push(`/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&task_id=${taskId}`)
+    router.push(`/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&video_style=${videoStyle}&task_id=${taskId}`)
   }
 
   return (
@@ -49,7 +59,7 @@ export function MusicCreator() {
             required
           />
         </div>
-        
+        <div className="text-white text-md font-bold text-center">Music Genre</div>
         <div className="w-full max-w-xs">
           <select
             name="genre"
@@ -60,6 +70,21 @@ export function MusicCreator() {
             {genres.map((g) => (
               <option key={g.value} value={g.value}>
                 {g.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="text-white text-md font-bold text-center">Video Style</div>
+        <div className="w-full max-w-xs">
+          <select
+            name="videoStyle"
+            value={videoStyle}
+            onChange={(e) => setVideoStyle(e.target.value)}
+            className="w-full bg-[#2a1a3e] rounded-full py-3 px-6 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 cursor-pointer"
+          >
+            {videoStyles.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
               </option>
             ))}
           </select>

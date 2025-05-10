@@ -6,6 +6,19 @@ const prisma = new PrismaClient();
 // Environment variable settings
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
+// Raw_music型の拡張
+interface RawMusicWithVideoStyle {
+  id: number;
+  userAddress: string;
+  task_id: string;
+  music_task_id: string | null;
+  is_completed: boolean;
+  audio_url: string | null;
+  image_url: string | null;
+  prompt: string | null;
+  video_style: string | null;
+}
+
 // Response type definition
 interface MusicCallbackResponse {
   success: boolean;
@@ -72,7 +85,7 @@ export async function POST(request: Request) {
           image_url: musicData.image_url,
           prompt: musicData.prompt,
         },
-      });
+      }) as RawMusicWithVideoStyle;
 
       console.log(`${BACKEND_URL}/api/generate-video`);
 
@@ -92,6 +105,9 @@ export async function POST(request: Request) {
         });
       }
 
+      // Get video style from the Raw_music table
+      const videoStyle = updatedMusic.video_style || "anime"; // Use default if not set
+      
       // Call video generation API
       const videoResponse = await fetch(`${BACKEND_URL}/api/generate-video`, {
         method: 'POST',
@@ -100,6 +116,7 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           prompt: updatedMusic.prompt,
+          style: videoStyle,
         }),
       });
 

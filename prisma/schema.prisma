@@ -135,6 +135,7 @@ model Raw_music {
   audio_url             String?   // URL to the generated audio file
   image_url             String?   // URL to the generated image/cover
   prompt                String?   @db.Text // The prompt used to generate the music
+  video_style           String?   @default("anime") // Style for video generation
   
   // Indexes for performance
   @@index([userAddress])
