@@ -50,7 +50,7 @@ function CreateContent() {
     <div className="h-full overflow-auto px-4 md:px-6 space-y-8 md:space-y-12 max-w-7xl mx-auto pb-20">
       <div className="py-6 md:py-10">
         <h1 className="text-2xl md:text-4xl font-bold mb-6 text-center">
-          Drop your ideas, make a song
+          Drop your ideas, make a video
         </h1>
         <form
           onSubmit={handleSubmit}
@@ -60,7 +60,7 @@ function CreateContent() {
             <textarea
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder="What do you want to make a song about?"
+              placeholder="Enter the lyrics of the music you want to add to the video."
               className="w-full bg-[#2a1a3e] rounded-xl py-3 px-6 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50 min-h-[120px] resize-none"
               rows={4}
               required
