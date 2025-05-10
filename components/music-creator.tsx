@@ -54,7 +54,7 @@ export function MusicCreator() {
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="What do you want to make a song about?"
+            placeholder="What do you want to make a song about? Insert lyrics."
             className="w-full bg-[#2a1a3e] rounded-full py-3 px-6 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
             required
           />
