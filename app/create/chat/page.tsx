@@ -289,7 +289,7 @@ function ChatContent() {
         audioUrl: data.audio_url || '',
         coverUrl: data.image_url || '/placeholder.svg?height=400&width=400',
         genre: genre,
-        lyrics: extractLyrics(prompt, genre) || '',
+        lyrics: prompt || '',
       };
 
       console.log('Final song data:', songData);
@@ -398,28 +398,6 @@ function ChatContent() {
     } finally {
       setIsVideoLoading(false);
     }
-  };
-
-  // Function to extract lyrics from prompt (when no actual lyrics are available)
-  const extractLyrics = (prompt: string, genre: string = 'EDM'): string => {
-    // Generate simple lyrics based on prompt
-    return `(Verse 1)
-City lights reflecting in your eyes
-We're dancing underneath these digital skies
-Every moment feels like eternity
-In this world that we've created, just you and me
-
-(Chorus)
-${genre} nights, holding you tight
-Our love flows like code through the night
-No one can break this connection we share
-In this digital world beyond compare
-
-(Verse 2)
-Your touch like electricity through my veins
-We're breaking free from all these chains
-Together we'll create a new reality
-Where our love shines for all eternity`;
   };
 
   // Music player control functions
