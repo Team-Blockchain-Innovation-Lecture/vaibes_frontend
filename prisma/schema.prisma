@@ -78,6 +78,8 @@ model Video {
   // Relation to comments
   comments              Comment[]
 
+  nft_address           String?
+
   // Indexes for performance
   @@index([tokenId])
 }
@@ -156,3 +158,4 @@ model Raw_video {
   @@index([userAddress])
   @@index([task_id])
 }
+
