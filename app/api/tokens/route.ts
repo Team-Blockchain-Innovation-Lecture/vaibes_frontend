@@ -9,7 +9,7 @@ const serializeBigInt = (data: any): any => {
     return data;
   }
 
-  if (typeof data === 'bigint') {
+  if (typeof data === "bigint") {
     return data.toString(); // Convert BigInt to string
   }
 
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const tokens = await prisma.token.findMany({
       take: limit,
       orderBy: {
-        marketCap: "desc",
+        createdAt: "desc",
       },
       include: {
         _count: {
@@ -75,9 +75,9 @@ export async function GET(request: NextRequest) {
       tokens: serializeBigInt(tokensWithStats),
     });
   } catch (error) {
-    console.error('Error fetching tokens:', error);
+    console.error("Error fetching tokens:", error);
     return NextResponse.json(
-      { message: 'An error occurred while fetching tokens' },
+      { message: "An error occurred while fetching tokens" },
       { status: 500 }
     );
   } finally {

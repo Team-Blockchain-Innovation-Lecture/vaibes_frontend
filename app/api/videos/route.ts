@@ -8,13 +8,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const offset = parseInt(searchParams.get("offset") || "0", 10);
-    const sort = searchParams.get('sort') || 'playCount'; // Default is sort by playCount
-    const order = searchParams.get('order') || 'desc'; // Default is descending order
-    const tokenId = searchParams.get('tokenId') || undefined; // Get videos related to a specific token
-    const walletAddress = searchParams.get('walletAddress') || null; // User's wallet address for like status check
+    const sort = searchParams.get("sort") || "createdAt"; // Default is sort by playCount
+    const order = searchParams.get("order") || "desc"; // Default is descending order
+    const tokenId = searchParams.get("tokenId") || undefined; // Get videos related to a specific token
+    const walletAddress = searchParams.get("walletAddress") || null; // User's wallet address for like status check
 
     // Search conditions
-    const search = searchParams.get('search') || undefined; // Search keyword
+    const search = searchParams.get("search") || undefined; // Search keyword
 
     // Build filter conditions
     let whereCondition: any = {};
