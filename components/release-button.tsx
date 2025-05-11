@@ -38,6 +38,7 @@ export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseBu
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [isReleasing, setIsReleasing] = useState(false);
 
   const startNftPolling = (videoId: string) => {
     const nftPoll = async () => {
@@ -110,6 +111,7 @@ export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseBu
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setIsReleasing(true);
     if (!validateInput(tokenInput)) {
       return;
     }
@@ -186,7 +188,10 @@ export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseBu
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700">
+        <Button
+          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+          disabled={isReleasing}
+        >
           Release
         </Button>
       </DialogTrigger>
