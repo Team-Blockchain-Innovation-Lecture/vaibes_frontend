@@ -142,98 +142,111 @@ export function LeaderboardDisplay({
           <Crown className="h-6 w-6 text-amber-400" /> Top 3 Videos
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {topThree.map((video, index) => (
-            <div
-              key={video.id}
-              className="relative overflow-hidden rounded-xl border border-amber-400/30 bg-background/50"
-              onMouseEnter={() => handleVideoMouseEnter(video.id)}
-              onMouseLeave={() => handleVideoMouseLeave(video.id)}
-            >
-              {/* Rank Badge */}
+          {topThree.map((video, index) => {
+            // 金・銀・銅の枠線カラーとスタイルを定義
+            const borderStyle =
+              index === 0
+                ? "border-2 border-yellow-400 shadow-md shadow-yellow-400/30" // 金（1位）
+                : index === 1
+                ? "border-2 border-gray-300 shadow-md shadow-gray-300/30" // 銀（2位）
+                : "border-2 border-amber-600 shadow-md shadow-amber-600/30"; // 銅（3位）
+
+            return (
               <div
-                className={`absolute top-2 left-2 z-10 flex items-center justify-center w-10 h-10 rounded-full ${
-                  index === 0
-                    ? "bg-amber-400"
-                    : index === 1
-                    ? "bg-gray-300"
-                    : "bg-amber-700"
-                }`}
+                key={video.id}
+                className={`relative overflow-hidden rounded-xl ${borderStyle} bg-background/50`}
+                onMouseEnter={() => handleVideoMouseEnter(video.id)}
+                onMouseLeave={() => handleVideoMouseLeave(video.id)}
               >
-                <span className="font-bold text-black text-lg">
-                  {index + 1}
-                </span>
-              </div>
-
-              {/* Play Count Badge */}
-              <div className="absolute top-2 right-2 z-10 bg-black/70 rounded-full px-2 py-1 flex items-center gap-1">
-                <Play className="w-3 h-3" />
-                <span className="text-xs font-semibold">
-                  {video.playCount.toLocaleString()}
-                </span>
-              </div>
-
-              {/* Video Element - Clickable and auto-plays on hover */}
-              <Link href={`/videos/${video.id}`} className="block">
-                <div className="aspect-[9/16] w-full relative overflow-hidden bg-secondary/30">
-                  <video
-                    ref={(el) => {
-                      videoRefs.current[video.id] = el;
-                    }}
-                    src={video.url}
-                    className="h-full w-full object-cover cursor-pointer"
-                    playsInline
-                    muted
-                    loop
-                    preload="auto"
-                  >
-                    {/* Fallback content if video can't be loaded */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-secondary/50">
-                      <Play className="w-12 h-12 opacity-30" />
-                    </div>
-                  </video>
+                {/* Rank Badge */}
+                <div
+                  className={`absolute top-2 left-2 z-10 flex items-center justify-center w-10 h-10 rounded-full ${
+                    index === 0
+                      ? "bg-amber-400"
+                      : index === 1
+                      ? "bg-gray-300"
+                      : "bg-amber-700"
+                  }`}
+                >
+                  <span className="font-bold text-black text-lg">
+                    {index + 1}
+                  </span>
                 </div>
-              </Link>
 
-              {/* Video Info */}
-              <div className="p-3">
-                <Link href={`/videos/${video.id}`} className="hover:underline">
-                  <h3 className="font-bold text-lg line-clamp-1">
-                    {video.title}
-                  </h3>
+                {/* Play Count Badge */}
+                <div className="absolute top-2 right-2 z-10 bg-black/70 rounded-full px-2 py-1 flex items-center gap-1">
+                  <Play className="w-3 h-3" />
+                  <span className="text-xs font-semibold">
+                    {video.playCount.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Video Element - Clickable and auto-plays on hover */}
+                <Link href={`/videos/${video.id}`} className="block">
+                  <div className="aspect-[9/16] w-full relative overflow-hidden bg-secondary/30">
+                    <video
+                      ref={(el) => {
+                        videoRefs.current[video.id] = el;
+                      }}
+                      src={video.url}
+                      className="h-full w-full object-cover cursor-pointer"
+                      playsInline
+                      muted
+                      loop
+                      preload="auto"
+                    >
+                      {/* Fallback content if video can't be loaded */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-secondary/50">
+                        <Play className="w-12 h-12 opacity-30" />
+                      </div>
+                    </video>
+                  </div>
                 </Link>
 
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-sm text-muted-foreground">
-                    <Link
-                      href={`/tokens/${video.token?.mint}`}
-                      className="hover:underline"
-                    >
-                      {video.token?.name || "Unknown Token"}
-                    </Link>
+                {/* Video Info */}
+                <div className="p-3">
+                  <Link
+                    href={`/videos/${video.id}`}
+                    className="hover:underline"
+                  >
+                    <h3 className="font-bold text-lg line-clamp-1">
+                      {video.title}
+                    </h3>
+                  </Link>
+
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="text-sm text-muted-foreground">
+                      <Link
+                        href={`/tokens/${video.token?.mint}`}
+                        className="hover:underline"
+                      >
+                        {video.token?.name || "Unknown Token"}
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center gap-1 text-rose-500">
+                      <Heart className="w-4 h-4" />
+                      <span className="text-xs">
+                        {video.likeCount.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-1 text-rose-500">
-                    <Heart className="w-4 h-4" />
-                    <span className="text-xs">
-                      {video.likeCount.toLocaleString()}
-                    </span>
-                  </div>
+                  {video.creator && (
+                    <div className="text-xs text-muted-foreground mt-1">
+                      By{" "}
+                      <Link
+                        href={`/users/${video.creator}`}
+                        className="hover:underline"
+                      >
+                        {formatAddress(video.creator)}
+                      </Link>
+                    </div>
+                  )}
                 </div>
-
-                {video.creator && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    By{" "}
-                    <Link
-                      href={`/users/${video.creator}`}
-                      className="hover:underline"
-                    >
-                      {formatAddress(video.creator)}
-                    </Link>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
@@ -252,26 +265,32 @@ export function LeaderboardDisplay({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {topThree.map((token, index) => {
-            // Define rank-based styling
+            // より目立つランクベースのスタイリングを定義
             const rankStyles = {
               borderColor:
                 index === 0
-                  ? "border-amber-400"
+                  ? "border-yellow-400" // 金（1位）
                   : index === 1
-                  ? "border-gray-300"
-                  : "border-amber-700",
+                  ? "border-gray-300" // 銀（2位）
+                  : "border-amber-600", // 銅（3位）
               bgGradient:
                 index === 0
-                  ? "bg-gradient-to-b from-amber-400/10 to-transparent"
+                  ? "bg-gradient-to-b from-yellow-500/30 to-yellow-500/5" // 金（1位）
                   : index === 1
-                  ? "bg-gradient-to-b from-gray-300/10 to-transparent"
-                  : "bg-gradient-to-b from-amber-700/10 to-transparent",
+                  ? "bg-gradient-to-b from-gray-300/30 to-gray-300/5" // 銀（2位）
+                  : "bg-gradient-to-b from-amber-600/30 to-amber-600/5", // 銅（3位）
+              shadow:
+                index === 0
+                  ? "shadow-md shadow-yellow-400/30" // 金（1位）
+                  : index === 1
+                  ? "shadow-md shadow-gray-300/30" // 銀（2位）
+                  : "shadow-md shadow-amber-600/30", // 銅（3位）
             };
 
             return (
               <Card
                 key={token.id}
-                className={`overflow-hidden h-full flex flex-col relative border-2 ${rankStyles.borderColor} ${rankStyles.bgGradient}`}
+                className={`overflow-hidden h-full flex flex-col relative border-2 ${rankStyles.borderColor} ${rankStyles.bgGradient} ${rankStyles.shadow} transform transition-all duration-300 hover:scale-[1.03]`}
               >
                 {/* Rank Badge */}
                 <div
@@ -371,6 +390,107 @@ export function LeaderboardDisplay({
             );
           })}
         </div>
+      </div>
+    );
+  };
+
+  // 新しく追加: Top 3 Creatorsをグリッド表示する関数
+  const renderTopCreators = () => {
+    if (data.length === 0 || type !== "creators") return null;
+
+    const topThree = data.slice(0, 3);
+
+    return (
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Crown className="h-6 w-6 text-amber-400" /> Top 3 Creators
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {topThree.map((creator, index) => {
+            // 金・銀・銅のスタイルを定義
+            const rankStyles = {
+              bg:
+                index === 0
+                  ? "bg-gradient-to-b from-yellow-500/30 to-yellow-500/5" // 金（1位）
+                  : index === 1
+                  ? "bg-gradient-to-b from-gray-300/30 to-gray-300/5" // 銀（2位）
+                  : "bg-gradient-to-b from-amber-600/30 to-amber-600/5", // 銅（3位）
+              border:
+                index === 0
+                  ? "border-2 border-yellow-400 shadow-md shadow-yellow-400/30" // 金（1位）
+                  : index === 1
+                  ? "border-2 border-gray-300 shadow-md shadow-gray-300/30" // 銀（2位）
+                  : "border-2 border-amber-600 shadow-md shadow-amber-600/30", // 銅（3位）
+            };
+
+            return (
+              <div
+                key={creator.walletAddress}
+                className={`relative overflow-hidden rounded-xl ${rankStyles.border} ${rankStyles.bg}`}
+              >
+                {/* Rank Badge */}
+                <div
+                  className={`absolute top-3 left-3 z-10 flex items-center justify-center w-10 h-10 rounded-full ${
+                    index === 0
+                      ? "bg-amber-400"
+                      : index === 1
+                      ? "bg-gray-300"
+                      : "bg-amber-700"
+                  }`}
+                >
+                  <span className="font-bold text-black text-lg">
+                    {index + 1}
+                  </span>
+                </div>
+
+                {/* Creator Profile */}
+                <div className="p-5 flex flex-col items-center text-center">
+                  <div className="mt-4 mb-3 w-24 h-24 bg-secondary/30 rounded-full flex items-center justify-center">
+                    <TrendingUp className="w-12 h-12" />
+                  </div>
+
+                  <Link
+                    href={`/users/${creator.walletAddress}`}
+                    className="text-xl font-bold mt-2 hover:underline"
+                  >
+                    {formatAddress(creator.walletAddress)}
+                  </Link>
+
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {creator.videoCount}{" "}
+                    {creator.videoCount === 1 ? "video" : "videos"}
+                  </div>
+
+                  <div className="flex items-center gap-2 mt-4 text-lg font-semibold">
+                    <Play className="w-5 h-5" />
+                    <span>{creator.totalPlays?.toLocaleString() || 0}</span>
+                  </div>
+
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Total Plays
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  // 残りのクリエイターを表示する関数
+  const renderRemainingCreators = () => {
+    // トップ3以降のクリエイターのみを表示
+    if (type !== "creators" || data.length <= 3) return null;
+
+    // Get creators after the top 3
+    const remainingCreators = data.slice(3);
+
+    return (
+      <div className="space-y-2 border rounded-xl border-border divide-y divide-border overflow-hidden">
+        {remainingCreators.map((item, index) =>
+          renderCreatorItem(item, index + 3)
+        )}
       </div>
     );
   };
@@ -706,7 +826,17 @@ export function LeaderboardDisplay({
       );
     }
 
-    // Return the appropriate item renderer based on type for creators
+    // For creators, we use a custom display with TOP 3 highlighted
+    if (type === "creators") {
+      return (
+        <>
+          {renderTopCreators()}
+          {renderRemainingCreators()}
+        </>
+      );
+    }
+
+    // この分岐は使われなくなるため削除可能だが、念のために残しておく
     return (
       <div className="space-y-2 border rounded-xl border-border divide-y divide-border overflow-hidden">
         {data.map((item, index) => {
