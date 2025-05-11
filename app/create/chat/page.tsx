@@ -568,6 +568,18 @@ function ChatContent() {
     return <VideoPrgress ref={videoProgressRef} currentTaskId={currentTaskId} />;
   };
 
+  const handleChatMessage = (msg: string) => {
+    // Process to add a message to the chat window"
+    // ex: setChatMessages([...chatMessages, msg]);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'assistant',
+        content: msg,
+      },
+    ]);
+  };
+
   return (
     <div className="h-full flex flex-col md:flex-row">
       {/* Chat section */}
@@ -590,7 +602,11 @@ function ChatContent() {
           <div ref={messagesEndRef} />
           {generatedVideo && (
             <div className="flex">
-              <ReleaseButton videoData={generatedVideo} musicData={generatedSong} />
+              <ReleaseButton
+                videoData={generatedVideo}
+                musicData={generatedSong}
+                onChatMessage={handleChatMessage}
+              />
             </div>
           )}
         </div>

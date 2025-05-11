@@ -28,15 +28,42 @@ interface ReleaseButtonProps {
     audioUrl: string;
     genre: string;
   } | null;
+  onChatMessage: (msg: string) => void;
 }
 
-export function ReleaseButton({ videoData, musicData }: ReleaseButtonProps) {
+export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseButtonProps) {
   const { wallets } = useSolanaWallets();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tokenInput, setTokenInput] = useState('');
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  const startNftPolling = (videoId: string) => {
+    const nftPoll = async () => {
+      try {
+        console.log(`Starting nft polling - Task ID: ${videoId}`);
+        const response = await fetch(`/api/nft?video_id=${videoId}`);
+        const data = await response.json();
+
+        console.log('Video polling response:', data);
+
+        if (data.success && data.data) {
+          onChatMessage(
+            `Your NFT has been successfully created. Address: ${data.data.nft_address}`
+          );
+          onChatMessage(`See https://solscan.io/token/${data.data.nft_address}?cluster=devnet`);
+        } else {
+          console.log('Video data not retrieved yet...');
+          setTimeout(nftPoll, 5000); // Check again after 5 seconds
+        }
+      } catch (error) {
+        console.error('Error video polling:', error);
+        setTimeout(nftPoll, 5000); // Check again after 5 seconds even if error occurs
+      }
+    };
+    nftPoll(); // Start initial polling
+  };
 
   // Form validation
   const validateInput = (input: string): boolean => {
@@ -126,8 +153,8 @@ export function ReleaseButton({ videoData, musicData }: ReleaseButtonProps) {
         }),
       });
 
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.message || 'Failed to register token');
       }
 
@@ -140,6 +167,10 @@ export function ReleaseButton({ videoData, musicData }: ReleaseButtonProps) {
       // Close dialog and reset form
       setDialogOpen(false);
       setTokenInput('');
+
+      onChatMessage('Your video has been successfully released.');
+      startNftPolling(data.videoId);
+      onChatMessage('Your NFT is creating...');
     } catch (error) {
       console.error('Error submitting form:', error);
       toast({

@@ -83,17 +83,11 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!tokenAddress) {
-      return NextResponse.json(
-        { message: "Token address is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Token address is required' }, { status: 400 });
     }
 
     if (!title || !url) {
-      return NextResponse.json(
-        { message: "Video title and URL are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Video title and URL are required' }, { status: 400 });
     }
 
     // Fetch token data from Helius API to validate token exists
@@ -101,61 +95,50 @@ export async function POST(request: NextRequest) {
 
     if (!heliusApiKey) {
       return NextResponse.json(
-        { message: "Server configuration error - API key not found" },
+        { message: 'Server configuration error - API key not found' },
         { status: 500 }
       );
     }
 
     // Call Helius API to get token data
-    const heliusResponse = await fetch(
-      `https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: "get-metadata",
-          method: "getAsset",
-          params: {
-            id: tokenAddress,
-            displayOptions: {
-              showFungible: true,
-            },
+    const heliusResponse = await fetch(`https://mainnet.helius-rpc.com/?api-key=${heliusApiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 'get-metadata',
+        method: 'getAsset',
+        params: {
+          id: tokenAddress,
+          displayOptions: {
+            showFungible: true,
           },
-        }),
-      }
-    );
+        },
+      }),
+    });
 
     if (!heliusResponse.ok) {
-      console.error("Helius API error:", await heliusResponse.text());
-      return NextResponse.json(
-        { message: "Token not found or invalid" },
-        { status: 400 }
-      );
+      console.error('Helius API error:', await heliusResponse.text());
+      return NextResponse.json({ message: 'Token not found or invalid' }, { status: 400 });
     }
 
     const tokenData = await heliusResponse.json();
-    console.log("Token data:", tokenData);
+    console.log('Token data:', tokenData);
 
     // Check if we got a valid response with token data
     if (!tokenData.result || !tokenData.result.content) {
-      return NextResponse.json(
-        { message: "Token not found or invalid" },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: 'Token not found or invalid' }, { status: 400 });
     }
 
     // Get token metadata from json_uri
     let tokenMetadata: Record<string, any> = {};
-    let logoUrl = "";
+    let logoUrl = '';
 
     if (tokenData.result.content.json_uri) {
       // Replace ipfs.io with gateway.pinata.cloud
-      const urlMatch = tokenData.result.content.json_uri.match(
-        /^(https?:\/\/[^\/]+)(.*)$/
-      );
+      const urlMatch = tokenData.result.content.json_uri.match(/^(https?:\/\/[^\/]+)(.*)$/);
       const metadataUrl = urlMatch
         ? `https://gateway.pinata.cloud${urlMatch[2]}`
         : tokenData.result.content.json_uri;
@@ -167,9 +150,7 @@ export async function POST(request: NextRequest) {
 
           // Get logo URL and replace domain if needed
           if (tokenMetadata.image) {
-            const imageUrlMatch = tokenMetadata.image.match(
-              /^(https?:\/\/[^\/]+)(.*)$/
-            );
+            const imageUrlMatch = tokenMetadata.image.match(/^(https?:\/\/[^\/]+)(.*)$/);
             if (imageUrlMatch) {
               // Replace domain while preserving path portion
               logoUrl = `https://gateway.pinata.cloud${imageUrlMatch[2]}`;
@@ -179,24 +160,19 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (error) {
-        console.error("Error fetching token metadata:", error);
+        console.error('Error fetching token metadata:', error);
         // Continue without metadata - not a fatal error
       }
     }
 
     // Extract data for token model
     const tokenName =
-      tokenMetadata.name ||
-      tokenData.result.content?.metadata?.name ||
-      "Unknown Token";
+      tokenMetadata.name || tokenData.result.content?.metadata?.name || 'Unknown Token';
 
-    const tokenSymbol =
-      tokenMetadata.symbol || tokenData.result.content?.metadata?.symbol || "";
+    const tokenSymbol = tokenMetadata.symbol || tokenData.result.content?.metadata?.symbol || '';
 
     const tokenDescription =
-      tokenMetadata.description ||
-      tokenData.result.content?.metadata?.description ||
-      "";
+      tokenMetadata.description || tokenData.result.content?.metadata?.description || '';
 
     // Social links
     const telegramLink = tokenMetadata.telegram || null;
@@ -207,7 +183,7 @@ export async function POST(request: NextRequest) {
     const tokenCreator =
       tokenData.result.creators && tokenData.result.creators.length > 0
         ? tokenData.result.creators[0].address
-        : "Unknown Creator";
+        : 'Unknown Creator';
 
     // Token info
     const decimals = tokenData.result.token_info?.decimals || null;
@@ -223,8 +199,7 @@ export async function POST(request: NextRequest) {
       decimals !== null &&
       tokenData.result.token_info?.price_info?.price_per_token
     ) {
-      const pricePerToken =
-        tokenData.result.token_info.price_info.price_per_token;
+      const pricePerToken = tokenData.result.token_info.price_info.price_per_token;
       const totalSupplyNumber = Number(totalSupply) / Math.pow(10, decimals);
       marketCap = totalSupplyNumber * pricePerToken;
     }
@@ -282,164 +257,165 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Create NFT for the video
-    try {
-      // Create UMI instance with signer
-      const keypair = getKeypair();
-      const umi = createUmi(clusterApiUrl('devnet'))
-        .use(mplTokenMetadata())
-        .use(keypairIdentity(keypair))
-        .use(irysUploader({ address: 'https://devnet.irys.xyz' }));
+    setImmediate(async () => {
+      // Create NFT for the video
+      try {
+        // Create UMI instance with signer
+        const keypair = getKeypair();
+        const umi = createUmi(clusterApiUrl('devnet'))
+          .use(mplTokenMetadata())
+          .use(keypairIdentity(keypair))
+          .use(irysUploader({ address: 'https://devnet.irys.xyz' }));
 
-      // Create NFT mint
-      const mint = generateSigner(umi);
+        // Create NFT mint
+        const mint = generateSigner(umi);
 
-      // Create NFT metadata
-      const nftMetadata = {
-        name: title,
-        symbol: 'Vaibes Video NFT',
-        description: description || '',
-        image: thumbnailUrl,
-        animation_url: url,
-        properties: {
-          files: [
+        // Create NFT metadata
+        const nftMetadata = {
+          name: title,
+          symbol: 'Vaibes Video NFT',
+          description: description || '',
+          image: thumbnailUrl,
+          animation_url: url,
+          properties: {
+            files: [
+              {
+                uri: thumbnailUrl,
+                type: 'image/jpeg',
+              },
+              {
+                uri: url,
+                type: 'video/mp4',
+              },
+            ],
+            category: 'video',
+          },
+          attributes: [
             {
-              uri: thumbnailUrl,
-              type: 'image/jpeg',
+              trait_type: 'Type',
+              value: 'Video NFT',
             },
             {
-              uri: url,
-              type: 'video/mp4',
+              trait_type: 'Duration',
+              value: duration,
+            },
+            {
+              trait_type: 'tokenAddress',
+              value: tokenAddress,
+            },
+            {
+              trait_type: 'tokenName',
+              value: tokenName,
+            },
+            {
+              trait_type: 'tokenSymbol',
+              value: tokenSymbol,
+            },
+            {
+              trait_type: 'tokenDescription',
+              value: tokenDescription,
+            },
+            {
+              trait_type: 'tokenCreator',
+              value: tokenCreator,
+            },
+            {
+              trait_type: 'tokenProgram',
+              value: tokenProgram,
+            },
+            {
+              trait_type: 'createdWith',
+              value: createdWith,
+            },
+            {
+              trait_type: 'lyrics',
+              value: lyrics,
+            },
+            {
+              trait_type: 'videoCreator',
+              value: videoCreator,
             },
           ],
-          category: 'video',
-        },
-        attributes: [
-          {
-            trait_type: 'Type',
-            value: 'Video NFT',
+          collection: {
+            name: 'Vaibes Video NFTs',
+            family: 'Vaibes',
           },
-          {
-            trait_type: 'Duration',
-            value: duration,
-          },
-          {
-            trait_type: 'tokenAddress',
-            value: tokenAddress,
-          },
-          {
-            trait_type: 'tokenName',
-            value: tokenName,
-          },
-          {
-            trait_type: 'tokenSymbol',
-            value: tokenSymbol,
-          },
-          {
-            trait_type: 'tokenDescription',
-            value: tokenDescription,
-          },
-          {
-            trait_type: 'tokenCreator',
-            value: tokenCreator,
-          },
-          {
-            trait_type: 'tokenProgram',
-            value: tokenProgram,
-          },
-          {
-            trait_type: 'createdWith',
-            value: createdWith,
-          },
-          {
-            trait_type: 'lyrics',
-            value: lyrics,
-          },
-          {
-            trait_type: 'videoCreator',
-            value: videoCreator,
-          },
-        ],
-        collection: {
-          name: 'Vaibes Video NFTs',
-          family: 'Vaibes',
-        },
-      };
+        };
 
-      // Upload metadata to Pinata
-      const nftMetadataUri = await umi.uploader.uploadJson(nftMetadata);
+        // Upload metadata to Pinata
+        const nftMetadataUri = await umi.uploader.uploadJson(nftMetadata);
 
-      // Create NFT
-      const nft = await createNft(umi, {
-        mint,
-        name: title,
-        symbol: 'VIDEO',
-        uri: nftMetadataUri,
-        sellerFeeBasisPoints: 0 as any,
-        creators: [
-          {
-            address: umi.identity.publicKey,
-            verified: true,
-            share: 100,
+        // Create NFT
+        const nft = await createNft(umi, {
+          mint,
+          name: title,
+          symbol: 'VIDEO',
+          uri: nftMetadataUri,
+          sellerFeeBasisPoints: 0 as any,
+          creators: [
+            {
+              address: umi.identity.publicKey,
+              verified: true,
+              share: 100,
+            },
+          ],
+          isCollection: false,
+          updateAuthority: umi.identity.publicKey,
+        }).sendAndConfirm(umi);
+
+        const userKey = new PublicKey(userPublicKey);
+        // Create Associated Token Account and transfer NFT
+        const mintKey = new PublicKey(mint.publicKey);
+
+        // Create ATA for user
+        await createAssociatedToken(umi, {
+          mint: mint.publicKey,
+          owner: publicKey(userKey.toBase58()),
+        }).sendAndConfirm(umi);
+
+        // Get ATA addresses
+        const sourceAta = getAssociatedTokenAddressSync(
+          mintKey,
+          new PublicKey(umi.identity.publicKey)
+        );
+        const destAta = getAssociatedTokenAddressSync(mintKey, userKey);
+
+        // Transfer NFT to user
+        await transferTokens(umi, {
+          source: publicKey(sourceAta.toBase58()),
+          destination: publicKey(destAta.toBase58()),
+          authority: umi.identity,
+          amount: 1,
+        }).sendAndConfirm(umi);
+
+        console.log('NFT created and transferred successfully');
+        console.log('NFT Mint:', mint.publicKey.toString());
+        console.log('Destination ATA:', destAta.toString());
+        console.log('Owner Public Key:', userKey.toString());
+        console.log('Source ATA:', sourceAta.toString());
+        console.log('Destination ATA:', destAta.toString());
+        console.log('nftSignature:', nft.signature);
+
+        await prisma.video.update({
+          where: { id: video.id },
+          data: {
+            nft_address: mint.publicKey.toString(),
           },
-        ],
-        isCollection: false,
-        updateAuthority: umi.identity.publicKey,
-      }).sendAndConfirm(umi);
+        });
+      } catch (error: any) {
+        console.error('Error creating NFT:', error);
+      }
+    });
 
-      const userKey = new PublicKey(userPublicKey);
-      // Create Associated Token Account and transfer NFT
-      const mintKey = new PublicKey(mint.publicKey);
-
-      // Create ATA for user
-      await createAssociatedToken(umi, {
-        mint: mint.publicKey,
-        owner: publicKey(userKey.toBase58()),
-      }).sendAndConfirm(umi);
-
-      // Get ATA addresses
-      const sourceAta = getAssociatedTokenAddressSync(
-        mintKey,
-        new PublicKey(umi.identity.publicKey)
-      );
-      const destAta = getAssociatedTokenAddressSync(mintKey, userKey);
-
-      // Transfer NFT to user
-      await transferTokens(umi, {
-        source: publicKey(sourceAta.toBase58()),
-        destination: publicKey(destAta.toBase58()),
-        authority: umi.identity,
-        amount: 1,
-      }).sendAndConfirm(umi);
-
-      console.log('NFT created and transferred successfully');
-      console.log('NFT Mint:', mint.publicKey.toString());
-      console.log('Destination ATA:', destAta.toString());
-      console.log('Owner Public Key:', userKey.toString());
-      console.log('Source ATA:', sourceAta.toString());
-      console.log('Destination ATA:', destAta.toString());
-
-      return NextResponse.json({
-        message: 'Token, video, and NFT successfully registered',
-        tokenId: token.id,
-        videoId: video.id,
-        nftMint: mint.publicKey.toString(),
-        nftSignature: nft.signature,
-      });
-    } catch (error: any) {
-      console.error('Error creating NFT:', error);
-      // Continue with the response even if NFT creation fails
-      return NextResponse.json({
-        message: 'Token and video registered, but NFT creation failed',
-        tokenId: token.id,
-        videoId: video.id,
-        nftError: error.message,
-      });
-    }
+    return NextResponse.json({
+      message: 'Token, video, and NFT successfully registered',
+      tokenId: token.id,
+      videoId: video.id,
+    });
   } catch (error) {
-    console.error("Error in release API:", error);
+    console.error('Error in release API:', error);
     return NextResponse.json(
-      { message: "An error occurred processing your request" },
+      { message: 'An error occurred processing your request' },
       { status: 500 }
     );
   } finally {
