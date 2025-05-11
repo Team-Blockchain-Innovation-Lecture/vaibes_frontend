@@ -34,6 +34,15 @@ export async function GET(
       return NextResponse.json({ message: "Video not found" }, { status: 404 });
     }
 
+    // Get video rank based on play count (higher play count = better rank)
+    const rankedVideos = await prisma.video.findMany({
+      select: { id: true },
+      orderBy: { playCount: "desc" },
+    });
+
+    // Find the position of the current video in the ranked list
+    const rank = rankedVideos.findIndex((v) => v.id === videoId) + 1;
+
     // Check if the user has liked this video
     let isLiked = false;
     if (walletAddress) {
@@ -108,6 +117,7 @@ export async function GET(
       video: {
         ...video,
         isLiked,
+        rank, // Add rank to the video object
       },
       prevVideoId,
       nextVideoId,

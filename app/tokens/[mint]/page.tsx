@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
+import { Trophy } from "lucide-react";
 
 type TokenDetailProps = {
   params: {
@@ -40,7 +41,57 @@ type TokenDetail = {
   videoStats: {
     totalPlays: number;
     totalLikes: number;
+    rank?: number; // ランキング情報を追加
   };
+};
+
+// ランキングバッジコンポーネント
+const RankBadge = ({ rank }: { rank: number | undefined }) => {
+  if (!rank) return null;
+
+  let badgeColor = "";
+  let textColor = "text-white";
+
+  if (rank === 1) {
+    badgeColor = "bg-yellow-500"; // 金メダル（1位）
+  } else if (rank === 2) {
+    badgeColor = "bg-gray-300"; // 銀メダル（2位）
+  } else if (rank === 3) {
+    badgeColor = "bg-amber-600"; // 銅メダル（3位）
+  } else {
+    badgeColor = "bg-gray-700"; // その他の順位
+    textColor = "text-gray-200";
+  }
+
+  return (
+    <div
+      className={`flex items-center gap-1 px-3 py-1.5 rounded-full ${badgeColor} ${textColor}`}
+    >
+      <Trophy size={rank <= 3 ? 20 : 16} className="mr-1" />
+      <span className="font-bold">{`#${rank}`}</span>
+    </div>
+  );
+};
+
+// Total Playsカードのスタイルを設定する関数
+const getTotalPlaysCardStyle = (rank?: number) => {
+  if (!rank || rank > 3) return "bg-primary/10";
+
+  if (rank === 1) {
+    return "bg-gradient-to-br from-yellow-500/80 to-yellow-700/80 shadow-lg shadow-yellow-500/30 border-2 border-yellow-400";
+  } else if (rank === 2) {
+    return "bg-gradient-to-br from-gray-300/80 to-gray-500/80 shadow-lg shadow-gray-400/30 border-2 border-gray-300";
+  } else if (rank === 3) {
+    return "bg-gradient-to-br from-amber-600/80 to-amber-800/80 shadow-lg shadow-amber-600/30 border-2 border-amber-500";
+  }
+
+  return "bg-primary/10";
+};
+
+// Total Playsのテキストスタイルを設定する関数
+const getTotalPlaysTextStyle = (rank?: number) => {
+  if (!rank || rank > 3) return "text-white";
+  return "text-white font-extrabold";
 };
 
 export default function TokenDetailPage({ params }: TokenDetailProps) {
@@ -129,10 +180,13 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
 
           {/* Token Info */}
           <div className="flex-1 space-y-4">
-            <div>
+            <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{token.name}</h1>
-              <p className="text-lg text-muted-foreground">${token.symbol}</p>
+              {token.videoStats?.rank && (
+                <RankBadge rank={token.videoStats.rank} />
+              )}
             </div>
+            <p className="text-lg text-muted-foreground">${token.symbol}</p>
 
             <div className="flex flex-wrap items-center gap-2">
               <div className="bg-secondary/20 px-3 py-1 rounded-full">
@@ -300,7 +354,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
           </div>
         </div>
 
-        {/* Video statistics - Placed above Description */}
+        {/* Video statistics - With rank info tooltip */}
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div className="bg-primary/10 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold">
@@ -311,14 +365,50 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
             </div>
           </div>
 
-          <div className="bg-primary/10 rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold">
-              {token.videoStats?.totalPlays?.toLocaleString() || 0}
-            </div>
-            <div className="text-sm text-muted-foreground mt-1">
-              Total Plays
-            </div>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className={`rounded-lg p-4 text-center relative cursor-help transform transition-all duration-300 ${
+                    token.videoStats?.rank && token.videoStats.rank <= 3
+                      ? "hover:scale-105"
+                      : "hover:bg-primary/20"
+                  } ${getTotalPlaysCardStyle(token.videoStats?.rank)}`}
+                >
+                  <div
+                    className={`text-3xl ${getTotalPlaysTextStyle(
+                      token.videoStats?.rank
+                    )}`}
+                  >
+                    {token.videoStats?.totalPlays?.toLocaleString() || 0}
+                  </div>
+                  <div
+                    className={`text-sm ${
+                      token.videoStats?.rank && token.videoStats.rank <= 3
+                        ? "text-white"
+                        : "text-muted-foreground"
+                    } mt-1`}
+                  >
+                    Total Plays
+                  </div>
+                  {token.videoStats?.rank && token.videoStats.rank <= 3 && (
+                    <div className="absolute -top-3 -right-3 transform scale-125">
+                      <RankBadge rank={token.videoStats.rank} />
+                    </div>
+                  )}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {token.videoStats?.rank ? (
+                  <p>
+                    全トークン中、再生数ランキング {token.videoStats.rank}位
+                  </p>
+                ) : (
+                  <p>ランキング情報がありません</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
           <div className="bg-primary/10 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold">
@@ -341,7 +431,17 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
 
       {/* Token Videos */}
       <section className="space-y-4 py-6">
-        <h2 className="text-2xl font-bold">Videos</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Videos</h2>
+          {token.videoStats?.rank && token.videoStats.rank > 3 && (
+            <div className="flex items-center">
+              <span className="mr-2 text-sm text-muted-foreground">
+                再生数ランキング:
+              </span>
+              <RankBadge rank={token.videoStats.rank} />
+            </div>
+          )}
+        </div>
         <CustomTokenVideos
           tokenId={token.id}
           mint={mint}

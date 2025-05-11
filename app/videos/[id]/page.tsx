@@ -12,6 +12,7 @@ import {
   MessageSquare,
   Send,
   Clipboard, // Add this
+  Trophy, // Add this for ranking icon
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { usePrivy } from "@privy-io/react-auth";
@@ -40,6 +41,7 @@ type Video = {
     marketCap: number | null;
   };
   isLiked?: boolean;
+  rank?: number; // Add rank property
 };
 
 export default function VideoDetailPage() {
@@ -65,7 +67,7 @@ export default function VideoDetailPage() {
   const [comments, setComments] = useState<any[]>([]);
   const [commentCount, setCommentCount] = useState(0);
   const [newComment, setNewComment] = useState("");
-  const [replyText, setReplyText] = useState(''); // New state variable for reply
+  const [replyText, setReplyText] = useState(""); // New state variable for reply
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [loadingComments, setLoadingComments] = useState(false);
 
@@ -131,6 +133,34 @@ export default function VideoDetailPage() {
     return `${address.substring(0, 3)}...${address.substring(
       address.length - 3
     )}`;
+  };
+
+  // Function to render ranking badge with appropriate styling
+  const renderRankBadge = (rank: number | undefined) => {
+    if (!rank) return null;
+
+    let badgeColor = "";
+    let textColor = "text-white";
+
+    if (rank === 1) {
+      badgeColor = "bg-yellow-500"; // Gold for 1st place
+    } else if (rank === 2) {
+      badgeColor = "bg-gray-300"; // Silver for 2nd place
+    } else if (rank === 3) {
+      badgeColor = "bg-amber-600"; // Bronze for 3rd place
+    } else {
+      badgeColor = "bg-gray-700"; // Dark gray for other rankings
+      textColor = "text-gray-200";
+    }
+
+    return (
+      <div
+        className={`flex items-center gap-1 px-2 py-1 rounded-full ${badgeColor} ${textColor}`}
+      >
+        <Trophy size={rank <= 3 ? 16 : 12} />
+        <span className="font-bold">{`#${rank}`}</span>
+      </div>
+    );
   };
 
   // Video event handlers
@@ -545,17 +575,17 @@ export default function VideoDetailPage() {
       // Ignore if scroll amount is too small
       if (Math.abs(e.deltaY) < 20) return;
 
-      console.log('Global wheel handler fired with deltaY:', e.deltaY);
+      console.log("Global wheel handler fired with deltaY:", e.deltaY);
 
       // Set transition flag
       isNavigatingRef.current = true;
 
       // Execute transition
       if (e.deltaY > 0 && nextVideo) {
-        console.log('Navigating to next video via global handler');
+        console.log("Navigating to next video via global handler");
         goToNextVideo();
       } else if (e.deltaY < 0 && prevVideo) {
-        console.log('Navigating to previous video via global handler');
+        console.log("Navigating to previous video via global handler");
         goToPreviousVideo();
       }
 
@@ -568,7 +598,7 @@ export default function VideoDetailPage() {
     // Only add event listeners in the browser, not during server-side rendering
     if (typeof document !== "undefined") {
       document.addEventListener("wheel", globalWheelHandler, {
-      // Add event listener at document level
+        // Add event listener at document level
         passive: false,
         capture: true,
       });
@@ -754,13 +784,13 @@ export default function VideoDetailPage() {
   // Handle reply button click
   const handleReplyClick = (commentId: string) => {
     setReplyingTo(commentId);
-    setReplyText(''); // Clear reply state variable
+    setReplyText(""); // Clear reply state variable
   };
 
   // Handle canceling a reply
   const handleCancelReply = () => {
     setReplyingTo(null);
-    setReplyText(''); // Clear reply state variable
+    setReplyText(""); // Clear reply state variable
   };
 
   // Handle adding a reply to a comment
@@ -800,7 +830,7 @@ export default function VideoDetailPage() {
 
       setComments(commentsData.comments);
       setCommentCount(commentsData.comments.length);
-      setReplyText(''); // Clear reply state variable
+      setReplyText(""); // Clear reply state variable
       setReplyingTo(null);
 
       toast({
@@ -901,7 +931,7 @@ export default function VideoDetailPage() {
           <div
             ref={videoContainerRef}
             className="relative flex-1 flex items-center justify-center bg-black"
-            style={{ height: 'calc(100vh - 120px)' }} // Subtract height of header + tabs
+            style={{ height: "calc(100vh - 120px)" }} // Subtract height of header + tabs
           >
             {/* Video Player */}
             <div className="relative w-full h-full max-h-full flex items-center justify-center">
@@ -929,6 +959,13 @@ export default function VideoDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Ranking Badge - Top Right */}
+            {video.rank && (
+              <div className="absolute top-4 right-4 z-10">
+                {renderRankBadge(video.rank)}
+              </div>
+            )}
 
             {/* Progress Bar - Centered evenly */}
             <div className="absolute bottom-6 left-4 right-4 mx-auto z-10">
@@ -1023,18 +1060,21 @@ export default function VideoDetailPage() {
         ) : (
           // Information View
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
-            {/* Title and Creator */}
-            <div>
-              <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
-              <p className="text-white/70">
-                by{" "}
-                <Link
-                  href={`/users/${video.creator}`}
-                  className="text-[#d4af37] hover:underline"
-                >
-                  {formatCreatorAddress(video.creator)}
-                </Link>
-              </p>
+            {/* Title, Creator and Ranking */}
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
+                <p className="text-white/70">
+                  by{" "}
+                  <Link
+                    href={`/users/${video.creator}`}
+                    className="text-[#d4af37] hover:underline"
+                  >
+                    {formatCreatorAddress(video.creator)}
+                  </Link>
+                </p>
+              </div>
+              {video.rank && <div>{renderRankBadge(video.rank)}</div>}
             </div>
 
             {/* Interactive Elements */}
@@ -1318,8 +1358,8 @@ export default function VideoDetailPage() {
         style={{
           width: "100%",
           maxWidth: "calc(100% - 400px)",
-          height: 'calc(100% - 30px)', // Subtract header height
-          top: '30px', // Offset by header height
+          height: "calc(100% - 30px)", // Subtract header height
+          top: "30px", // Offset by header height
         }}
       >
         {/* Video Player */}
@@ -1349,6 +1389,13 @@ export default function VideoDetailPage() {
           )}
         </div>
 
+        {/* Ranking Badge - Top Right */}
+        {video.rank && (
+          <div className="absolute top-4 right-4 z-10">
+            {renderRankBadge(video.rank)}
+          </div>
+        )}
+
         {/* Progress Bar */}
         <div
           className="absolute bottom-6 left-4 right-4 mx-auto max-w-[500px] z-10"
@@ -1362,7 +1409,7 @@ export default function VideoDetailPage() {
             // Ignore if scroll amount is too small
             if (Math.abs(e.deltaY) < 20) return;
 
-            console.log('Progress bar wheel event:', e.deltaY);
+            console.log("Progress bar wheel event:", e.deltaY);
 
             // Set transition flag
             isNavigatingRef.current = true;
@@ -1451,25 +1498,28 @@ export default function VideoDetailPage() {
       <div
         className="fixed top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#1a0e26] overflow-y-auto"
         style={{
-          height: 'calc(100vh - 86px)', // Subtract header height
-          top: '86px', // Offset by header height
+          height: "calc(100vh - 86px)", // Subtract header height
+          top: "86px", // Offset by header height
           zIndex: 10,
-          borderLeft: '1px solid rgba(255, 255, 255, 0.1)', // Add a thin border on the left of the info area
+          borderLeft: "1px solid rgba(255, 255, 255, 0.1)", // Add a thin border on the left of the info area
         }}
       >
         <div className="p-5 space-y-6">
-          {/* Title and Creator */}
-          <div>
-            <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
-            <p className="text-white/70">
-              by{" "}
-              <Link
-                href={`/users/${video.creator}`}
-                className="text-[#d4af37] hover:underline"
-              >
-                {formatCreatorAddress(video.creator)}
-              </Link>
-            </p>
+          {/* Title, Creator, and Ranking */}
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
+              <p className="text-white/70">
+                by{" "}
+                <Link
+                  href={`/users/${video.creator}`}
+                  className="text-[#d4af37] hover:underline"
+                >
+                  {formatCreatorAddress(video.creator)}
+                </Link>
+              </p>
+            </div>
+            {video.rank && <div>{renderRankBadge(video.rank)}</div>}
           </div>
 
           {/* Interactive Elements */}

@@ -29,10 +29,43 @@ export async function GET(
       },
     });
 
+    // ここを単純化: ランキング情報はオプショナルにして、エラーが発生しても基本情報は返す
+    let rank = null;
+
+    try {
+      // ビデオが1つ以上ある場合のみランキングを取得
+      if (totalVideos > 0) {
+        // クリエイターごとの合計再生数を取得 (シンプルなクエリに変更)
+        const creatorStats = await prisma.$queryRaw`
+          SELECT creator, SUM(playCount) as totalPlays
+          FROM Video
+          WHERE creator IS NOT NULL
+          GROUP BY creator
+          ORDER BY totalPlays DESC
+        `;
+
+        // creatorStatsは配列として返ってくるはず
+        if (Array.isArray(creatorStats)) {
+          // indexOf+1でランキングを計算
+          const creatorIndex = creatorStats.findIndex(
+            (stat: any) => stat.creator === walletAddress
+          );
+
+          if (creatorIndex !== -1) {
+            rank = creatorIndex + 1;
+          }
+        }
+      }
+    } catch (rankError) {
+      console.error("Error calculating rank:", rankError);
+      // ランキング計算でエラーが発生しても、他の統計情報は返す
+    }
+
     const stats = {
       totalVideos,
       totalPlays: videoStats._sum.playCount || 0,
       totalLikes: videoStats._sum.likeCount || 0,
+      rank: rank, // ランキング情報（null の場合もある）
     };
 
     return NextResponse.json({ stats }, { status: 200 });

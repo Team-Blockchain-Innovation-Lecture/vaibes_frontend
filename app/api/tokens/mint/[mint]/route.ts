@@ -64,6 +64,30 @@ export async function GET(
       },
     });
 
+    // Get all tokens ranked by total play count
+    const tokensWithPlayCounts = await prisma.token.findMany({
+      select: {
+        id: true,
+        videos: {
+          select: {
+            playCount: true,
+          },
+        },
+      },
+    });
+
+    // Calculate total play count for each token and determine rank
+    const tokenPlayCounts = tokensWithPlayCounts.map((t) => ({
+      id: t.id,
+      totalPlays: t.videos.reduce((sum, video) => sum + video.playCount, 0),
+    }));
+
+    // Sort tokens by total play count in descending order
+    tokenPlayCounts.sort((a, b) => b.totalPlays - a.totalPlays);
+
+    // Find rank of current token
+    const rank = tokenPlayCounts.findIndex((t) => t.id === token.id) + 1;
+
     // Format creator as an object
     const tokenWithCreator = {
       ...token,
@@ -74,6 +98,7 @@ export async function GET(
       videoStats: {
         totalPlays: videoStats._sum.playCount || 0,
         totalLikes: videoStats._sum.likeCount || 0,
+        rank: rank, // Add rank to videoStats
       },
     };
 
