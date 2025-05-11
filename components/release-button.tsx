@@ -109,7 +109,7 @@ export function ReleaseButton({ videoData, musicData }: ReleaseButtonProps) {
         thumbnailUrl: musicData.coverUrl,
         duration: 8, // You might want to get this from the video metadata
         createdWith: 'AI Video Generator',
-        prompt,
+        lyrics: musicData.lyrics,
         videoCreator: wallets[0]?.address || null,
       };
 
@@ -122,6 +122,7 @@ export function ReleaseButton({ videoData, musicData }: ReleaseButtonProps) {
         body: JSON.stringify({
           tokenAddress,
           ...videoDataForRegistration,
+          userPublicKey: wallets[0]?.address || null,
         }),
       });
 

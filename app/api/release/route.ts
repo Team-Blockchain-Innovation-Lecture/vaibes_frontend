@@ -1,7 +1,68 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/lib/generated/prisma";
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@/lib/generated/prisma';
+import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
+import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata';
+import { generateSigner, keypairIdentity } from '@metaplex-foundation/umi';
+import { createNft } from '@metaplex-foundation/mpl-token-metadata';
+import { clusterApiUrl } from '@solana/web3.js';
+import { createSignerFromKeypair } from '@metaplex-foundation/umi';
+import { irysUploader } from '@metaplex-foundation/umi-uploader-irys';
+import { publicKey } from '@metaplex-foundation/umi';
+import { createAssociatedToken, transferTokens } from '@metaplex-foundation/mpl-toolbox';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { PublicKey } from '@solana/web3.js';
 
 const prisma = new PrismaClient();
+
+// Retrieve the private key from an environment variable
+const getKeypair = () => {
+  const privateKeyString = process.env.WALLET_PRIVATE_KEY;
+  if (!privateKeyString) {
+    throw new Error('WALLET_PRIVATE_KEY is not set in environment variables');
+  }
+  const privateKeyArray = Uint8Array.from(JSON.parse(privateKeyString));
+  const umi = createUmi(clusterApiUrl('devnet'));
+  return createSignerFromKeypair(umi, {
+    publicKey: publicKey(privateKeyArray.slice(32)),
+    secretKey: privateKeyArray,
+  });
+};
+
+// // Upload metadata to Pinata
+// async function uploadMetadataToPinata(metadata: any) {
+//   try {
+//     console.log('Uploading metadata to Pinata:', metadata);
+
+//     const response = await fetch('https://uploads.pinata.cloud/v3/files', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/offset+octet-stream',
+//         'Upload-Length': JSON.stringify(metadata).length.toString(),
+//         Authorization: `Bearer ${process.env.PINATA_JWT}`,
+//       },
+//       body: JSON.stringify(metadata),
+//     });
+
+//     if (!response.ok) {
+//       const errorText = await response.text();
+//       console.error('Pinata API error:', {
+//         status: response.status,
+//         statusText: response.statusText,
+//         error: errorText,
+//       });
+//       throw new Error(
+//         `Failed to upload to Pinata: ${response.status} ${response.statusText} - ${errorText}`
+//       );
+//     }
+
+//     const data = await response.json();
+//     console.log('Pinata upload successful:', data);
+//     return `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+//   } catch (error) {
+//     console.error('Error uploading to Pinata:', error);
+//     throw error;
+//   }
+// }
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,8 +76,9 @@ export async function POST(request: NextRequest) {
       thumbnailUrl,
       duration,
       createdWith,
-      prompt,
+      lyrics,
       videoCreator,
+      userPublicKey,
     } = body;
 
     // Validate required fields
@@ -211,18 +273,169 @@ export async function POST(request: NextRequest) {
         thumbnailUrl,
         duration,
         createdWith,
-        prompt,
-        status: "processing", // Set initial status as ready
-        tokenId: token.id, // Associate with the token
+        prompt: lyrics,
+        status: 'processing', // Set initial status as ready
+        token: {
+          connect: { id: token.id }, // ← `id` はTokenのユニークキー
+        },
         creator: videoCreator,
       },
     });
 
-    return NextResponse.json({
-      message: "Token and video successfully registered",
-      tokenId: token.id,
-      videoId: video.id,
-    });
+    // Create NFT for the video
+    try {
+      // Create UMI instance with signer
+      const keypair = getKeypair();
+      const umi = createUmi(clusterApiUrl('devnet'))
+        .use(mplTokenMetadata())
+        .use(keypairIdentity(keypair))
+        .use(irysUploader({ address: 'https://devnet.irys.xyz' }));
+
+      // Create NFT mint
+      const mint = generateSigner(umi);
+
+      // Create NFT metadata
+      const nftMetadata = {
+        name: title,
+        symbol: 'Vaibes Video NFT',
+        description: description || '',
+        image: thumbnailUrl,
+        animation_url: url,
+        properties: {
+          files: [
+            {
+              uri: thumbnailUrl,
+              type: 'image/jpeg',
+            },
+            {
+              uri: url,
+              type: 'video/mp4',
+            },
+          ],
+          category: 'video',
+        },
+        attributes: [
+          {
+            trait_type: 'Type',
+            value: 'Video NFT',
+          },
+          {
+            trait_type: 'Duration',
+            value: duration,
+          },
+          {
+            trait_type: 'tokenAddress',
+            value: tokenAddress,
+          },
+          {
+            trait_type: 'tokenName',
+            value: tokenName,
+          },
+          {
+            trait_type: 'tokenSymbol',
+            value: tokenSymbol,
+          },
+          {
+            trait_type: 'tokenDescription',
+            value: tokenDescription,
+          },
+          {
+            trait_type: 'tokenCreator',
+            value: tokenCreator,
+          },
+          {
+            trait_type: 'tokenProgram',
+            value: tokenProgram,
+          },
+          {
+            trait_type: 'createdWith',
+            value: createdWith,
+          },
+          {
+            trait_type: 'lyrics',
+            value: lyrics,
+          },
+          {
+            trait_type: 'videoCreator',
+            value: videoCreator,
+          },
+        ],
+        collection: {
+          name: 'Vaibes Video NFTs',
+          family: 'Vaibes',
+        },
+      };
+
+      // Upload metadata to Pinata
+      const nftMetadataUri = await umi.uploader.uploadJson(nftMetadata);
+
+      // Create NFT
+      const nft = await createNft(umi, {
+        mint,
+        name: title,
+        symbol: 'VIDEO',
+        uri: nftMetadataUri,
+        sellerFeeBasisPoints: 0 as any,
+        creators: [
+          {
+            address: umi.identity.publicKey,
+            verified: true,
+            share: 100,
+          },
+        ],
+        isCollection: false,
+        updateAuthority: umi.identity.publicKey,
+      }).sendAndConfirm(umi);
+
+      const userKey = new PublicKey(userPublicKey);
+      // Create Associated Token Account and transfer NFT
+      const mintKey = new PublicKey(mint.publicKey);
+
+      // Create ATA for user
+      await createAssociatedToken(umi, {
+        mint: mint.publicKey,
+        owner: publicKey(userKey.toBase58()),
+      }).sendAndConfirm(umi);
+
+      // Get ATA addresses
+      const sourceAta = getAssociatedTokenAddressSync(
+        mintKey,
+        new PublicKey(umi.identity.publicKey)
+      );
+      const destAta = getAssociatedTokenAddressSync(mintKey, userKey);
+
+      // Transfer NFT to user
+      await transferTokens(umi, {
+        source: publicKey(sourceAta.toBase58()),
+        destination: publicKey(destAta.toBase58()),
+        authority: umi.identity,
+        amount: 1,
+      }).sendAndConfirm(umi);
+
+      console.log('NFT created and transferred successfully');
+      console.log('NFT Mint:', mint.publicKey.toString());
+      console.log('Destination ATA:', destAta.toString());
+      console.log('Owner Public Key:', userKey.toString());
+      console.log('Source ATA:', sourceAta.toString());
+      console.log('Destination ATA:', destAta.toString());
+
+      return NextResponse.json({
+        message: 'Token, video, and NFT successfully registered',
+        tokenId: token.id,
+        videoId: video.id,
+        nftMint: mint.publicKey.toString(),
+        nftSignature: nft.signature,
+      });
+    } catch (error: any) {
+      console.error('Error creating NFT:', error);
+      // Continue with the response even if NFT creation fails
+      return NextResponse.json({
+        message: 'Token and video registered, but NFT creation failed',
+        tokenId: token.id,
+        videoId: video.id,
+        nftError: error.message,
+      });
+    }
   } catch (error) {
     console.error("Error in release API:", error);
     return NextResponse.json(
