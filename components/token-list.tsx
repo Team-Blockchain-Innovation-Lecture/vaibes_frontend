@@ -24,7 +24,7 @@ type Token = {
   };
 };
 
-export function TokenList({ limit = 20 }: TokenListProps) {
+export function TokenList({ limit = 100 }: TokenListProps) {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [loading, setLoading] = useState(true);
 

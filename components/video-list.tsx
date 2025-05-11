@@ -28,7 +28,7 @@ type Video = {
   commentCount?: number;
 };
 
-export function VideoList({ limit = 20, onPlayTrack }: VideoListProps) {
+export function VideoList({ limit = 100, onPlayTrack }: VideoListProps) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const { authenticated } = usePrivy();
