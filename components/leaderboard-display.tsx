@@ -11,9 +11,19 @@ import {
   TrendingUp,
   Crown,
   Trophy,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { VideoCard } from "./video-card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { formatMarketCap } from "@/lib/utils";
 
 type LeaderboardDisplayProps = {
   type: "videos" | "creators" | "tokens";
@@ -135,7 +145,7 @@ export function LeaderboardDisplay({
           {topThree.map((video, index) => (
             <div
               key={video.id}
-              className="relative group overflow-hidden rounded-xl border border-amber-400/30 bg-background/50 transition-all hover:shadow-lg hover:shadow-amber-500/10"
+              className="relative overflow-hidden rounded-xl border border-amber-400/30 bg-background/50"
               onMouseEnter={() => handleVideoMouseEnter(video.id)}
               onMouseLeave={() => handleVideoMouseLeave(video.id)}
             >
@@ -162,35 +172,27 @@ export function LeaderboardDisplay({
                 </span>
               </div>
 
-              {/* Video Element - Always show video without conditional */}
-              <div className="aspect-[9/16] w-full relative overflow-hidden bg-secondary/30">
-                <video
-                  ref={(el) => {
-                    videoRefs.current[video.id] = el;
-                  }}
-                  src={video.url}
-                  className="h-full w-full object-cover"
-                  playsInline
-                  muted
-                  loop
-                  preload="auto"
-                >
-                  {/* Fallback content if video can't be loaded */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-secondary/50">
-                    <Play className="w-12 h-12 opacity-30" />
-                  </div>
-                </video>
-
-                {/* Hover Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-                  <Link
-                    href={`/videos/${video.id}`}
-                    className="bg-primary text-primary-foreground rounded-full p-3 transform hover:scale-110 transition-transform"
+              {/* Video Element - Clickable and auto-plays on hover */}
+              <Link href={`/videos/${video.id}`} className="block">
+                <div className="aspect-[9/16] w-full relative overflow-hidden bg-secondary/30">
+                  <video
+                    ref={(el) => {
+                      videoRefs.current[video.id] = el;
+                    }}
+                    src={video.url}
+                    className="h-full w-full object-cover cursor-pointer"
+                    playsInline
+                    muted
+                    loop
+                    preload="auto"
                   >
-                    <Play className="w-8 h-8" />
-                  </Link>
+                    {/* Fallback content if video can't be loaded */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-secondary/50">
+                      <Play className="w-12 h-12 opacity-30" />
+                    </div>
+                  </video>
                 </div>
-              </div>
+              </Link>
 
               {/* Video Info */}
               <div className="p-3">
@@ -232,6 +234,142 @@ export function LeaderboardDisplay({
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render Top 3 Tokens grid
+  const renderTopTokens = () => {
+    if (data.length === 0 || type !== "tokens") return null;
+
+    const topThree = data.slice(0, 3);
+
+    return (
+      <div className="mb-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Sparkles className="h-6 w-6 text-amber-400" /> Top 3 Tokens
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {topThree.map((token, index) => {
+            // Define rank-based styling
+            const rankStyles = {
+              borderColor:
+                index === 0
+                  ? "border-amber-400"
+                  : index === 1
+                  ? "border-gray-300"
+                  : "border-amber-700",
+              bgGradient:
+                index === 0
+                  ? "bg-gradient-to-b from-amber-400/10 to-transparent"
+                  : index === 1
+                  ? "bg-gradient-to-b from-gray-300/10 to-transparent"
+                  : "bg-gradient-to-b from-amber-700/10 to-transparent",
+            };
+
+            return (
+              <Card
+                key={token.id}
+                className={`overflow-hidden h-full flex flex-col relative border-2 ${rankStyles.borderColor} ${rankStyles.bgGradient}`}
+              >
+                {/* Rank Badge */}
+                <div
+                  className={`absolute top-2 left-2 z-10 flex items-center justify-center w-10 h-10 rounded-full ${
+                    index === 0
+                      ? "bg-amber-400"
+                      : index === 1
+                      ? "bg-gray-300"
+                      : "bg-amber-700"
+                  }`}
+                >
+                  <span className="font-bold text-black text-lg">
+                    {index + 1}
+                  </span>
+                </div>
+
+                <div className="flex flex-row h-full">
+                  {/* Left logo area */}
+                  <div className="w-2/5 bg-secondary/10 flex items-center justify-center relative">
+                    <Link
+                      href={`/tokens/${token.mint}`}
+                      className="w-full h-full flex items-center justify-center p-4"
+                    >
+                      {token.logo ? (
+                        <img
+                          src={token.logo}
+                          alt={token.name}
+                          className="w-full h-full object-contain"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "/placeholder-logo.svg";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-secondary flex items-center justify-center text-5xl font-bold">
+                          {token.symbol?.substring(0, 2) || "??"}
+                        </div>
+                      )}
+                      {/* Hover effect */}
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
+                        <span className="text-white font-medium">
+                          View Details
+                        </span>
+                      </div>
+                    </Link>
+                  </div>
+
+                  {/* Right content area */}
+                  <div className="w-3/5 flex flex-col relative">
+                    <CardHeader className="pb-1 pt-3 px-4">
+                      <div className="mt-6">
+                        <CardTitle className="text-lg line-clamp-1">
+                          {token.name}
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                          ${token.symbol}
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="flex-1 p-4 pt-0">
+                      <div className="text-sm text-muted-foreground mb-auto min-h-[4.5rem]">
+                        <p className="line-clamp-3 whitespace-pre-line">
+                          {token.description || "No description available"}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </div>
+                </div>
+
+                {/* Card stats footer */}
+                <CardFooter className="p-2 grid grid-cols-4 gap-2 text-sm border-t">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Market Cap</p>
+                    <p className="font-medium">
+                      {formatMarketCap(token.marketCap)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Videos</p>
+                    <p className="font-medium">{token.videoCount || 0}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Total Plays</p>
+                    <p className="font-medium">
+                      {token.totalPlays?.toLocaleString() || 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Total Likes</p>
+                    <p className="font-medium">
+                      {token.totalLikes?.toLocaleString() || 0}
+                    </p>
+                  </div>
+                </CardFooter>
+              </Card>
+            );
+          })}
         </div>
       </div>
     );
@@ -404,6 +542,116 @@ export function LeaderboardDisplay({
     );
   };
 
+  // Render remaining tokens grid
+  const renderTokensGrid = () => {
+    // Only show this grid for tokens after the top 3
+    if (type !== "tokens" || data.length <= 3) return null;
+
+    // Get tokens after the top 3
+    const remainingTokens = data.slice(3);
+
+    return (
+      <div className="mt-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Trophy className="h-6 w-6" /> More Top Tokens
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {remainingTokens.map((token) => (
+            <Card
+              key={token.id}
+              className="overflow-hidden h-full flex flex-col relative"
+            >
+              {/* Rank Badge */}
+              <div className="absolute top-2 left-2 z-10 flex items-center justify-center w-8 h-8 bg-gray-900 rounded-full">
+                <span className="text-sm font-bold">{token.rank}</span>
+              </div>
+
+              <div className="flex flex-row h-full">
+                {/* Left logo area */}
+                <div className="w-2/5 bg-secondary/10 flex items-center justify-center relative">
+                  <Link
+                    href={`/tokens/${token.mint}`}
+                    className="w-full h-full flex items-center justify-center p-4"
+                  >
+                    {token.logo ? (
+                      <img
+                        src={token.logo}
+                        alt={token.name}
+                        className="w-full h-full object-contain"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src =
+                            "/placeholder-logo.svg";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-secondary flex items-center justify-center text-5xl font-bold">
+                        {token.symbol?.substring(0, 2) || "??"}
+                      </div>
+                    )}
+                    {/* Hover effect */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-black/40">
+                      <span className="text-white font-medium">
+                        View Details
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Right content area */}
+                <div className="w-3/5 flex flex-col relative">
+                  <CardHeader className="pb-1 pt-3 px-4">
+                    <div>
+                      <CardTitle className="text-lg line-clamp-1">
+                        {token.name}
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        ${token.symbol}
+                      </CardDescription>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="flex-1 p-4 pt-0">
+                    <div className="text-sm text-muted-foreground mb-auto min-h-[4.5rem]">
+                      <p className="line-clamp-3 whitespace-pre-line">
+                        {token.description || "No description available"}
+                      </p>
+                    </div>
+                  </CardContent>
+                </div>
+              </div>
+
+              {/* Card stats footer */}
+              <CardFooter className="p-2 grid grid-cols-4 gap-2 text-sm border-t">
+                <div>
+                  <p className="text-muted-foreground text-xs">Market Cap</p>
+                  <p className="font-medium">
+                    {formatMarketCap(token.marketCap)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Videos</p>
+                  <p className="font-medium">{token.videoCount || 0}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Total Plays</p>
+                  <p className="font-medium">
+                    {token.totalPlays?.toLocaleString() || 0}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Total Likes</p>
+                  <p className="font-medium">
+                    {token.totalLikes?.toLocaleString() || 0}
+                  </p>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderLeaderboard = () => {
     // If loading, show skeleton
     if (loading) {
@@ -438,6 +686,16 @@ export function LeaderboardDisplay({
       );
     }
 
+    // For tokens, we use a custom display with TOP 3 highlighted
+    if (type === "tokens") {
+      return (
+        <>
+          {renderTopTokens()}
+          {renderTokensGrid()}
+        </>
+      );
+    }
+
     // For videos, we use a custom display with TOP 3 highlighted
     if (type === "videos") {
       return (
@@ -448,12 +706,11 @@ export function LeaderboardDisplay({
       );
     }
 
-    // Return the appropriate item renderer based on type for creators and tokens
+    // Return the appropriate item renderer based on type for creators
     return (
       <div className="space-y-2 border rounded-xl border-border divide-y divide-border overflow-hidden">
         {data.map((item, index) => {
           if (type === "creators") return renderCreatorItem(item, index);
-          if (type === "tokens") return renderTokenItem(item, index);
           return null;
         })}
       </div>
