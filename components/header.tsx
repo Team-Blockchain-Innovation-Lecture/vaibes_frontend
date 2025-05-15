@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { ConnectWalletButton } from "@/components/connect-wallet-button";
-import { WalletActionsButton } from "@/components/wallet-actions-button";
-import Link from "next/link";
-import Image from "next/image";
+import { ConnectWalletButton } from '@/components/connect-wallet-button';
+import { WalletActionsButton } from '@/components/wallet-actions-button';
+import { ConnectJupiterButton } from '@/components/connect-jupiter-button';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export function Header() {
   return (
@@ -32,6 +33,7 @@ export function Header() {
           <WalletActionsButton />
         </div>
         <ConnectWalletButton />
+        <ConnectJupiterButton />
       </div>
     </div>
   );
