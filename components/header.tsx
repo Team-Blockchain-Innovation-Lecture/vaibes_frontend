@@ -1,6 +1,5 @@
 'use client';
 
-import { ConnectWalletButton } from '@/components/connect-wallet-button';
 import { WalletActionsButton } from '@/components/wallet-actions-button';
 import { ConnectJupiterButton } from '@/components/connect-jupiter-button';
 import Link from 'next/link';
@@ -32,7 +31,6 @@ export function Header() {
         <div className="hidden md:block">
           <WalletActionsButton />
         </div>
-        <ConnectWalletButton />
         <ConnectJupiterButton />
       </div>
     </div>

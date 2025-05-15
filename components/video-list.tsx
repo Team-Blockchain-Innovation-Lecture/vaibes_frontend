@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { VideoCard } from "./video-card";
-import { usePrivy } from "@privy-io/react-auth";
-import { useSolanaWallets } from "@privy-io/react-auth/solana";
+import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
 
 type VideoListProps = {
   limit?: number;
@@ -31,8 +30,7 @@ type Video = {
 export function VideoList({ limit = 100, onPlayTrack }: VideoListProps) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
-  const { authenticated } = usePrivy();
-  const { wallets } = useSolanaWallets();
+  const { connected } = useUnifiedWallet();
 
   useEffect(() => {
     async function fetchVideos() {
@@ -57,7 +55,7 @@ export function VideoList({ limit = 100, onPlayTrack }: VideoListProps) {
     }
 
     fetchVideos();
-  }, [limit, authenticated, wallets]);
+  }, [limit, connected]);
 
   if (loading) {
     return (

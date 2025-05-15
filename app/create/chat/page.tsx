@@ -6,10 +6,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Send, Play, Pause, SkipBack, SkipForward, Heart } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { usePrivy } from '@privy-io/react-auth';
-import { useSolanaWallets } from '@privy-io/react-auth/solana';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ReleaseButton } from '@/components/release-button';
+import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -58,6 +57,9 @@ interface Props {
 
 // Create ChatContent component
 function ChatContent() {
+  const { publicKey } = useUnifiedWallet();
+  const walletAddress = publicKey ? publicKey.toBase58() : null;
+
   console.log('ChatContent component rendering');
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -77,10 +79,6 @@ function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-  const { user } = usePrivy();
-  const { wallets } = useSolanaWallets();
-  const solanaWallet = wallets && wallets.length > 0 ? wallets[0] : null;
-  const userAddress = solanaWallet?.address || '';
 
   const [isVideoGenerating, setIsVideoGenerating] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
@@ -239,7 +237,7 @@ function ChatContent() {
           body: JSON.stringify({
             task_id: taskId,
             music_task_id: apiTaskId,
-            userAddress: userAddress,
+            userAddress: walletAddress,
             is_completed: false,
             audio_url: '',
             image_url: '',

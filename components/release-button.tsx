@@ -15,7 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { useSolanaWallets } from '@privy-io/react-auth/solana';
+import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
+
 
 interface ReleaseButtonProps {
   videoData: {
@@ -32,7 +33,9 @@ interface ReleaseButtonProps {
 }
 
 export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseButtonProps) {
-  const { wallets } = useSolanaWallets();
+  const { publicKey } = useUnifiedWallet();
+  const walletAddress = publicKey ? publicKey.toBase58() : null;
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tokenInput, setTokenInput] = useState('');
   const [error, setError] = useState('');
@@ -139,7 +142,7 @@ export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseBu
         duration: 8, // You might want to get this from the video metadata
         createdWith: 'AI Video Generator',
         lyrics: musicData.lyrics,
-        videoCreator: wallets[0]?.address || null,
+        videoCreator: walletAddress,
       };
 
       // API call to register the token and video
@@ -151,7 +154,7 @@ export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseBu
         body: JSON.stringify({
           tokenAddress,
           ...videoDataForRegistration,
-          userPublicKey: wallets[0]?.address || null,
+          userPublicKey: walletAddress,
         }),
       });
 

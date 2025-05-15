@@ -1,59 +1,61 @@
-"use client";
+'use client';
 
-import { PrivyProvider } from "@privy-io/react-auth";
-import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
-
-const privyAppId = process.env.NEXT_PUBLIC_PRIVY_APP_ID || "";
-const privyClientId = process.env.NEXT_PUBLIC_PRIVY_CLIENT_ID || "";
+import { UnifiedWalletProvider } from '@jup-ag/wallet-adapter';
+import { useMemo } from 'react';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-phantom';
+import { SolflareWalletAdapter } from '@solana/wallet-adapter-solflare';
+import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase';
+import { TrustWalletAdapter } from '@solana/wallet-adapter-trust';
+import { useWrappedReownAdapter } from '@jup-ag/jup-mobile-adapter';
+import type { Adapter } from '@solana/wallet-adapter-base';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
+  const wallets: Adapter[] = useMemo(() => {
+    const { reownAdapter, jupiterAdapter } = useWrappedReownAdapter({
+      appKitOptions: {
+        metadata: {
+          name: 'Your project name',
+          description: 'Your project description',
+          url: '', // origin must match your domain & subdomain
+          icons: [''],
+        },
+        projectId: '<your-project-id>',
+        features: {
+          analytics: false,
+          socials: ['google', 'x', 'apple'],
+          email: false,
+        },
+        enableWallets: false,
+      },
+    });
+
+    return [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new TrustWalletAdapter(),
+      reownAdapter,
+      jupiterAdapter,
+    ].filter((item) => item && item.name && item.icon) as Adapter[];
+  }, []);
+
   return (
-    <PrivyProvider
-      appId={privyAppId}
-      clientId={privyClientId}
+    <UnifiedWalletProvider
+      wallets={wallets}
       config={{
-        // Allow email and wallet login
-        loginMethods: ["email", "wallet"],
-
-        // Embedded wallet configuration
-        embeddedWallets: {
-          // Create wallet for all users
-          createOnLogin: "all-users",
-
-          // Explicitly disable Ethereum wallet - set according to type
-          ethereum: {
-            createOnLogin: "off",
-          },
-
-          // Support Solana wallet - create for all users
-          solana: {
-            createOnLogin: "all-users",
-          },
+        autoConnect: true,
+        env: 'mainnet-beta',
+        metadata: {
+          name: 'UnifiedWallet',
+          description: 'UnifiedWallet',
+          url: 'https://jup.ag',
+          iconUrls: ['https://jup.ag/favicon.ico'],
         },
-
-        // Appearance settings
-        appearance: {
-          theme: "dark",
-          accentColor: "#d4af37",
-          showWalletLoginFirst: true, // Show wallet login first
-          walletChainType: "solana-only",
-          walletList: [
-            "detected_wallets",
-            "phantom",
-            "solflare",
-            "backpack",
-            "okx_wallet",
-          ],
-        },
-        // Solana wallet connection
-        externalWallets: {
-          solana: {
-            connectors: toSolanaWalletConnectors(), // Configure Solana wallet connectors
-          },
-        },
+        theme: 'dark',
+        lang: 'en',
       }}
     >
       {children}
-    </PrivyProvider>
+    </UnifiedWalletProvider>
   );
 }

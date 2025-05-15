@@ -7,21 +7,18 @@ import {
   ChevronUp,
   ChevronDown,
   Play,
-  Pause,
   Heart,
   MessageSquare,
-  Send,
   Clipboard, // Add this
   Trophy, // Add this for ranking icon
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { usePrivy } from "@privy-io/react-auth";
-import { useSolanaWallets } from "@privy-io/react-auth/solana";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
+import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
 
 type Video = {
   id: string;
@@ -45,11 +42,13 @@ type Video = {
 };
 
 export default function VideoDetailPage() {
+  const { publicKey, connected, connect } = useUnifiedWallet();
+  const walletAddress = publicKey ? publicKey.toBase58() : null;
+
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const { authenticated, login } = usePrivy();
-  const { wallets } = useSolanaWallets();
+
   const isMobile = useIsMobile();
 
   const [video, setVideo] = useState<Video | null>(null);
@@ -90,9 +89,6 @@ export default function VideoDetailPage() {
         setLoading(true);
         const videoId = params.id as string;
 
-        // Get the wallet address from the first wallet if available
-        const walletAddress = wallets?.[0]?.address || null;
-
         const response = await fetch(
           `/api/videos/${videoId}?walletAddress=${walletAddress}`
         );
@@ -116,7 +112,7 @@ export default function VideoDetailPage() {
     }
 
     fetchVideo();
-  }, [params.id, wallets, toast]);
+  }, [params.id, toast]);
 
   // Format time helper (converts seconds to MM:SS format)
   const formatTime = (seconds: number): string => {
@@ -616,13 +612,13 @@ export default function VideoDetailPage() {
 
   // Handle liking videos
   const handleLike = async () => {
-    if (!authenticated) {
+    if (!connected) {
       toast({
         title: "Authentication required",
         description: "Please log in to like videos",
         variant: "default",
       });
-      login();
+      connect();
       return;
     }
 
@@ -630,7 +626,6 @@ export default function VideoDetailPage() {
 
     try {
       const endpoint = isLiked ? "unlike" : "like";
-      const walletAddress = wallets?.[0]?.address;
 
       if (!walletAddress) {
         toast({
@@ -726,11 +721,10 @@ export default function VideoDetailPage() {
 
   // Handle adding a new comment
   const handleAddComment = async () => {
-    if (!authenticated || !video) return;
+    if (!connected || !video) return;
 
     try {
       setLoadingComments(true);
-      const walletAddress = wallets?.[0]?.address;
 
       if (!walletAddress) {
         toast({
@@ -795,11 +789,10 @@ export default function VideoDetailPage() {
 
   // Handle adding a reply to a comment
   const handleAddReply = async () => {
-    if (!authenticated || !video || !replyingTo) return;
+    if (!connected || !video || !replyingTo) return;
 
     try {
       setLoadingComments(true);
-      const walletAddress = wallets?.[0]?.address;
 
       if (!walletAddress) {
         toast({
@@ -1204,7 +1197,7 @@ export default function VideoDetailPage() {
 
               <TabsContent value="comments" className="space-y-4">
                 {/* Add Comment Section (if logged in) */}
-                {authenticated ? (
+                {connected ? (
                   <div className="space-y-3">
                     <Textarea
                       placeholder="Add a comment..."
@@ -1227,7 +1220,7 @@ export default function VideoDetailPage() {
                   <div className="bg-[#2a1a3e] p-4 rounded-lg text-center">
                     <p className="text-white/70 mb-2">Sign in to comment</p>
                     <Button
-                      onClick={login}
+                      onClick={connect}
                       size="sm"
                       className="bg-[#d4af37] text-black hover:bg-[#c39f35]"
                     >
@@ -1267,7 +1260,7 @@ export default function VideoDetailPage() {
                         </p>
 
                         {/* Reply Button */}
-                        {authenticated && (
+                        {connected && (
                           <button
                             onClick={() => handleReplyClick(comment.id)}
                             className="text-xs text-white/60 hover:text-white flex items-center gap-1"
@@ -1649,7 +1642,7 @@ export default function VideoDetailPage() {
 
             <TabsContent value="comments" className="space-y-4">
               {/* Add Comment Section (if logged in) */}
-              {authenticated ? (
+              {connected ? (
                 <div className="space-y-3">
                   <Textarea
                     placeholder="Add a comment..."
@@ -1672,7 +1665,7 @@ export default function VideoDetailPage() {
                 <div className="bg-[#2a1a3e] p-4 rounded-lg text-center">
                   <p className="text-white/70 mb-2">Sign in to comment</p>
                   <Button
-                    onClick={login}
+                    onClick={connect}
                     size="sm"
                     className="bg-[#d4af37] text-black hover:bg-[#c39f35]"
                   >
@@ -1712,7 +1705,7 @@ export default function VideoDetailPage() {
                       </p>
 
                       {/* Reply Button */}
-                      {authenticated && (
+                      {connected && (
                         <button
                           onClick={() => handleReplyClick(comment.id)}
                           className="text-xs text-white/60 hover:text-white flex items-center gap-1"

@@ -3,9 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Play } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { usePrivy } from "@privy-io/react-auth";
-import { useSolanaWallets } from "@privy-io/react-auth/solana";
+
 import { useRouter, useParams } from "next/navigation";
 
 type VideoCardProps = {
@@ -39,13 +37,8 @@ export function VideoCard({
   onPlayTrack,
   tokenContext,
 }: VideoCardProps) {
-  const [isLiked, setIsLiked] = useState(video.isLiked || false);
-  const [likeCount, setLikeCount] = useState(video.likeCount);
   const [isHovering, setIsHovering] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
-  const { toast } = useToast();
-  const { authenticated, login } = usePrivy();
-  const { wallets } = useSolanaWallets();
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const router = useRouter();
   const params = useParams();

@@ -6,6 +6,10 @@ import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase';
 import { TrustWalletAdapter } from '@solana/wallet-adapter-trust';
 import { useWrappedReownAdapter } from '@jup-ag/jup-mobile-adapter';
 import type { Adapter } from '@solana/wallet-adapter-base';
+import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
+import { Button } from '@/components/ui/button';
+import { LogOut } from 'lucide-react';
+
 export const ConnectJupiterButton = () => {
   const wallets: Adapter[] = useMemo(() => {
     const { reownAdapter, jupiterAdapter } = useWrappedReownAdapter({
@@ -40,7 +44,7 @@ export const ConnectJupiterButton = () => {
     <UnifiedWalletProvider
       wallets={wallets}
       config={{
-        autoConnect: false,
+        autoConnect: true,
         env: 'mainnet-beta',
         metadata: {
           name: 'UnifiedWallet',
@@ -62,6 +66,28 @@ export const ConnectJupiterButton = () => {
       }}
     >
       <UnifiedWalletButton />
+      <ReleaseButton />
     </UnifiedWalletProvider>
   );
 };
+
+export default function ReleaseButton() {
+  const { publicKey, disconnect, connected } = useUnifiedWallet();
+
+  return (
+    <>
+      {connected && (
+        <>
+          <Button
+            variant="outline"
+            className="bg-[#2a1242] text-white border border-purple-400/30 hover:border-purple-400/50 hover:bg-[#3a1a5a] rounded-full px-4 py-2 w-full sm:w-auto text-base sm:text-sm transition-all duration-200 shadow-md flex items-center gap-1"
+            onClick={disconnect}
+          >
+            <LogOut size={16} className="opacity-80" />
+            Logout
+          </Button>
+        </>
+      )}
+    </>
+  );
+}
