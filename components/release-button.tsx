@@ -15,8 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
-import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
-
+import { useUnifiedWallet, useUnifiedWalletContext } from '@jup-ag/wallet-adapter';
 
 interface ReleaseButtonProps {
   videoData: {
@@ -33,8 +32,12 @@ interface ReleaseButtonProps {
 }
 
 export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseButtonProps) {
-  const { publicKey } = useUnifiedWallet();
+  const { publicKey, connected } = useUnifiedWallet();
   const walletAddress = publicKey ? publicKey.toBase58() : null;
+  const { setShowModal } = useUnifiedWalletContext();
+  const openWalletModal = () => {
+    setShowModal(true);
+  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tokenInput, setTokenInput] = useState('');
@@ -194,6 +197,13 @@ export function ReleaseButton({ videoData, musicData, onChatMessage }: ReleaseBu
         <Button
           className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
           disabled={isReleasing}
+          onClick={() => {
+            if (connected) {
+              setDialogOpen(true);
+            } else {
+              openWalletModal();
+            }
+          }}
         >
           Release
         </Button>

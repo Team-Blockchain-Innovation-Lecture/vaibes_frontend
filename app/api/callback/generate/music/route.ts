@@ -75,7 +75,7 @@ export async function POST(request: Request) {
         );
       }
 
-      const updatedMusic = await prisma.raw_music.update({
+      const updatedMusic = (await prisma.raw_music.update({
         where: {
           id: existingMusic.id,
         },
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
           image_url: musicData.image_url,
           prompt: musicData.prompt,
         },
-      }) as RawMusicWithVideoStyle;
+      })) as RawMusicWithVideoStyle;
 
       console.log(`${BACKEND_URL}/api/generate-video`);
 
@@ -106,8 +106,8 @@ export async function POST(request: Request) {
       }
 
       // Get video style from the Raw_music table
-      const videoStyle = updatedMusic.video_style || "anime"; // Use default if not set
-      
+      const videoStyle = updatedMusic.video_style || 'anime'; // Use default if not set
+
       // Call video generation API
       const videoResponse = await fetch(`${BACKEND_URL}/api/generate-video`, {
         method: 'POST',

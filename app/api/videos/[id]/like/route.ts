@@ -8,7 +8,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const videoId = params.id;
+    const videoId = (await params).id;
     const walletAddress = request.headers.get("wallet-address");
 
     if (!walletAddress) {

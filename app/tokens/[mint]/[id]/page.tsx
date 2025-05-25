@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import {
   ChevronUp,
   ChevronDown,
@@ -13,13 +13,13 @@ import {
   MessageSquare,
   Send,
   Clipboard, // Add this
-} from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
+} from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useUnifiedWallet, useUnifiedWalletContext } from '@jup-ag/wallet-adapter';
 
 type Video = {
   id: string;
@@ -42,8 +42,12 @@ type Video = {
 };
 
 export default function TokenVideoDetailPage() {
-  const { connected, publicKey, connect, disconnect } = useUnifiedWallet();
-    const walletAddress = publicKey ? publicKey.toBase58() : null;
+  const { setShowModal } = useUnifiedWalletContext();
+  const openWalletModal = () => {
+    setShowModal(true);
+  };
+  const { connected, publicKey } = useUnifiedWallet();
+  const walletAddress = publicKey ? publicKey.toBase58() : null;
 
   const params = useParams();
   const router = useRouter();
@@ -56,16 +60,16 @@ export default function TokenVideoDetailPage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [currentTime, setCurrentTime] = useState("0:00");
-  const [duration, setDuration] = useState("0:00");
+  const [currentTime, setCurrentTime] = useState('0:00');
+  const [duration, setDuration] = useState('0:00');
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Comment state
   const [comments, setComments] = useState<any[]>([]);
   const [commentCount, setCommentCount] = useState(0);
-  const [newComment, setNewComment] = useState("");
-  const [replyText, setReplyText] = useState("");
+  const [newComment, setNewComment] = useState('');
+  const [replyText, setReplyText] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [loadingComments, setLoadingComments] = useState(false);
 
@@ -76,7 +80,7 @@ export default function TokenVideoDetailPage() {
   const isNavigatingRef = useRef<boolean>(false);
 
   // Mobile tabs state
-  const [mobileActiveTab, setMobileActiveTab] = useState<string>("video");
+  const [mobileActiveTab, setMobileActiveTab] = useState<string>('video');
 
   // Get mint address and video ID from params
   const videoId = params.id as string;
@@ -94,7 +98,7 @@ export default function TokenVideoDetailPage() {
         const response = await fetch(
           `/api/videos/${videoId}?walletAddress=${walletAddress}&tokenMint=${mintAddress}`
         );
-        if (!response.ok) throw new Error("Failed to fetch video");
+        if (!response.ok) throw new Error('Failed to fetch video');
 
         const data = await response.json();
         setVideo(data.video);
@@ -104,11 +108,11 @@ export default function TokenVideoDetailPage() {
         setPrevVideo(data.prevVideoId);
         setNextVideo(data.nextVideoId);
       } catch (error) {
-        console.error("Error fetching video:", error);
+        console.error('Error fetching video:', error);
         toast({
-          title: "Error",
-          description: "Failed to load video. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to load video. Please try again.',
+          variant: 'destructive',
         });
       } finally {
         setLoading(false);
@@ -122,17 +126,15 @@ export default function TokenVideoDetailPage() {
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   // Format creator address to show only first 3 and last 3 characters
   const formatCreatorAddress = (address: string): string => {
-    if (!address) return "";
+    if (!address) return '';
     if (address.length <= 8) return address;
 
-    return `${address.substring(0, 3)}...${address.substring(
-      address.length - 3
-    )}`;
+    return `${address.substring(0, 3)}...${address.substring(address.length - 3)}`;
   };
 
   // Video event handlers
@@ -142,8 +144,7 @@ export default function TokenVideoDetailPage() {
 
     const handleTimeUpdate = () => {
       if (!isDragging && videoElement) {
-        const currentProgress =
-          (videoElement.currentTime / videoElement.duration) * 100 || 0;
+        const currentProgress = (videoElement.currentTime / videoElement.duration) * 100 || 0;
 
         if (!isNaN(currentProgress)) {
           setProgress(currentProgress);
@@ -167,13 +168,13 @@ export default function TokenVideoDetailPage() {
       if (videoElement) videoElement.currentTime = 0;
     };
 
-    videoElement.removeEventListener("timeupdate", handleTimeUpdate);
-    videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-    videoElement.removeEventListener("ended", handleVideoEnded);
+    videoElement.removeEventListener('timeupdate', handleTimeUpdate);
+    videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    videoElement.removeEventListener('ended', handleVideoEnded);
 
-    videoElement.addEventListener("timeupdate", handleTimeUpdate);
-    videoElement.addEventListener("loadedmetadata", handleLoadedMetadata);
-    videoElement.addEventListener("ended", handleVideoEnded);
+    videoElement.addEventListener('timeupdate', handleTimeUpdate);
+    videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+    videoElement.addEventListener('ended', handleVideoEnded);
 
     if (videoElement.readyState >= 1) {
       if (!isNaN(videoElement.duration)) {
@@ -186,9 +187,9 @@ export default function TokenVideoDetailPage() {
     }
 
     return () => {
-      videoElement.removeEventListener("timeupdate", handleTimeUpdate);
-      videoElement.removeEventListener("loadedmetadata", handleLoadedMetadata);
-      videoElement.removeEventListener("ended", handleVideoEnded);
+      videoElement.removeEventListener('timeupdate', handleTimeUpdate);
+      videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      videoElement.removeEventListener('ended', handleVideoEnded);
     };
   }, [isDragging]);
 
@@ -206,23 +207,23 @@ export default function TokenVideoDetailPage() {
     };
 
     const handleCanPlay = () => {
-      console.log("Video can play now");
+      console.log('Video can play now');
     };
 
     const handleError = (e: any) => {
-      console.error("Video error event:", e);
+      console.error('Video error event:', e);
     };
 
-    videoElement.addEventListener("play", handlePlay);
-    videoElement.addEventListener("pause", handlePause);
-    videoElement.addEventListener("canplay", handleCanPlay);
-    videoElement.addEventListener("error", handleError);
+    videoElement.addEventListener('play', handlePlay);
+    videoElement.addEventListener('pause', handlePause);
+    videoElement.addEventListener('canplay', handleCanPlay);
+    videoElement.addEventListener('error', handleError);
 
     return () => {
-      videoElement.removeEventListener("play", handlePlay);
-      videoElement.removeEventListener("pause", handlePause);
-      videoElement.removeEventListener("canplay", handleCanPlay);
-      videoElement.removeEventListener("error", handleError);
+      videoElement.removeEventListener('play', handlePlay);
+      videoElement.removeEventListener('pause', handlePause);
+      videoElement.removeEventListener('canplay', handleCanPlay);
+      videoElement.removeEventListener('error', handleError);
     };
   }, []);
 
@@ -242,7 +243,7 @@ export default function TokenVideoDetailPage() {
 
           setIsPlaying(true);
         } catch (error) {
-          console.error("Auto-play failed:", error);
+          console.error('Auto-play failed:', error);
           if (videoRef.current) {
             videoRef.current.muted = false;
           }
@@ -253,13 +254,13 @@ export default function TokenVideoDetailPage() {
         attemptPlay();
       };
 
-      videoRef.current.addEventListener("canplay", handleCanPlay, {
+      videoRef.current.addEventListener('canplay', handleCanPlay, {
         once: true,
       });
 
       return () => {
         if (videoRef.current) {
-          videoRef.current.removeEventListener("canplay", handleCanPlay);
+          videoRef.current.removeEventListener('canplay', handleCanPlay);
         }
       };
     }
@@ -282,7 +283,7 @@ export default function TokenVideoDetailPage() {
               setIsPlaying(true);
             })
             .catch((error) => {
-              console.error("Error playing video:", error);
+              console.error('Error playing video:', error);
               videoRef.current!.muted = true;
               videoRef
                 .current!.play()
@@ -295,14 +296,14 @@ export default function TokenVideoDetailPage() {
                   }, 100);
                 })
                 .catch((mutedError) => {
-                  console.error("Even muted playback failed:", mutedError);
+                  console.error('Even muted playback failed:', mutedError);
                   setIsPlaying(false);
                 });
             });
         }
       }
     } catch (error) {
-      console.error("Unexpected error in togglePlay:", error);
+      console.error('Unexpected error in togglePlay:', error);
       setIsPlaying(false);
     }
   };
@@ -330,10 +331,7 @@ export default function TokenVideoDetailPage() {
     if (!isDragging || !videoRef.current || !progressBarRef.current) return;
 
     const rect = progressBarRef.current.getBoundingClientRect();
-    const clickPosition = Math.max(
-      0,
-      Math.min(e.clientX - rect.left, rect.width)
-    );
+    const clickPosition = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
     const percentage = (clickPosition / rect.width) * 100;
     setProgress(percentage);
     setCurrentTime(formatTime((percentage / 100) * videoRef.current.duration));
@@ -414,19 +412,19 @@ export default function TokenVideoDetailPage() {
     const videoContainer = videoContainerRef.current;
 
     if (videoContainer) {
-      videoContainer.addEventListener("touchstart", handleTouchStart);
-      videoContainer.addEventListener("touchend", handleTouchEnd);
-      videoContainer.addEventListener("wheel", handleWheel, { passive: false });
+      videoContainer.addEventListener('touchstart', handleTouchStart);
+      videoContainer.addEventListener('touchend', handleTouchEnd);
+      videoContainer.addEventListener('wheel', handleWheel, { passive: false });
 
       if (videoRef.current) {
-        videoRef.current.addEventListener("wheel", handleWheel, {
+        videoRef.current.addEventListener('wheel', handleWheel, {
           passive: false,
         });
       }
 
       if (progressBarRef.current) {
         progressBarRef.current.addEventListener(
-          "wheel",
+          'wheel',
           (e) => {
             handleWheel(e);
           },
@@ -437,17 +435,17 @@ export default function TokenVideoDetailPage() {
 
     return () => {
       if (videoContainer) {
-        videoContainer.removeEventListener("touchstart", handleTouchStart);
-        videoContainer.removeEventListener("touchend", handleTouchEnd);
-        videoContainer.removeEventListener("wheel", handleWheel);
+        videoContainer.removeEventListener('touchstart', handleTouchStart);
+        videoContainer.removeEventListener('touchend', handleTouchEnd);
+        videoContainer.removeEventListener('wheel', handleWheel);
       }
 
       if (videoRef.current) {
-        videoRef.current.removeEventListener("wheel", handleWheel);
+        videoRef.current.removeEventListener('wheel', handleWheel);
       }
 
       if (progressBarRef.current) {
-        progressBarRef.current.removeEventListener("wheel", handleWheel);
+        progressBarRef.current.removeEventListener('wheel', handleWheel);
       }
 
       if (wheelTimeoutRef.current) {
@@ -485,14 +483,14 @@ export default function TokenVideoDetailPage() {
       }, 500);
     }
 
-    if (typeof document !== "undefined") {
-      document.addEventListener("wheel", globalWheelHandler, {
+    if (typeof document !== 'undefined') {
+      document.addEventListener('wheel', globalWheelHandler, {
         passive: false,
         capture: true,
       });
 
       return () => {
-        document.removeEventListener("wheel", globalWheelHandler, {
+        document.removeEventListener('wheel', globalWheelHandler, {
           capture: true,
         });
       };
@@ -505,32 +503,32 @@ export default function TokenVideoDetailPage() {
   const handleLike = async () => {
     if (!connected) {
       toast({
-        title: "Authentication required",
-        description: "Please log in to like videos",
-        variant: "default",
+        title: 'Authentication required',
+        description: 'Please log in to like videos',
+        variant: 'default',
       });
-      connect();
+      openWalletModal();
       return;
     }
 
     if (!video) return;
 
     try {
-      const endpoint = isLiked ? "unlike" : "like";
+      const endpoint = isLiked ? 'unlike' : 'like';
 
       if (!walletAddress) {
         toast({
-          title: "Wallet required",
-          description: "Please connect a wallet to like videos",
-          variant: "default",
+          title: 'Wallet required',
+          description: 'Please connect a wallet to like videos',
+          variant: 'default',
         });
         return;
       }
 
       const response = await fetch(`/api/videos/${video.id}/${endpoint}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "wallet-address": walletAddress,
+          'wallet-address': walletAddress,
         },
       });
 
@@ -548,27 +546,23 @@ export default function TokenVideoDetailPage() {
       });
 
       toast({
-        title: isLiked ? "Video unliked" : "Video liked",
-        description: isLiked
-          ? "You removed your like from this video"
-          : "You liked this video",
-        variant: "default",
+        title: isLiked ? 'Video unliked' : 'Video liked',
+        description: isLiked ? 'You removed your like from this video' : 'You liked this video',
+        variant: 'default',
       });
     } catch (error) {
-      console.error(`Error ${isLiked ? "unliking" : "liking"} video:`, error);
+      console.error(`Error ${isLiked ? 'unliking' : 'liking'} video:`, error);
       toast({
-        title: "Error",
-        description: `Failed to ${
-          isLiked ? "unlike" : "like"
-        } video. Please try again.`,
-        variant: "destructive",
+        title: 'Error',
+        description: `Failed to ${isLiked ? 'unlike' : 'like'} video. Please try again.`,
+        variant: 'destructive',
       });
     }
   };
 
   // Format market cap for display
   const formatMarketCap = (marketCap: number | null | undefined): string => {
-    if (marketCap === null || marketCap === undefined) return "N/A";
+    if (marketCap === null || marketCap === undefined) return 'N/A';
 
     if (marketCap >= 1e9) {
       return `$${(marketCap / 1e9).toFixed(1)}B`;
@@ -590,17 +584,17 @@ export default function TokenVideoDetailPage() {
         setLoadingComments(true);
         const response = await fetch(`/api/videos/${video.id}/comments`);
 
-        if (!response.ok) throw new Error("Failed to fetch comments");
+        if (!response.ok) throw new Error('Failed to fetch comments');
 
         const data = await response.json();
         setComments(data.comments);
         setCommentCount(data.comments.length);
       } catch (error) {
-        console.error("Error fetching comments:", error);
+        console.error('Error fetching comments:', error);
         toast({
-          title: "Error",
-          description: "Failed to load comments. Please try again.",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to load comments. Please try again.',
+          variant: 'destructive',
         });
       } finally {
         setLoadingComments(false);
@@ -619,17 +613,17 @@ export default function TokenVideoDetailPage() {
 
       if (!walletAddress) {
         toast({
-          title: "Wallet required",
-          description: "Please connect a wallet to comment",
-          variant: "default",
+          title: 'Wallet required',
+          description: 'Please connect a wallet to comment',
+          variant: 'default',
         });
         return;
       }
 
       const response = await fetch(`/api/videos/${video.id}/comments`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           content: newComment,
@@ -637,7 +631,7 @@ export default function TokenVideoDetailPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to add comment");
+      if (!response.ok) throw new Error('Failed to add comment');
 
       const data = await response.json();
 
@@ -647,19 +641,19 @@ export default function TokenVideoDetailPage() {
 
       setComments(commentsData.comments);
       setCommentCount(commentsData.comments.length);
-      setNewComment("");
+      setNewComment('');
 
       toast({
-        title: "Comment added",
-        description: "Your comment has been added successfully",
-        variant: "default",
+        title: 'Comment added',
+        description: 'Your comment has been added successfully',
+        variant: 'default',
       });
     } catch (error) {
-      console.error("Error adding comment:", error);
+      console.error('Error adding comment:', error);
       toast({
-        title: "Error",
-        description: "Failed to add comment. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add comment. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setLoadingComments(false);
@@ -669,13 +663,13 @@ export default function TokenVideoDetailPage() {
   // Handle reply button click
   const handleReplyClick = (commentId: string) => {
     setReplyingTo(commentId);
-    setReplyText("");
+    setReplyText('');
   };
 
   // Handle canceling a reply
   const handleCancelReply = () => {
     setReplyingTo(null);
-    setReplyText("");
+    setReplyText('');
   };
 
   // Handle adding a reply to a comment
@@ -687,17 +681,17 @@ export default function TokenVideoDetailPage() {
 
       if (!walletAddress) {
         toast({
-          title: "Wallet required",
-          description: "Please connect a wallet to reply",
-          variant: "default",
+          title: 'Wallet required',
+          description: 'Please connect a wallet to reply',
+          variant: 'default',
         });
         return;
       }
 
       const response = await fetch(`/api/videos/${video.id}/comments`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           content: replyText,
@@ -706,7 +700,7 @@ export default function TokenVideoDetailPage() {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to add reply");
+      if (!response.ok) throw new Error('Failed to add reply');
 
       // Refresh comments
       const commentsResponse = await fetch(`/api/videos/${video.id}/comments`);
@@ -714,20 +708,20 @@ export default function TokenVideoDetailPage() {
 
       setComments(commentsData.comments);
       setCommentCount(commentsData.comments.length);
-      setReplyText("");
+      setReplyText('');
       setReplyingTo(null);
 
       toast({
-        title: "Reply added",
-        description: "Your reply has been added successfully",
-        variant: "default",
+        title: 'Reply added',
+        description: 'Your reply has been added successfully',
+        variant: 'default',
       });
     } catch (error) {
-      console.error("Error adding reply:", error);
+      console.error('Error adding reply:', error);
       toast({
-        title: "Error",
-        description: "Failed to add reply. Please try again.",
-        variant: "destructive",
+        title: 'Error',
+        description: 'Failed to add reply. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setLoadingComments(false);
@@ -752,17 +746,17 @@ export default function TokenVideoDetailPage() {
         setTimeout(() => setCopied(false), 2000);
 
         toast({
-          title: "Link copied",
-          description: "Video link has been copied to clipboard",
-          variant: "default",
+          title: 'Link copied',
+          description: 'Video link has been copied to clipboard',
+          variant: 'default',
         });
       })
       .catch((error) => {
-        console.error("Failed to copy link:", error);
+        console.error('Failed to copy link:', error);
         toast({
-          title: "Copy failed",
-          description: "Failed to copy the link. Please try again.",
-          variant: "destructive",
+          title: 'Copy failed',
+          description: 'Failed to copy the link. Please try again.',
+          variant: 'destructive',
         });
       });
   };
@@ -798,11 +792,7 @@ export default function TokenVideoDetailPage() {
       <div className="fixed inset-0 flex flex-col bg-[#1a0e26] pt-16">
         {/* Mobile Tab Navigation - pt-16でヘッダーとの被りを解消 */}
         <div className="w-full mt-2 bg-[#1a0e26] border-b border-white/10 z-20">
-          <Tabs
-            value={mobileActiveTab}
-            onValueChange={setMobileActiveTab}
-            className="w-full"
-          >
+          <Tabs value={mobileActiveTab} onValueChange={setMobileActiveTab} className="w-full">
             <TabsList className="w-full grid grid-cols-2">
               <TabsTrigger value="video">Video</TabsTrigger>
               <TabsTrigger value="information">Information</TabsTrigger>
@@ -811,12 +801,12 @@ export default function TokenVideoDetailPage() {
         </div>
 
         {/* Mobile Content Area */}
-        {mobileActiveTab === "video" ? (
+        {mobileActiveTab === 'video' ? (
           // Video View - 高さを調整し画面いっぱいに表示
           <div
             ref={videoContainerRef}
             className="relative flex-1 flex items-center justify-center bg-black"
-            style={{ height: "calc(100vh - 120px)" }} // ヘッダー+タブ分の高さを引く
+            style={{ height: 'calc(100vh - 120px)' }} // ヘッダー+タブ分の高さを引く
           >
             {/* Video Player */}
             <div className="relative w-full h-full max-h-full flex items-center justify-center">
@@ -826,7 +816,7 @@ export default function TokenVideoDetailPage() {
                 className="h-full max-h-full w-auto object-contain cursor-pointer"
                 playsInline
                 onClick={togglePlay}
-                onError={(e) => console.error("Video error:", e)}
+                onError={(e) => console.error('Video error:', e)}
                 preload="auto"
                 controls={false}
                 muted={false}
@@ -896,26 +886,20 @@ export default function TokenVideoDetailPage() {
                 <button
                   onClick={handleLike}
                   className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
-                    isLiked ? "text-pink-500" : "text-white"
+                    isLiked ? 'text-pink-500' : 'text-white'
                   }`}
-                  aria-label={isLiked ? "Unlike video" : "Like video"}
+                  aria-label={isLiked ? 'Unlike video' : 'Like video'}
                 >
-                  <Heart
-                    className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
-                  />
+                  <Heart className={`w-6 h-6 ${isLiked ? 'fill-pink-500' : ''}`} />
                 </button>
-                <span className="text-xs mt-1 text-white">
-                  {video.likeCount.toLocaleString()}
-                </span>
+                <span className="text-xs mt-1 text-white">{video.likeCount.toLocaleString()}</span>
               </div>
 
               <div className="flex flex-col items-center">
                 <div className="p-2 rounded-full bg-black/40">
                   <Play className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xs mt-1 text-white">
-                  {video.playCount.toLocaleString()}
-                </span>
+                <span className="text-xs mt-1 text-white">{video.playCount.toLocaleString()}</span>
               </div>
 
               {/* Add clipboard button */}
@@ -923,15 +907,13 @@ export default function TokenVideoDetailPage() {
                 <button
                   onClick={handleCopyLink}
                   className={`p-2 rounded-full bg-black/40 hover:bg-black/60 ${
-                    copied ? "text-green-500" : "text-white"
+                    copied ? 'text-green-500' : 'text-white'
                   }`}
                   aria-label="Copy video link"
                 >
                   <Clipboard className="w-6 h-6" />
                 </button>
-                <span className="text-xs mt-1 text-white">
-                  {copied ? "Copied!" : "Copy"}
-                </span>
+                <span className="text-xs mt-1 text-white">{copied ? 'Copied!' : 'Copy'}</span>
               </div>
             </div>
           </div>
@@ -941,9 +923,7 @@ export default function TokenVideoDetailPage() {
             {/* Title and Creator */}
             <div>
               <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
-              <p className="text-white/70">
-                by {formatCreatorAddress(video.creator)}
-              </p>
+              <p className="text-white/70">by {formatCreatorAddress(video.creator)}</p>
             </div>
 
             {/* Interactive Elements */}
@@ -952,13 +932,11 @@ export default function TokenVideoDetailPage() {
                 <button
                   onClick={handleLike}
                   className={`p-2 rounded-full hover:bg-black/20 ${
-                    isLiked ? "text-pink-500" : "text-white"
+                    isLiked ? 'text-pink-500' : 'text-white'
                   }`}
-                  aria-label={isLiked ? "Unlike video" : "Like video"}
+                  aria-label={isLiked ? 'Unlike video' : 'Like video'}
                 >
-                  <Heart
-                    className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
-                  />
+                  <Heart className={`w-6 h-6 ${isLiked ? 'fill-pink-500' : ''}`} />
                 </button>
                 <span>{video.likeCount.toLocaleString()}</span>
               </div>
@@ -979,14 +957,13 @@ export default function TokenVideoDetailPage() {
                       fill
                       className="object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src =
-                          "/placeholder-logo.svg";
+                        (e.target as HTMLImageElement).src = '/placeholder-logo.svg';
                       }}
                     />
                   </div>
                 ) : (
                   <div className="w-12 h-12 bg-secondary flex items-center justify-center text-xl font-bold rounded-full">
-                    {video.token.symbol?.substring(0, 2) || "??"}
+                    {video.token.symbol?.substring(0, 2) || '??'}
                   </div>
                 )}
                 <div>
@@ -1007,9 +984,7 @@ export default function TokenVideoDetailPage() {
             <Tabs defaultValue="information" className="w-full">
               <TabsList className="w-full grid grid-cols-2 mb-4">
                 <TabsTrigger value="information">Information</TabsTrigger>
-                <TabsTrigger value="comments">
-                  Comments ({commentCount})
-                </TabsTrigger>
+                <TabsTrigger value="comments">Comments ({commentCount})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="information" className="space-y-4">
@@ -1019,20 +994,14 @@ export default function TokenVideoDetailPage() {
                     <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
                       Description
                     </h3>
-                    <p className="text-white/90 whitespace-pre-wrap">
-                      {video.description}
-                    </p>
+                    <p className="text-white/90 whitespace-pre-wrap">{video.description}</p>
                   </div>
                 )}
 
                 {video.prompt && (
                   <div>
-                    <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
-                      Prompt
-                    </h3>
-                    <p className="text-white/90 whitespace-pre-wrap">
-                      {video.prompt}
-                    </p>
+                    <h3 className="text-sm font-medium uppercase text-white/60 mb-1">Prompt</h3>
+                    <p className="text-white/90 whitespace-pre-wrap">{video.prompt}</p>
                   </div>
                 )}
               </TabsContent>
@@ -1062,7 +1031,7 @@ export default function TokenVideoDetailPage() {
                   <div className="bg-[#2a1a3e] p-4 rounded-lg text-center">
                     <p className="text-white/70 mb-2">Sign in to comment</p>
                     <Button
-                      onClick={connect}
+                      onClick={openWalletModal}
                       size="sm"
                       className="bg-[#d4af37] text-black hover:bg-[#c39f35]"
                     >
@@ -1079,10 +1048,7 @@ export default function TokenVideoDetailPage() {
                 ) : comments.length > 0 ? (
                   <div className="space-y-4">
                     {comments.map((comment) => (
-                      <div
-                        key={comment.id}
-                        className="border-b border-white/10 pb-4"
-                      >
+                      <div key={comment.id} className="border-b border-white/10 pb-4">
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-1 text-sm">
                             <Link
@@ -1097,9 +1063,7 @@ export default function TokenVideoDetailPage() {
                             </p>
                           </div>
                         </div>
-                        <p className="mb-2 text-white/90 text-sm">
-                          {comment.content}
-                        </p>
+                        <p className="mb-2 text-white/90 text-sm">{comment.content}</p>
 
                         {/* Reply Button */}
                         {connected && (
@@ -1155,9 +1119,7 @@ export default function TokenVideoDetailPage() {
                                     {new Date(reply.createdAt).toLocaleString()}
                                   </p>
                                 </div>
-                                <p className="text-xs text-white/90">
-                                  {reply.content}
-                                </p>
+                                <p className="text-xs text-white/90">{reply.content}</p>
                               </div>
                             ))}
                           </div>
@@ -1167,9 +1129,7 @@ export default function TokenVideoDetailPage() {
                   </div>
                 ) : (
                   <div className="bg-[#2a1a3e] p-4 rounded-lg text-center">
-                    <p className="text-white/70">
-                      No comments yet. Be the first to comment!
-                    </p>
+                    <p className="text-white/70">No comments yet. Be the first to comment!</p>
                   </div>
                 )}
               </TabsContent>
@@ -1191,10 +1151,10 @@ export default function TokenVideoDetailPage() {
         ref={videoContainerRef}
         className="fixed md:relative inset-0 md:inset-auto md:flex-1 flex items-center justify-center bg-black"
         style={{
-          height: "calc(100% - 30px)",
-          width: "100%",
-          top: "30px",
-          maxWidth: "calc(100% - 400px)",
+          height: 'calc(100% - 30px)',
+          width: '100%',
+          top: '30px',
+          maxWidth: 'calc(100% - 400px)',
         }}
       >
         {/* Video Player */}
@@ -1205,7 +1165,7 @@ export default function TokenVideoDetailPage() {
             className="h-full max-h-full w-auto object-contain cursor-pointer"
             playsInline
             onClick={togglePlay}
-            onError={(e) => console.error("Video error:", e)}
+            onError={(e) => console.error('Video error:', e)}
             preload="auto"
             controls={false}
             muted={false}
@@ -1314,19 +1274,17 @@ export default function TokenVideoDetailPage() {
       <div
         className="fixed top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#1a0e26] overflow-y-auto"
         style={{
-          height: "calc(100vh - 86px)",
-          top: "86px",
+          height: 'calc(100vh - 86px)',
+          top: '86px',
           zIndex: 10,
-          borderLeft: "1px solid rgba(255, 255, 255, 0.1)",
+          borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
         }}
       >
         <div className="p-5 space-y-6">
           {/* Title and Creator */}
           <div>
             <h1 className="text-2xl font-bold mb-1">{video.title}</h1>
-            <p className="text-white/70">
-              by {formatCreatorAddress(video.creator)}
-            </p>
+            <p className="text-white/70">by {formatCreatorAddress(video.creator)}</p>
           </div>
 
           {/* Interactive Elements */}
@@ -1335,13 +1293,11 @@ export default function TokenVideoDetailPage() {
               <button
                 onClick={handleLike}
                 className={`p-2 rounded-full hover:bg-black/20 ${
-                  isLiked ? "text-pink-500" : "text-white"
+                  isLiked ? 'text-pink-500' : 'text-white'
                 }`}
-                aria-label={isLiked ? "Unlike video" : "Like video"}
+                aria-label={isLiked ? 'Unlike video' : 'Like video'}
               >
-                <Heart
-                  className={`w-6 h-6 ${isLiked ? "fill-pink-500" : ""}`}
-                />
+                <Heart className={`w-6 h-6 ${isLiked ? 'fill-pink-500' : ''}`} />
               </button>
               <span>{video.likeCount.toLocaleString()}</span>
             </div>
@@ -1354,13 +1310,13 @@ export default function TokenVideoDetailPage() {
               <button
                 onClick={handleCopyLink}
                 className={`p-2 rounded-full hover:bg-black/20 ${
-                  copied ? "text-green-500" : "text-white"
+                  copied ? 'text-green-500' : 'text-white'
                 }`}
                 aria-label="Copy video link"
               >
                 <Clipboard className="w-5 h-5" />
               </button>
-              <span>{copied ? "Copied!" : "Copy"}</span>
+              <span>{copied ? 'Copied!' : 'Copy'}</span>
             </div>
           </div>
 
@@ -1375,14 +1331,13 @@ export default function TokenVideoDetailPage() {
                     fill
                     className="object-cover"
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        "/placeholder-logo.svg";
+                      (e.target as HTMLImageElement).src = '/placeholder-logo.svg';
                     }}
                   />
                 </div>
               ) : (
                 <div className="w-12 h-12 bg-secondary flex items-center justify-center text-xl font-bold rounded-full">
-                  {video.token.symbol?.substring(0, 2) || "??"}
+                  {video.token.symbol?.substring(0, 2) || '??'}
                 </div>
               )}
               <div>
@@ -1403,32 +1358,22 @@ export default function TokenVideoDetailPage() {
           <Tabs defaultValue="information" className="w-full">
             <TabsList className="w-full grid grid-cols-2 mb-4">
               <TabsTrigger value="information">Information</TabsTrigger>
-              <TabsTrigger value="comments">
-                Comments ({commentCount})
-              </TabsTrigger>
+              <TabsTrigger value="comments">Comments ({commentCount})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="information" className="space-y-4">
               {/* Video Information */}
               {video.description && (
                 <div>
-                  <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
-                    Description
-                  </h3>
-                  <p className="text-white/90 whitespace-pre-wrap">
-                    {video.description}
-                  </p>
+                  <h3 className="text-sm font-medium uppercase text-white/60 mb-1">Description</h3>
+                  <p className="text-white/90 whitespace-pre-wrap">{video.description}</p>
                 </div>
               )}
 
               {video.prompt && (
                 <div>
-                  <h3 className="text-sm font-medium uppercase text-white/60 mb-1">
-                    Prompt
-                  </h3>
-                  <p className="text-white/90 whitespace-pre-wrap">
-                    {video.prompt}
-                  </p>
+                  <h3 className="text-sm font-medium uppercase text-white/60 mb-1">Prompt</h3>
+                  <p className="text-white/90 whitespace-pre-wrap">{video.prompt}</p>
                 </div>
               )}
             </TabsContent>
@@ -1458,7 +1403,7 @@ export default function TokenVideoDetailPage() {
                 <div className="bg-[#2a1a3e] p-4 rounded-lg text-center">
                   <p className="text-white/70 mb-2">Sign in to comment</p>
                   <Button
-                    onClick={connect}
+                    onClick={openWalletModal}
                     size="sm"
                     className="bg-[#d4af37] text-black hover:bg-[#c39f35]"
                   >
@@ -1475,10 +1420,7 @@ export default function TokenVideoDetailPage() {
               ) : comments.length > 0 ? (
                 <div className="space-y-4">
                   {comments.map((comment) => (
-                    <div
-                      key={comment.id}
-                      className="border-b border-white/10 pb-4"
-                    >
+                    <div key={comment.id} className="border-b border-white/10 pb-4">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-1 text-sm">
                           <Link
@@ -1493,9 +1435,7 @@ export default function TokenVideoDetailPage() {
                           </p>
                         </div>
                       </div>
-                      <p className="mb-2 text-white/90 text-sm">
-                        {comment.content}
-                      </p>
+                      <p className="mb-2 text-white/90 text-sm">{comment.content}</p>
 
                       {/* Reply Button */}
                       {connected && (
@@ -1551,9 +1491,7 @@ export default function TokenVideoDetailPage() {
                                   {new Date(reply.createdAt).toLocaleString()}
                                 </p>
                               </div>
-                              <p className="text-xs text-white/90">
-                                {reply.content}
-                              </p>
+                              <p className="text-xs text-white/90">{reply.content}</p>
                             </div>
                           ))}
                         </div>
@@ -1563,9 +1501,7 @@ export default function TokenVideoDetailPage() {
                 </div>
               ) : (
                 <div className="bg-[#2a1a3e] p-4 rounded-lg text-center">
-                  <p className="text-white/70">
-                    No comments yet. Be the first to comment!
-                  </p>
+                  <p className="text-white/70">No comments yet. Be the first to comment!</p>
                 </div>
               )}
             </TabsContent>
