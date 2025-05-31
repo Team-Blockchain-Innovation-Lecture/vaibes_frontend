@@ -30,10 +30,12 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
+    const offset = parseInt(searchParams.get("offset") || "0", 10);
 
     // Fetch tokens with video counts and aggregated stats
     const tokens = await prisma.token.findMany({
       take: limit,
+      skip: offset,
       orderBy: {
         createdAt: "desc",
       },
@@ -70,9 +72,18 @@ export async function GET(request: NextRequest) {
       })
     );
 
+    // Get total token count for pagination
+    const totalCount = await prisma.token.count();
+
     // Convert BigInt values to strings before returning JSON response
     return NextResponse.json({
       tokens: serializeBigInt(tokensWithStats),
+      pagination: {
+        total: totalCount,
+        limit,
+        offset,
+        hasMore: offset + tokens.length < totalCount,
+      },
     });
   } catch (error) {
     console.error("Error fetching tokens:", error);

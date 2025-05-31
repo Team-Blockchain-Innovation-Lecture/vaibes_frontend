@@ -59,11 +59,11 @@ export default function HomePage() {
               </TabsList>
 
               <TabsContent value="videos" className="space-y-8">
-                <VideoList onPlayTrack={handlePlayTrack} />
+                <VideoList limit={20} onPlayTrack={handlePlayTrack} />
               </TabsContent>
 
               <TabsContent value="tokens" className="space-y-8">
-                <TokenList />
+                <TokenList limit={21} />
               </TabsContent>
             </Tabs>
           </TabsContent>
