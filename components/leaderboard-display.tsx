@@ -68,7 +68,7 @@ const formatAddress = (address: string) => {
 
 export function LeaderboardDisplay({
   type,
-  limit = 20,
+  limit = 100,
 }: LeaderboardDisplayProps) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -853,9 +853,9 @@ export function LeaderboardDisplay({
 
       {data.length > 0 && data.length >= limit && type !== "videos" && (
         <div className="flex justify-center">
-          <Button variant="outline" onClick={() => {}}>
+          {/* <Button variant="outline" onClick={() => {}}>
             View More
-          </Button>
+          </Button> */}
         </div>
       )}
     </div>
