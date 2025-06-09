@@ -7,33 +7,36 @@ import { CoinbaseWalletAdapter } from '@solana/wallet-adapter-coinbase';
 import { TrustWalletAdapter } from '@solana/wallet-adapter-trust';
 import { useWrappedReownAdapter } from '@jup-ag/jup-mobile-adapter';
 import type { Adapter } from '@solana/wallet-adapter-base';
+import { useMemo } from 'react';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const { reownAdapter, jupiterAdapter } = useWrappedReownAdapter({
-    appKitOptions: {
-      metadata: {
-        name: 'vaibes.fun',
-        description: 'vaibes.fun daps',
-        url: 'https://reown.com/appkit',
-        icons: ['https://assets.reown.com/reown-profile-pic.png'],
+  const wallets: Adapter[] = useMemo(() => {
+    const { reownAdapter, jupiterAdapter } = useWrappedReownAdapter({
+      appKitOptions: {
+        metadata: {
+          name: 'vaibes.fun',
+          description: 'vaibes.fun daps',
+          url: 'https://reown.com/appkit',
+          icons: ['https://assets.reown.com/reown-profile-pic.png'],
+        },
+        projectId: process.env.NEXT_PUBLIC_REOWN_PROJECTID || '',
+        features: {
+          analytics: false,
+          socials: ['google', 'x', 'apple'],
+          email: false,
+        },
+        enableWallets: false,
       },
-      projectId: process.env.NEXT_PUBLIC_REOWN_PROJECTID || '',
-      features: {
-        analytics: false,
-        socials: ['google', 'x', 'apple'],
-        email: false,
-      },
-      enableWallets: false,
-    },
-  });
-  const wallets: Adapter[] = [
-    new PhantomWalletAdapter(),
-    new SolflareWalletAdapter(),
-    new CoinbaseWalletAdapter(),
-    new TrustWalletAdapter(),
-    reownAdapter,
-    jupiterAdapter,
-  ].filter((item) => item && item.name && item.icon) as Adapter[];
+    });
+    return [
+      new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
+      new CoinbaseWalletAdapter(),
+      new TrustWalletAdapter(),
+      reownAdapter,
+      jupiterAdapter,
+    ].filter((item) => item && item.name && item.icon) as Adapter[];
+  }, []);
 
   return (
     <UnifiedWalletProvider
