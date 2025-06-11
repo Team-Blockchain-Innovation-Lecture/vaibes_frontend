@@ -615,7 +615,7 @@ function ChatContent() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="メッセージを入力..."
+              placeholder="Please enter your message..."
               className="flex-1 bg-[#2a1a3e] rounded-full py-3 px-6 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey && input.trim()) {

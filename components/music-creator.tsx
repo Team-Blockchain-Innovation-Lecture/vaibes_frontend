@@ -18,6 +18,7 @@ const genres = [
 
 // ビデオスタイルの選択肢
 const videoStyles = [
+  { value: "default", label: "default" },
   { value: "anime", label: "anime" },
   { value: "3d_animation", label: "3d_animation" },
   { value: "clay", label: "clay" },
@@ -39,7 +40,9 @@ export function MusicCreator() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const taskId = generateTempTaskId()
-    router.push(`/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&video_style=${videoStyle}&task_id=${taskId}`)
+    const baseUrl = `/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&task_id=${taskId}`
+    const finalUrl = videoStyle === 'default' ? baseUrl : `${baseUrl}&video_style=${videoStyle}`
+    router.push(finalUrl)
   }
 
   return (
