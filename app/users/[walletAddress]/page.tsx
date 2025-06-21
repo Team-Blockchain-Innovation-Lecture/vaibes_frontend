@@ -203,7 +203,9 @@ export default function UserDetailPage({ params }: UserDetailProps) {
                 {userStats.rank && <RankBadge rank={userStats.rank} />}
               </div>
               <div className="flex items-center gap-2">
-                <p className="text-lg text-muted-foreground">{walletAddress}</p>
+                <p className="text-lg text-muted-foreground">
+                  {truncateAddress(walletAddress, 5, 5)}
+                </p>
                 <button
                   onClick={handleCopyWalletAddress}
                   className={`p-1 rounded-full hover:bg-black/10 transition-colors ${
@@ -257,7 +259,7 @@ export default function UserDetailPage({ params }: UserDetailProps) {
                     Total Plays
                   </div>
                   {userStats.rank && userStats.rank <= 3 && (
-                    <div className="absolute -top-3 -right-3 transform scale-125">
+                    <div className="absolute -top-5 sm:-top-4 md:-top-3 -right-3 transform scale-125">
                       <RankBadge rank={userStats.rank} />
                     </div>
                   )}

@@ -6,6 +6,8 @@ import { VideoList } from "@/components/video-list";
 import { TokenList } from "@/components/token-list";
 import { LeaderboardDisplay } from "@/components/leaderboard-display";
 import { Trophy } from "lucide-react"; // Import Trophy icon for the leaderboard
+import Image from "next/image";
+import Link from "next/link";
 
 export default function HomePage() {
   const [activeMainTab, setActiveMainTab] = useState("discover");
@@ -19,7 +21,25 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-full overflow-auto px-4 md:px-6 space-y-8 md:space-y-12 max-w-7xl mx-auto pb-20">
+    <div className="h-full overflow-auto px-4 md:px-6 space-y-2 md:space-y-4 max-w-7xl mx-auto pb-20">
+      {/* Logo display - visible on mobile */}
+      <div className="flex justify-center items-center gap-2 my-2 md:hidden">
+        <Image
+          src="/images/logo.png"
+          alt="Vaibes Logo"
+          width={90}
+          height={36}
+          className="object-contain"
+        />
+        <h1 className="text-4xl font-bold">
+          <span className="text-white">v</span>
+          <span className="bg-gradient-to-r from-[#00e5ff] to-[#ff16e2] text-transparent bg-clip-text">
+            ai
+          </span>
+          <span className="text-white">bes.fun</span>
+        </h1>
+      </div>
+
       <MusicCreator />
 
       <section className="space-y-4">

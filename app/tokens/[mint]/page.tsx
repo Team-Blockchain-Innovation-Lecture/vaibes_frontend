@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { VideoCard } from "@/components/video-card";
-import { formatMarketCap } from "@/lib/utils";
+import { formatMarketCap, truncateAddress } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import {
@@ -12,7 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
-import { Trophy } from "lucide-react";
+import { Trophy, Clipboard } from "lucide-react";
 
 type TokenDetailProps = {
   params: {
@@ -97,9 +97,23 @@ const getTotalPlaysTextStyle = (rank?: number) => {
 export default function TokenDetailPage({ params }: TokenDetailProps) {
   const [token, setToken] = useState<TokenDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false); // コピー状態のフラグ
   // Unwrap parameters using React.use()
   const mintParam = React.use(params);
   const mint = mintParam.mint;
+
+  // クリップボードにコピーする機能
+  const handleCopyCreatorAddress = (address: string) => {
+    navigator.clipboard
+      .writeText(address)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((error) => {
+        console.error("Failed to copy address:", error);
+      });
+  };
 
   // Handler function for playing tracks
   const handlePlayTrack = (track: any) => {
@@ -196,15 +210,29 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
               </div>
 
               <div className="bg-secondary/20 px-3 py-1 rounded-full">
-                <span className="text-sm font-medium">
+                <span className="text-sm font-medium flex items-center gap-1">
                   Creator:{" "}
                   {token.creator ? (
-                    <Link
-                      href={`/users/${token.creator.walletAddress}`}
-                      className="text-[#d4af37] hover:underline"
-                    >
-                      {token.creator.username || token.creator.walletAddress}
-                    </Link>
+                    <>
+                      <Link
+                        href={`/users/${token.creator.walletAddress}`}
+                        className="text-[#d4af37] hover:underline"
+                      >
+                        {`${truncateAddress(token.creator.username, 5, 5)}`}
+                      </Link>
+                      <button
+                        onClick={() =>
+                          token.creator &&
+                          handleCopyCreatorAddress(token.creator.walletAddress)
+                        }
+                        className={`p-1 rounded-full hover:bg-black/10 transition-colors ${
+                          copied ? "text-green-500" : "text-muted-foreground"
+                        }`}
+                        aria-label="Copy wallet address"
+                      >
+                        <Clipboard className="w-3 h-3" />
+                      </button>
+                    </>
                   ) : (
                     "Anonymous"
                   )}
@@ -392,7 +420,7 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
                     Total Plays
                   </div>
                   {token.videoStats?.rank && token.videoStats.rank <= 3 && (
-                    <div className="absolute -top-3 -right-3 transform scale-125">
+                    <div className="absolute -top-5 sm:-top-4 md:-top-3 -right-3 transform scale-125">
                       <RankBadge rank={token.videoStats.rank} />
                     </div>
                   )}
@@ -433,14 +461,6 @@ export default function TokenDetailPage({ params }: TokenDetailProps) {
       <section className="space-y-4 py-6">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Videos</h2>
-          {token.videoStats?.rank && token.videoStats.rank > 3 && (
-            <div className="flex items-center">
-              <span className="mr-2 text-sm text-muted-foreground">
-                再生数ランキング:
-              </span>
-              <RankBadge rank={token.videoStats.rank} />
-            </div>
-          )}
         </div>
         <CustomTokenVideos
           tokenId={token.id}

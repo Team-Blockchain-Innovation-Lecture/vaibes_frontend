@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 // ジャンルの選択肢
 const genres = [
@@ -14,7 +14,7 @@ const genres = [
   { value: "hiphop", label: "Hip Hop" },
   { value: "jazz", label: "Jazz" },
   { value: "classical", label: "Classical" },
-]
+];
 
 // ビデオスタイルの選択肢
 const videoStyles = [
@@ -24,31 +24,41 @@ const videoStyles = [
   { value: "clay", label: "clay" },
   { value: "comic", label: "comic" },
   { value: "cyberpunk", label: "cyberpunk" },
-]
+];
 
 export function MusicCreator() {
-  const [prompt, setPrompt] = useState("")
-  const [genre, setGenre] = useState("pop")
-  const [videoStyle, setVideoStyle] = useState("anime")
-  const router = useRouter()
+  const [prompt, setPrompt] = useState("");
+  const [genre, setGenre] = useState("pop");
+  const [videoStyle, setVideoStyle] = useState("anime");
+  const router = useRouter();
 
   // 一時的なtask_idを生成する関数
   const generateTempTaskId = () => {
-    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const taskId = generateTempTaskId()
-    const baseUrl = `/create/chat?prompt=${encodeURIComponent(prompt)}&genre=${genre}&task_id=${taskId}`
-    const finalUrl = videoStyle === 'default' ? baseUrl : `${baseUrl}&video_style=${videoStyle}`
-    router.push(finalUrl)
-  }
+    e.preventDefault();
+    const taskId = generateTempTaskId();
+    const baseUrl = `/create/chat?prompt=${encodeURIComponent(
+      prompt
+    )}&genre=${genre}&task_id=${taskId}`;
+    const finalUrl =
+      videoStyle === "default"
+        ? baseUrl
+        : `${baseUrl}&video_style=${videoStyle}`;
+    router.push(finalUrl);
+  };
 
   return (
-    <div className="py-6 md:py-10">
-      <h1 className="text-2xl md:text-4xl font-bold mb-6 text-center">Drop your ideas, make a video</h1>
-      <form 
+    <div className="py-2">
+      <h1 className="text-2xl md:text-4xl font-bold mb-2 text-center">
+        Drop your ideas, make a video
+      </h1>
+      <form
         onSubmit={handleSubmit}
         className="flex flex-col items-center gap-3 max-w-3xl mx-auto"
       >
@@ -62,7 +72,9 @@ export function MusicCreator() {
             required
           />
         </div>
-        <div className="text-white text-md font-bold text-center">Music Genre</div>
+        <div className="text-white text-md font-bold text-center">
+          Music Genre
+        </div>
         <div className="w-full max-w-xs">
           <select
             name="genre"
@@ -77,7 +89,9 @@ export function MusicCreator() {
             ))}
           </select>
         </div>
-        <div className="text-white text-md font-bold text-center">Video Style</div>
+        <div className="text-white text-md font-bold text-center">
+          Video Style
+        </div>
         <div className="w-full max-w-xs">
           <select
             name="videoStyle"
@@ -92,7 +106,7 @@ export function MusicCreator() {
             ))}
           </select>
         </div>
-        
+
         <Button
           type="submit"
           className="bg-[#d4af37] hover:bg-[#c4a027] text-black font-medium rounded-full px-8 py-3 mt-2"
@@ -102,6 +116,5 @@ export function MusicCreator() {
         </Button>
       </form>
     </div>
-  )
+  );
 }
-

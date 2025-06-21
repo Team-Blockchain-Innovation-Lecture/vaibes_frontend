@@ -29,7 +29,6 @@ export default function RootLayout({
       <Providers>
         <body className={inter.className}>
           <ThemeProvider attribute="class" defaultTheme="dark">
-            <Header />
             <AppLayout>{children}</AppLayout>
           </ThemeProvider>
         </body>
