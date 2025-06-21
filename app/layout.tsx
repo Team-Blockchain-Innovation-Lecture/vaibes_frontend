@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AppLayout } from "@/components/app-layout";
 import { Header } from "@/components/header";
-import Providers from "./providers";
+import ClientProviders from "./client-providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -26,13 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Providers>
+      <ClientProviders>
         <body className={inter.className}>
           <ThemeProvider attribute="class" defaultTheme="dark">
             <AppLayout>{children}</AppLayout>
           </ThemeProvider>
         </body>
-      </Providers>
+      </ClientProviders>
     </html>
   );
 }
