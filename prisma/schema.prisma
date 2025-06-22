@@ -30,9 +30,9 @@ model Token {
   marketCap             Float?   // marketCap
   
   // Individual social links (replacing the JSON links field)
-  telegramLink          String?   // Telegram link
-  websiteLink           String?   // Website link
-  twitterLink           String?   // Twitter or X link
+  telegramLink          String? @db.Text   // Telegram link
+  websiteLink           String? @db.Text   // Website link
+  twitterLink           String? @db.Text   // Twitter or X link
 
   // Timestamps
   createdAt             DateTime  @default(now())
