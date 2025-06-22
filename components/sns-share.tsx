@@ -25,7 +25,7 @@ export function SNSShare({ video, className = "", variant = "desktop" }: SNSShar
   const videoUrl = `${window.location.origin}/videos/${video.id}`;
   
   // Generate share text (more attractive text)
-  const shareText = `${video.title}${video.description ? ` - ${video.description}` : ""} 🎬✨ Check out this amazing video on Vaibes! #vaibes #blockchain #video`;
+  const shareText = `${video.title}${video.description ? ` - ${video.description}` : ""} 🎬✨ Check out this amazing video on Vaibes! #vaibesdotfun #video`;
   
   // Hashtags
   const hashtags = "vaibes,blockchain,video,web3";

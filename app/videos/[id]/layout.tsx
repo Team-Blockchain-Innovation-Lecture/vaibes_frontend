@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const videoUrl = `${appUrl}/videos/${videoId}`;
     const embedUrl = `${appUrl}/videos/${videoId}/embed`;
     const videoTitle = video.title;
-    const videoDescription = video.description || `Check out this amazing video on Vaibes!`;
+    const videoDescription = video.description || `Check out this amazing video on vaibesdotfun!`;
     const thumbnailUrl = video.thumbnailUrl || `${appUrl}/placeholder-video.jpg`;
 
     return {
