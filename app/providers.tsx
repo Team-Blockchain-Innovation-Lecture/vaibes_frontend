@@ -7,6 +7,7 @@ import { CoinbaseWalletAdapter } from "@solana/wallet-adapter-coinbase";
 import { TrustWalletAdapter } from "@solana/wallet-adapter-trust";
 import type { Adapter } from "@solana/wallet-adapter-base";
 import { useMemo, useEffect, useState } from "react";
+import { useWrappedReownAdapter } from "@jup-ag/jup-mobile-adapter";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -21,6 +22,24 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       return [];
     }
 
+    const { reownAdapter, jupiterAdapter } = useWrappedReownAdapter({
+      appKitOptions: {
+        metadata: {
+          name: "vaibes.fun",
+          description: "vaibes.fun daps",
+          url: "https://reown.com/appkit",
+          icons: ["https://assets.reown.com/reown-profile-pic.png"],
+        },
+        projectId: process.env.NEXT_PUBLIC_REOWN_PROJECTID || "",
+        features: {
+          analytics: false,
+          socials: ["google", "x", "apple"],
+          email: false,
+        },
+        enableWallets: false,
+      },
+    });
+
     // 基本的なウォレットアダプターのみ使用（競合を避けるため）
     try {
       return [
@@ -28,6 +47,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         new SolflareWalletAdapter(),
         new CoinbaseWalletAdapter(),
         new TrustWalletAdapter(),
+        reownAdapter,
+        jupiterAdapter,
       ].filter((item) => {
         try {
           return item && item.name && item.icon;
