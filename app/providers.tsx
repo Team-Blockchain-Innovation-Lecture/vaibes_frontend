@@ -6,22 +6,10 @@ import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
 import { CoinbaseWalletAdapter } from "@solana/wallet-adapter-coinbase";
 import { TrustWalletAdapter } from "@solana/wallet-adapter-trust";
 import type { Adapter } from "@solana/wallet-adapter-base";
-import { useMemo, useEffect, useState } from "react";
 import { useWrappedReownAdapter } from "@jup-ag/jup-mobile-adapter";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const wallets: Adapter[] = useMemo(() => {
-    // クライアントサイドでのみウォレットを初期化
-    if (!isMounted || typeof window === "undefined") {
-      return [];
-    }
-
+  const wallets: Adapter[] = (() => {
     const { reownAdapter, jupiterAdapter } = useWrappedReownAdapter({
       appKitOptions: {
         metadata: {
@@ -40,7 +28,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       },
     });
 
-    // 基本的なウォレットアダプターのみ使用（競合を避けるため）
     try {
       return [
         new PhantomWalletAdapter(),
@@ -59,17 +46,12 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           );
           return false;
         }
-      }) as Adapter[];
+      });
     } catch (error) {
       console.error("Failed to initialize wallet adapters:", error);
       return [];
     }
-  }, [isMounted]);
-
-  // マウント前は何もレンダリングしない
-  if (!isMounted) {
-    return <>{children}</>;
-  }
+  })();
 
   return (
     <UnifiedWalletProvider

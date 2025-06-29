@@ -26,13 +26,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ClientProviders>
-        <body className={inter.className}>
+      <body className={inter.className}>
+        <ClientProviders>
           <ThemeProvider attribute="class" defaultTheme="dark">
             <AppLayout>{children}</AppLayout>
           </ThemeProvider>
-        </body>
-      </ClientProviders>
+        </ClientProviders>
+      </body>
     </html>
   );
 }
