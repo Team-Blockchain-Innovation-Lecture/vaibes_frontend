@@ -1,10 +1,13 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-// Environment variable settings
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
+const prisma = globalForPrisma.prisma ?? new PrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // Raw_music型の拡張
 interface RawMusicWithVideoStyle {
@@ -31,10 +34,6 @@ interface MusicCallbackResponse {
       image_url: string | null;
       prompt: string | null;
     };
-    video: {
-      task_id: string;
-      status: string;
-    };
   };
   error?: string;
 }
@@ -45,7 +44,10 @@ export async function POST(request: Request) {
 
     // Request validation
     if (!body.data?.task_id || !body.data?.data?.[0]) {
-      return NextResponse.json({ error: 'Invalid request format' }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request format" },
+        { status: 400 }
+      );
     }
 
     const taskId = body.data.task_id;
@@ -87,76 +89,17 @@ export async function POST(request: Request) {
         },
       })) as RawMusicWithVideoStyle;
 
-      console.log(`${BACKEND_URL}/api/generate-video`);
-
-      // Check if video task already exists
-      const existingVideo = await prisma.raw_video.findFirst({
-        where: {
-          task_id: existingMusic.task_id,
+      const response: MusicCallbackResponse = {
+        success: true,
+        data: {
+          music: updatedMusic,
         },
-      });
+      };
 
-      if (existingVideo) {
-        console.log(`[Task ID: ${existingMusic.task_id}] Video task already exists. Skipping.`);
-        return NextResponse.json({
-          success: false,
-          message: 'Video task already exists',
-          data: existingVideo,
-        });
-      }
-
-      // Get video style from the Raw_music table
-      const videoStyle = updatedMusic.video_style || 'anime'; // Use default if not set
-
-      // Call video generation API
-      const videoResponse = await fetch(`${BACKEND_URL}/api/generate-video`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: updatedMusic.prompt,
-          style: videoStyle,
-        }),
-      });
-
-      if (!videoResponse.ok) {
-        throw new Error(`Video generation API error: ${videoResponse.status}`);
-      }
-
-      const videoData = await videoResponse.json();
-
-      if (videoData.success) {
-        // Get video task ID from response
-        const videoTaskId = videoData.request_id;
-
-        // Record video generation task
-        await prisma.raw_video.create({
-          data: {
-            userAddress: updatedMusic.userAddress,
-            task_id: existingMusic.task_id,
-            video_task_id: videoTaskId,
-            is_completed: false,
-          },
-        });
-
-        const response: MusicCallbackResponse = {
-          success: true,
-          data: {
-            music: updatedMusic,
-            video: {
-              task_id: videoTaskId,
-              status: 'success',
-            },
-          },
-        };
-
-        return NextResponse.json(response);
-      } else {
-        throw new Error(`Video generation failed with code: ${videoData.code}`);
-      }
+      return NextResponse.json(response);
     } catch (error: any) {
-      if (error.code === 'P2025') {
+      if (error.code === "P2025") {
+        // Record not found
         return NextResponse.json(
           { error: `No record found for task_id: ${taskId}` },
           { status: 404 }
@@ -165,7 +108,10 @@ export async function POST(request: Request) {
       throw error;
     }
   } catch (error) {
-    console.error('Error processing music callback:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error processing music callback:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

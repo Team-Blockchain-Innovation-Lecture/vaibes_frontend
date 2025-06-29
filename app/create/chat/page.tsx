@@ -1,17 +1,24 @@
-'use client';
+"use client";
 
-import type React from 'react';
-import { useState, useEffect, useRef, Suspense, useImperativeHandle, forwardRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import { Send, Play, Pause, SkipBack, SkipForward, Heart } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { ErrorBoundary } from 'react-error-boundary';
-import { ReleaseButton } from '@/components/release-button';
-import { useUnifiedWallet } from '@jup-ag/wallet-adapter';
+import type React from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  Suspense,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
+import { Send, Play, Pause, SkipBack, SkipForward, Heart } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { ErrorBoundary } from "react-error-boundary";
+import { ReleaseButton } from "@/components/release-button";
+import { useUnifiedWallet } from "@jup-ag/wallet-adapter";
 
 interface Message {
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
 }
 
@@ -27,32 +34,9 @@ interface GeneratedVideo {
   videoUrl: string;
 }
 
-interface MusicTrack {
-  id: number;
-  title: string;
-  prompt: string;
-  audio_url?: string;
-  stream_audio_url?: string;
-  source_stream_audio_url?: string;
-  image_url?: string;
-  source_image_url?: string;
-  tags?: string;
-  createTime?: number;
-  duration?: number;
-  model_name?: string;
-}
-
 interface ProgressRef {
   startFakeProgressAnimation: () => void;
   setGenerationProgress: (progress: number) => void;
-}
-
-interface Props {
-  searchParams: {
-    prompt?: string;
-    genre?: string;
-    task_id?: string;
-  };
 }
 
 // Create ChatContent component
@@ -60,18 +44,21 @@ function ChatContent() {
   const { publicKey } = useUnifiedWallet();
   const walletAddress = publicKey ? publicKey.toBase58() : null;
 
-  console.log('ChatContent component rendering');
+  console.log("ChatContent component rendering");
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(true); // Initial state is generating
   const [isLoading, setIsLoading] = useState(false);
-  const [generatedSong, setGeneratedSong] = useState<GeneratedSong | null>(null);
+  const [isGenerated, setIsGenerated] = useState(false);
+  const [generatedSong, setGeneratedSong] = useState<GeneratedSong | null>(
+    null
+  );
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState('00:00');
-  const [duration, setDuration] = useState('00:00');
+  const [currentTime, setCurrentTime] = useState("00:00");
+  const [duration, setDuration] = useState("00:00");
   const [progress, setProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [currentTaskId, setCurrentTaskId] = useState<string>(''); // Current task ID
+  const [currentTaskId, setCurrentTaskId] = useState<string>(""); // Current task ID
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -79,83 +66,134 @@ function ChatContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
-
   const [isVideoGenerating, setIsVideoGenerating] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
-  const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(null);
+  const [isVideoGenerated, setIsVideoGenerated] = useState(false);
+  const [generatedVideo, setGeneratedVideo] = useState<GeneratedVideo | null>(
+    null
+  );
 
   const musicProgressRef = useRef<ProgressRef>(null);
   const videoProgressRef = useRef<ProgressRef>(null);
 
   // Load initial prompt from URL parameters and fetch generated music
+  const taskId = searchParams.get("task_id");
+  const prompt = searchParams.get("prompt");
+  const genre = searchParams.get("genre");
+  const videoStyle = searchParams.get("video_style") || "anime";
+  // Call music generation API
+  const instrumental = searchParams.get("instrumental") === "true";
+
   useEffect(() => {
     if (hasInitialized.current) return; // Do nothing if already initialized
     hasInitialized.current = true; // Set initialized flag
 
-    const prompt = searchParams.get('prompt');
-    const genre = searchParams.get('genre');
-    const taskId = searchParams.get('task_id');
-    const videoStyle = searchParams.get('video_style') || 'anime';
-
-    console.log('URL Parameters:', { prompt, genre, taskId, videoStyle });
+    console.log("URL Parameters:", { prompt, genre, taskId, videoStyle });
 
     if (!prompt || !genre || !taskId) {
-      console.error('Missing required parameters:', { prompt, genre, taskId });
+      console.error("Missing required parameters:", { prompt, genre, taskId });
       toast({
-        title: 'An error occurred',
-        description: 'Required parameters are missing',
-        variant: 'destructive',
+        title: "An error occurred",
+        description: "Required parameters are missing",
+        variant: "destructive",
       });
-      router.push('/create');
+      router.push("/create");
       return;
     }
 
     // Initial messages
     setMessages([
-      { role: 'user', content: prompt },
-      { role: 'assistant', content: `Generating a ${genre} song. Please wait...` },
+      { role: "user", content: prompt },
+      {
+        role: "assistant",
+        content: `Generating a ${genre} song. Please wait...`,
+      },
     ]);
 
     // Start fake progress animation
 
     setIsGenerating(true);
+    setIsVideoGenerating(true);
+
     musicProgressRef.current?.startFakeProgressAnimation();
-    // Call music generation API
-    const instrumental = searchParams.get('instrumental') === 'true';
-    generateMusic(prompt, genre, instrumental, taskId, videoStyle);
+    videoProgressRef.current?.startFakeProgressAnimation();
+
+    setCurrentTaskId(taskId);
+
+    // Execute both generation functions simultaneously
+    Promise.all([generateMusic(), generateVideo()]).catch((error) => {
+      console.error("Error in parallel generation:", error);
+    });
   }, [searchParams]); // Reset dependency array
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Start fake progress animation
+  useEffect(() => {
+    console.log("isVideoGenerated A", isVideoGenerated);
+    console.log("isGenerated A", isGenerated);
 
+    if (isVideoGenerated && isGenerated) {
+      console.log("isVideoGenerated b", isVideoGenerated);
+      console.log("isGenerated b", isGenerated);
+      handleBothGenerated();
+    }
+  }, [isVideoGenerated, isGenerated]);
+
+  const handleBothGenerated = async () => {
+    console.log("isVideoGenerated c", isVideoGenerated);
+    console.log("isGenerated c", isGenerated);
+
+    console.log("Both generated");
+
+    const mergeResponse = await fetch(`/api/generate/merge`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        task_id: taskId,
+      }),
+    });
+    const mergeData = await mergeResponse.json();
+
+    // Set video information from API response
+    const videoData = {
+      videoUrl: mergeData.data.s3_url || "",
+    };
+
+    console.log("Final video data:", videoData);
+    setGeneratedVideo(videoData);
+  };
+
+  // Start fake progress animation
   // Function to start polling
-  const startPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
+  const startPolling = () => {
     const poll = async () => {
       try {
         console.log(`Starting polling - Task ID: ${taskId}`);
         const response = await fetch(`/api/callback/music?task_id=${taskId}`);
         const data = await response.json();
 
-        console.log('Polling response:', data);
+        console.log("Polling response:", data);
 
         if (data.success && data.data) {
-          console.log('Polling response 2:', data);
-          console.log('Polling response completed:', data);
+          console.log("Polling response 2:", data);
+          console.log("Polling response completed:", data);
 
           // Generation completed
           musicProgressRef.current?.setGenerationProgress(100);
           setIsGenerating(false);
-          fetchMusicData(data.data, currentPrompt, currentGenre, taskId);
+
+          fetchMusicData(data.data);
         } else {
-          console.log('Data not retrieved yet...');
+          console.log("Data not retrieved yet...");
           setTimeout(poll, 5000); // Check again after 5 seconds
         }
       } catch (error) {
-        console.error('Error polling:', error);
+        console.error("Error polling:", error);
         setTimeout(poll, 5000); // Check again after 5 seconds even if error occurs
       }
     };
@@ -163,29 +201,33 @@ function ChatContent() {
   };
 
   // Function to start video polling
-  const startVideoPolling = (taskId: string, currentPrompt: string, currentGenre: string) => {
+  const startVideoPolling = () => {
     const videoPoll = async () => {
       try {
         console.log(`Starting video polling - Task ID: ${taskId}`);
         const response = await fetch(`/api/callback/video?task_id=${taskId}`);
         const data = await response.json();
 
-        console.log('Video polling response:', data);
+        console.log("Video polling response:", data);
+
+        console.log(0);
 
         if (data.success && data.data) {
-          console.log('Video polling response 2:', data);
-          console.log('Video polling response completed:', data);
+          console.log(1);
+
+          console.log("Video polling response 2:", data);
+          console.log("Video polling response completed:", data);
 
           // Generation completed
           videoProgressRef.current?.setGenerationProgress(100);
           setIsVideoGenerating(false);
-          fetchVideoData(data.data, currentPrompt, currentGenre, taskId);
+          fetchVideoData(data.data);
         } else {
-          console.log('Video data not retrieved yet...');
+          console.log("Video data not retrieved yet...");
           setTimeout(videoPoll, 5000); // Check again after 5 seconds
         }
       } catch (error) {
-        console.error('Error video polling:', error);
+        console.error("Error video polling:", error);
         setTimeout(videoPoll, 5000); // Check again after 5 seconds even if error occurs
       }
     };
@@ -193,205 +235,180 @@ function ChatContent() {
   };
 
   // Function to call music generation API
-  const generateMusic = async (
-    prompt: string,
-    genre: string,
-    instrumental: boolean,
-    taskId: string,
-    videoStyle: string
-  ) => {
+  const generateMusic = async () => {
     try {
       musicProgressRef.current?.setGenerationProgress(10);
 
       // Call music generation API
-      const response = await fetch('/api/generate', {
-        method: 'POST',
+      const response = await fetch("/api/generate/music", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          model_version: "v4",
+          timeout: 3,
+          instrumental,
           prompt,
           genre,
-          instrumental,
-          model_version: 'v4',
-          timeout: 3,
           task_id: taskId,
+          walletAddress,
         }),
       });
 
       const data = await response.json();
-      console.log('Generate API response:', data);
+      console.log("Generate API response:", data);
 
       if (data.success) {
-        // Use task_id from external API response
-        const apiTaskId = data.data?.task_id || data.task_id;
-        console.log('Task ID from external API:', apiTaskId);
-        setCurrentTaskId(apiTaskId);
-
-        // Create record in Raw_music table
-        await fetch('/api/raw-music', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            task_id: taskId,
-            music_task_id: apiTaskId,
-            userAddress: walletAddress,
-            is_completed: false,
-            audio_url: '',
-            image_url: '',
-            prompt: prompt,
-            video_style: videoStyle,
-          }),
-        });
-
         // Timeout message
         setMessages((prev) => [
           ...prev.slice(0, -1),
           {
-            role: 'assistant',
-            content: 'Music generation is taking longer than expected. Please wait...',
+            role: "assistant",
+            content:
+              "Music generation is taking longer than expected. Please wait...",
           },
         ]);
 
         // Start polling
-        startPolling(taskId, prompt, genre);
+        startPolling();
       } else {
         toast({
-          title: 'An error occurred',
-          description: data.message || 'Music generation failed',
-          variant: 'destructive',
+          title: "An error occurred",
+          description: data.message || "Music generation failed",
+          variant: "destructive",
         });
         setIsGenerating(false);
       }
     } catch (error) {
-      console.error('Error generating music:', error);
+      console.error("Error generating music:", error);
       toast({
-        title: 'An error occurred',
-        description: 'An error occurred during music generation',
-        variant: 'destructive',
+        title: "An error occurred",
+        description: "An error occurred during music generation",
+        variant: "destructive",
+      });
+      setIsGenerating(false);
+    }
+  };
+
+  const generateVideo = async () => {
+    try {
+      videoProgressRef.current?.setGenerationProgress(10);
+
+      // Call video generation API
+      const videoResponse = await fetch("/api/generate/video", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model_version: "v4",
+          timeout: 3,
+          video_style: videoStyle,
+          task_id: taskId,
+          walletAddress,
+          prompt,
+        }),
+      });
+
+      const data = await videoResponse.json();
+      console.log("Generate API response:", data);
+
+      if (data.success) {
+        // Timeout message
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          {
+            role: "assistant",
+            content: `Yeah, we're dropping videos now.`,
+          },
+        ]);
+
+        // Start polling
+        startVideoPolling();
+      } else {
+        toast({
+          title: "An error occurred",
+          description: data.message || "Music generation failed",
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+      }
+    } catch (error) {
+      console.error("Error generating music:", error);
+      toast({
+        title: "An error occurred",
+        description: "An error occurred during music generation",
+        variant: "destructive",
       });
       setIsGenerating(false);
     }
   };
 
   // Function to fetch music data from callback
-  const fetchMusicData = async (data: any, prompt: string, genre: string, taskId: string) => {
+  const fetchMusicData = async (data: any) => {
     try {
       setIsLoading(true);
+      setIsGenerated(true);
 
       // Set song information from API response
       const songData = {
         title: `${genre} Music`,
-        audioUrl: data.audio_url || '',
-        coverUrl: data.image_url || '/placeholder.svg?height=400&width=400',
-        genre: genre,
-        lyrics: prompt || '',
+        audioUrl: data.audio_url || "",
+        coverUrl: data.image_url || "/placeholder.svg?height=400&width=400",
+        genre: genre || "",
+        lyrics: prompt || "",
       };
 
-      console.log('Final song data:', songData);
+      console.log("Final song data:", songData);
       setGeneratedSong(songData);
-      //}
-      //   // --- DB update ---
-      //   try {
-      //     await fetch('/api/raw-music', {
-      //       method: 'PATCH',
-      //       headers: {
-      //         'Content-Type': 'application/json',
-      //       },
-      //       body: JSON.stringify({
-      //         task_id: taskId,
-      //         is_completed: true,
-      //         audio_url: songData.audioUrl,
-      //         image_url: songData.coverUrl,
-      //       }),
-      //     });
-      //   } catch (err) {
-      //     console.error('Failed to update DB:', err);
-      //   }
-      // --- end DB update ---
 
       // Reset playback state
       setIsPlaying(false);
       setProgress(0);
-      setCurrentTime('00:00');
+      setCurrentTime("00:00");
 
       // Add AI assistant response
       setMessages((prev) => [
         ...prev.slice(0, -1),
         {
-          role: 'assistant',
+          role: "assistant",
           content: `A ${genre} song has been created. You can play it on the right player.`,
-        },
-        {
-          role: 'assistant',
-          content: `Yeah, we're dropping videos now.`,
         },
       ]);
     } catch (error) {
-      console.error('Error fetching music data:', error);
+      console.error("Error fetching music data:", error);
       toast({
-        title: 'An error occurred',
-        description: 'An error occurred while fetching music data',
-        variant: 'destructive',
+        title: "An error occurred",
+        description: "An error occurred while fetching music data",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
-
-      // Start polling
-      startVideoPolling(taskId, prompt, genre);
-      setIsVideoGenerating(true);
-      videoProgressRef.current?.startFakeProgressAnimation();
     }
   };
 
   // Function to fetch video data from callback
-  const fetchVideoData = async (data: any, prompt: string, genre: string, taskId: string) => {
+  const fetchVideoData = async (data: any) => {
+    console.log(2);
+
     try {
       setIsVideoLoading(true);
-
-      // Set video information from API response
-      const videoData = {
-        videoUrl: data.merged_video_url || '',
-      };
-
-      console.log('Final video data:', videoData);
-      setGeneratedVideo(videoData);
-      //}
-      //   // --- DB update ---
-      //   try {
-      //     await fetch('/api/raw-music', {
-      //       method: 'PATCH',
-      //       headers: {
-      //         'Content-Type': 'application/json',
-      //       },
-      //       body: JSON.stringify({
-      //         task_id: taskId,
-      //         is_completed: true,
-      //         audio_url: songData.audioUrl,
-      //         image_url: songData.coverUrl,
-      //       }),
-      //     });
-      //   } catch (err) {
-      //     console.error('Failed to update DB:', err);
-      //   }
-      // --- end DB update ---
-
+      setIsVideoGenerated(true);
       // Add AI assistant response
       setMessages((prev) => [
         ...prev,
         {
-          role: 'assistant',
+          role: "assistant",
           content: `The video's done...`,
         },
       ]);
     } catch (error) {
-      console.error('Error fetching video data:', error);
+      console.error("Error fetching video data:", error);
       toast({
-        title: 'An error occurred',
-        description: 'An error occurred while fetching video data',
-        variant: 'destructive',
+        title: "An error occurred",
+        description: "An error occurred while fetching video data",
+        variant: "destructive",
       });
     } finally {
       setIsVideoLoading(false);
@@ -407,8 +424,8 @@ function ChatContent() {
     } else {
       if (!audioRef.current.src) {
         audioRef.current.src = generatedSong.audioUrl;
-        audioRef.current.addEventListener('timeupdate', updateProgress);
-        audioRef.current.addEventListener('loadedmetadata', () => {
+        audioRef.current.addEventListener("timeupdate", updateProgress);
+        audioRef.current.addEventListener("loadedmetadata", () => {
           setDuration(formatTime(Math.floor(audioRef.current!.duration)));
         });
       }
@@ -454,7 +471,10 @@ function ChatContent() {
     const offsetX = e.clientX - rect.left;
 
     // Ensure offsetX is within the bounds of the progress bar
-    const boundedOffsetX = Math.max(0, Math.min(offsetX, progressBar.clientWidth));
+    const boundedOffsetX = Math.max(
+      0,
+      Math.min(offsetX, progressBar.clientWidth)
+    );
 
     const percentage = (boundedOffsetX / progressBar.clientWidth) * 100;
 
@@ -481,7 +501,7 @@ function ChatContent() {
     if (!audioRef.current) return;
     audioRef.current.currentTime = 0;
     setProgress(0);
-    setCurrentTime('00:00');
+    setCurrentTime("00:00");
 
     if (!isPlaying) {
       audioRef.current.play();
@@ -492,31 +512,33 @@ function ChatContent() {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // Add event listeners for global drag end
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const handleMouseUp = () => {
         endDrag();
       };
 
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mouseup", handleMouseUp);
 
       return () => {
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging]);
 
   // Handle audio events
   useEffect(() => {
-    if (typeof window !== 'undefined' && generatedSong?.audioUrl) {
+    if (typeof window !== "undefined" && generatedSong?.audioUrl) {
       // Create audio element if it doesn't exist
       if (!audioRef.current) {
         audioRef.current = new Audio();
-        audioRef.current.preload = 'auto';
+        audioRef.current.preload = "auto";
       }
 
       // Set new source
@@ -529,7 +551,7 @@ function ChatContent() {
       const onEnded = () => {
         setIsPlaying(false);
         setProgress(0);
-        setCurrentTime('00:00');
+        setCurrentTime("00:00");
       };
 
       const onTimeUpdate = () => {
@@ -540,16 +562,16 @@ function ChatContent() {
         setDuration(formatTime(Math.floor(audio.duration)));
       };
 
-      audio.addEventListener('ended', onEnded);
-      audio.addEventListener('timeupdate', onTimeUpdate);
-      audio.addEventListener('loadedmetadata', onLoadedMetadata);
+      audio.addEventListener("ended", onEnded);
+      audio.addEventListener("timeupdate", onTimeUpdate);
+      audio.addEventListener("loadedmetadata", onLoadedMetadata);
 
       return () => {
         if (audio) {
           audio.pause();
-          audio.removeEventListener('ended', onEnded);
-          audio.removeEventListener('timeupdate', onTimeUpdate);
-          audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+          audio.removeEventListener("ended", onEnded);
+          audio.removeEventListener("timeupdate", onTimeUpdate);
+          audio.removeEventListener("loadedmetadata", onLoadedMetadata);
         }
       };
     }
@@ -558,12 +580,16 @@ function ChatContent() {
   // Render generation loading state
   const renderGenerationLoading = () => {
     // Loading display during music generation
-    return <MusicProgress ref={musicProgressRef} currentTaskId={currentTaskId} />;
+    return (
+      <MusicProgress ref={musicProgressRef} currentTaskId={currentTaskId} />
+    );
   };
 
   const renderVideoGenerationLoading = () => {
     // Loading display during video generation
-    return <VideoPrgress ref={videoProgressRef} currentTaskId={currentTaskId} />;
+    return (
+      <VideoPrgress ref={videoProgressRef} currentTaskId={currentTaskId} />
+    );
   };
 
   const handleChatMessage = (msg: string) => {
@@ -572,7 +598,7 @@ function ChatContent() {
     setMessages((prev) => [
       ...prev,
       {
-        role: 'assistant',
+        role: "assistant",
         content: msg,
       },
     ]);
@@ -586,11 +612,15 @@ function ChatContent() {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
             >
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                  message.role === 'user' ? 'bg-[#d4af37] text-black' : 'bg-[#2a1a3e] text-white'
+                  message.role === "user"
+                    ? "bg-[#d4af37] text-black"
+                    : "bg-[#2a1a3e] text-white"
                 }`}
               >
                 <p className="whitespace-pre-wrap">{message.content}</p>
@@ -598,7 +628,7 @@ function ChatContent() {
             </div>
           ))}
           <div ref={messagesEndRef} />
-          {generatedVideo && (
+          {generatedVideo && generatedSong && (
             <div className="flex">
               <ReleaseButton
                 videoData={generatedVideo}
@@ -618,9 +648,8 @@ function ChatContent() {
               placeholder="Please enter your message..."
               className="flex-1 bg-[#2a1a3e] rounded-full py-3 px-6 text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/50"
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey && input.trim()) {
+                if (e.key === "Enter" && !e.shiftKey && input.trim()) {
                   e.preventDefault();
-                  // ここに送信時の処理
                 }
               }}
               disabled={isGenerating}
@@ -637,7 +666,7 @@ function ChatContent() {
 
       {/* Music player section */}
       <div className="md:w-1/3 lg:w-2/5 bg-[#2a1a3e] p-4 md:p-6 overflow-y-auto">
-        <div className={`${isVideoGenerating ? 'block' : 'hidden'}`}>
+        <div className={`${isVideoGenerating ? "block" : "hidden"}`}>
           {renderVideoGenerationLoading()}
         </div>
         {isVideoLoading ? (
@@ -656,7 +685,7 @@ function ChatContent() {
                   autoPlay
                   loop
                   muted
-                  onError={(e) => console.error('Video loading error:', e)}
+                  onError={(e) => console.error("Video loading error:", e)}
                 >
                   <source src={generatedVideo.videoUrl} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -674,7 +703,9 @@ function ChatContent() {
             </div>
           </div>
         )}
-        <div className={`${isGenerating ? 'block' : 'hidden'}`}>{renderGenerationLoading()}</div>
+        <div className={`${isGenerating ? "block" : "hidden"}`}>
+          {renderGenerationLoading()}
+        </div>
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-full">
             <div className="w-12 h-12 border-4 border-[#d4af37] border-t-transparent rounded-full animate-spin"></div>
@@ -682,11 +713,20 @@ function ChatContent() {
           </div>
         ) : generatedSong ? (
           <div>
-            <h2 className="text-2xl font-bold text-white mb-6">{generatedSong.title}</h2>
-            <p className="text-white/60 text-sm mb-6">Genre: {generatedSong.genre}</p>
+            <h2 className="text-2xl font-bold text-white mb-6">
+              {generatedSong.title}
+            </h2>
+            <p className="text-white/60 text-sm mb-6">
+              Genre: {generatedSong.genre}
+            </p>
 
             <div className="relative aspect-square overflow-hidden rounded-lg mb-6">
-              <Image src={generatedSong.coverUrl} alt="Album Cover" fill className="object-cover" />
+              <Image
+                src={generatedSong.coverUrl}
+                alt="Album Cover"
+                fill
+                className="object-cover"
+              />
             </div>
 
             <div className="mb-6">
@@ -709,11 +749,17 @@ function ChatContent() {
               </div>
 
               <div className="flex items-center justify-between">
-                <button className="p-2 text-white/80 hover:text-white" onClick={restart}>
+                <button
+                  className="p-2 text-white/80 hover:text-white"
+                  onClick={restart}
+                >
                   <SkipBack size={24} />
                 </button>
 
-                <button className="p-4 bg-[#d4af37] rounded-full text-black" onClick={togglePlay}>
+                <button
+                  className="p-4 bg-[#d4af37] rounded-full text-black"
+                  onClick={togglePlay}
+                >
                   {isPlaying ? <Pause size={24} /> : <Play size={24} />}
                 </button>
 
@@ -820,7 +866,9 @@ const VideoPrgress = forwardRef<
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
+          <span className="text-3xl font-bold text-white">
+            {Math.round(generationProgress)}%
+          </span>
         </div>
       </div>
 
@@ -900,7 +948,9 @@ const MusicProgress = forwardRef<
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-3xl font-bold text-white">{Math.round(generationProgress)}%</span>
+          <span className="text-3xl font-bold text-white">
+            {Math.round(generationProgress)}%
+          </span>
         </div>
       </div>
 
@@ -959,7 +1009,7 @@ function generateTitle(theme: string): string {
 }
 
 function generateLyrics(theme: string): string {
-  if (theme.toLowerCase() === 'solana') {
+  if (theme.toLowerCase() === "solana") {
     return `(Verse 1) Underneath the neon skies,
 Your eyes shimmer in blockchain dreams.
 Holding hands beneath starlight,
