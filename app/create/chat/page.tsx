@@ -253,6 +253,7 @@ function ChatContent() {
           genre,
           task_id: taskId,
           walletAddress,
+          video_style: videoStyle,
         }),
       });
 

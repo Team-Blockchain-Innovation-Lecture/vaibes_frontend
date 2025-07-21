@@ -14,6 +14,7 @@ export async function POST(req: NextRequest) {
       timeout = 3,
       task_id,
       walletAddress,
+      video_style,
     } = await req.json();
 
     if (!prompt) {
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
             audio_url: "",
             image_url: "",
             prompt: prompt || "",
+            video_style: video_style || "",
           },
         });
 
